@@ -71,6 +71,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
+
         android:orientation="vertical">
 
 
@@ -80,35 +81,35 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
-            android:weightSum="12"
             android:orientation="horizontal"
->
+            android:weightSum="10"
+            >
 
             <TextView
                 android:id="@+id/tv_shutter"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-    android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:textAlignment="center"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
                 android:text="1/50"
                 android:textColor="@color/colorText"/>
 
             <TextView
                 android:id="@+id/tv_aparture"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_height="match_parent"
                 android:layout_weight="2"
-
+                android:textAlignment="center"
+                android:gravity="center_vertical"
                 android:text="F8"
                 android:textColor="@color/colorText"/>
 
             <LinearLayout
                 android:id="@+id/ll_exposurecomp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="4"
-
+                android:layout_height="match_parent"
+                android:layout_weight="6"
                 android:orientation="vertical">
 
                 <TextView
@@ -121,28 +122,32 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:orientation="horizontal"
                     android:weightSum="8"
-
                     >
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-android:layout_gravity="center_vertical"
-                        android:text="- "
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:text="-"
                         android:textColor="@color/colorText"/>
 
                     <com.example.mail.fragmenttest.ExposureCorrection
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-
+                        android:layout_weight="6"
                         />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
 
                         android:text=" +"
                         android:textColor="@color/colorText"/>
@@ -155,24 +160,23 @@ android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="2"
-
+                android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tv_isotext"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:text="ISO"
+                    android:textAlignment="center"
                     android:textColor="@color/colorText"/>
 
                 <TextView
                     android:id="@+id/tv_isoval"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:text="2000"
+                    android:textAlignment="center"
                     android:textColor="@color/colorText"/>
 
             </LinearLayout>
@@ -182,23 +186,22 @@ android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="2"
-
+                android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tv_wbtext"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:textAlignment="center"
                     android:text="WB"
                     android:textColor="@color/colorText"/>
 
                 <TextView
                     android:id="@+id/tv_wbval"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:textAlignment="center"
                     android:text="2000"
                     android:textColor="@color/colorText"/>
             </LinearLayout>
