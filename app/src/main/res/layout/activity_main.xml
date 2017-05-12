@@ -2,7 +2,6 @@
 
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rl_MainFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -22,9 +21,10 @@
         android:id="@+id/ll_topBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/ib_RecordMode"
         android:layout_marginEnd="20dp"
+        android:layout_toStartOf="@id/ib_RecordMode"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/tv_FocusMode"
             android:layout_width="wrap_content"
@@ -38,11 +38,11 @@
             android:id="@+id/iv_sdCardIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@null"
             android:scaleType="center"
             android:scaleX="0.5"
             android:scaleY="0.5"
-            android:src="@drawable/ic_sdcard"
-            android:contentDescription="@null"/>
+            android:src="@drawable/ic_sdcard"/>
 
         <TextView
             android:id="@+id/tv_SdCardSpaceRemain"
@@ -57,19 +57,11 @@
     <ImageView
         android:id="@+id/cameraLiveImageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:contentDescription="main screen"/>
 
-    <FrameLayout
-        android:id="@+id/fl_fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/cameraLiveImageView"
-        >
 
-    </FrameLayout>
     <!--bottom-->
-
     <RelativeLayout
         android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
@@ -84,18 +76,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            app:srcCompat="@drawable/btn_shutter"
-            android:contentDescription="Shutter"/>
+            android:background="@null"
+            android:contentDescription="Shutter"
+            android:src="@drawable/btn_shutter"
+            />
 
         <ImageButton
             android:id="@+id/ib_drivemode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="60dp"
             android:layout_toLeftOf="@id/ib_shutterrelease"
-            app:srcCompat="@drawable/icn_drive_setting_seq_l"
-            android:contentDescription="DriveSettings"/>
+            android:background="@null"
+            android:contentDescription="DriveSettings"
+            android:src="@drawable/icn_drive_setting_seq_l"/>
 
 
         <ImageButton
@@ -103,10 +98,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="60dp"
             android:layout_toEndOf="@id/ib_shutterrelease"
-            app:srcCompat="?attr/actionModeSelectAllDrawable"
-            android:contentDescription="ActionMode"/>
+            android:background="@null"
+            android:contentDescription="ActionMode"
+            android:src="?attr/actionModeSelectAllDrawable"/>
 
     </RelativeLayout>
 
@@ -184,6 +180,7 @@
                 android:id="@+id/tv_shutter"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:clickable="true"
                 android:gravity="center_horizontal"
                 android:minWidth="50dp"
                 android:text="1/50"
@@ -194,13 +191,14 @@
                 android:id="@+id/tv_aparture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:minWidth="50dp"
                 android:text="F8"
                 android:textAlignment="center"
                 android:textColor="@color/colorText"/>
         </LinearLayout>
 
-        //wbalance
+        <!--wbalance-->
 
         <LinearLayout
             android:id="@+id/ll_modesettings"
@@ -267,6 +265,15 @@
 
     </RelativeLayout>
 
+    <FrameLayout
+        android:id="@+id/fl_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_above="@id/ll_settings"
+
+        >
+    </FrameLayout>
 
 </RelativeLayout>
 

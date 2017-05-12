@@ -76,12 +76,12 @@ public class ExposureCorrection extends View {
             endLine = startLine*2;
             paint.setARGB(255, 90, 90, 90);
             if (i == mNbStrokes / 2) {
-                paint.setARGB(255, 70, 255, 50);
+                paint.setARGB(255, 255, 255, 255);
                 startLine = height ;
                 endLine = 0;
                 Log.d(TAG, String.format("i: %d myNbstrokes: %d", i, mNbStrokes));
             } else if (i % 3 == 0) {
-                paint.setARGB(255, 200, 200, 200);
+                paint.setARGB(255, 160, 160, 160);
                 startLine = height /4;
                 endLine = startLine*3;
 

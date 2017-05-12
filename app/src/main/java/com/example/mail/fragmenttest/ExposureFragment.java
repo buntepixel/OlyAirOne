@@ -35,13 +35,13 @@ public class ExposureFragment extends Fragment {
         try {
             mContentLinLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
-            mContentLinLayout.setLayoutParams(params);
-            mContentLinLayout.setBackgroundColor(Color.GREEN);
+                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
+            mContentLinLayout.setBackgroundColor(Color.GREEN);
+            mContentLinLayout.setLayoutParams(params);
 
-            //this.CreateTextViewContent(myString);
-            this.CreateImageViewContent(15);
+            this.CreateTextViewContent(myString);
+            // this.CreateImageViewContent(15);
 
             Log.d(TAG, "ExposureFrag" + mContentLinLayout.toString());
             View rootView = inflater.inflate(R.layout.fragment_exposure, container, false);
@@ -64,6 +64,7 @@ public class ExposureFragment extends Fragment {
             textView.setText(i);
             //textView.setTextSize(40);
             textView.setBackgroundColor(Color.BLUE);
+
             textView.setPaddingRelative(30, 0, 30, 0);
             textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
