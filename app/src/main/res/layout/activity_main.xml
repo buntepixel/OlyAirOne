@@ -10,20 +10,29 @@
     android:gravity="center"
     >
 
+    <ImageButton
+        android:id="@+id/ib_RecordMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_recordmode_m"/>
+
     <LinearLayout
         android:id="@+id/ll_topBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/ib_RecordMode"
+        android:layout_marginEnd="20dp"
         android:orientation="horizontal">
-
         <TextView
             android:id="@+id/tv_FocusMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="S-AF"/>
+            android:text="S-AF"
+            android:textColor="@color/colorText"/>
 
         <ImageView
             android:id="@+id/iv_sdCardIcon"
@@ -32,28 +41,24 @@
             android:scaleType="center"
             android:scaleX="0.5"
             android:scaleY="0.5"
-            android:src="@drawable/ic_sdcard"/>
+            android:src="@drawable/ic_sdcard"
+            android:contentDescription="@null"/>
 
         <TextView
             android:id="@+id/tv_SdCardSpaceRemain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="2345"/>
-
-        <ImageButton
-            android:id="@+id/ib_RecordMode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_recordmode_m"/>
+            android:text="2345"
+            android:textColor="@color/colorText"/>
     </LinearLayout>
 
     <ImageView
         android:id="@+id/cameraLiveImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"/>
+        android:contentDescription="main screen"/>
 
     <FrameLayout
         android:id="@+id/fl_fragment_container"
@@ -63,94 +68,64 @@
         >
 
     </FrameLayout>
-    //bottom
+    <!--bottom-->
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
+        >
 
-        android:orientation="vertical">
-
-
-        <LinearLayout
-            android:id="@+id/ll_shutterreletc"
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/ib_shutterrelease"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:minHeight="60dp"
-            android:orientation="horizontal"
-            >
+            android:layout_centerInParent="true"
+            app:srcCompat="@drawable/btn_shutter"
+            android:contentDescription="Shutter"/>
 
-            <ImageButton
-                android:id="@+id/ib_drivemode"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icn_drive_setting_seq_l"/>
+        <ImageButton
+            android:id="@+id/ib_drivemode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginEnd="30dp"
+            android:layout_toLeftOf="@id/ib_shutterrelease"
+            app:srcCompat="@drawable/icn_drive_setting_seq_l"
+            android:contentDescription="DriveSettings"/>
 
-            <ImageButton
-                android:id="@+id/ib_shutterrelease"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/btn_shutter"/>
 
-            <ImageButton
-                android:id="@+id/ib_metering"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                app:srcCompat="?attr/actionModeSelectAllDrawable"/>
-        </LinearLayout>
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/ib_metering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="30dp"
+            android:layout_toEndOf="@id/ib_shutterrelease"
+            app:srcCompat="?attr/actionModeSelectAllDrawable"
+            android:contentDescription="ActionMode"/>
 
-    <LinearLayout
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/ll_settings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/ll_bottom"
-        android:orientation="horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         >
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            >
-
-            <TextView
-                android:id="@+id/tv_shutter"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textAlignment="center"
-                android:layout_weight="1"
-                android:text="1/50"
-                android:textColor="@color/colorText"
-                />
-
-            <TextView
-                android:id="@+id/tv_aparture"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="F8"
-                android:textAlignment="center"
-                android:textColor="@color/colorText"/>
-        </LinearLayout>
-        //expcorr
+        <!--expcorr-->
 
         <LinearLayout
             android:id="@+id/ll_exposurecomp"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_centerVertical="true"
-            android:layout_weight="1"
             android:minWidth="130dp"
             android:orientation="vertical">
 
@@ -169,6 +144,7 @@
                 android:orientation="horizontal"
                 android:weightSum="8"
                 >
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -194,12 +170,43 @@
 
             </LinearLayout>
         </LinearLayout>
+        <!--fstop-->
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_toStartOf="@id/ll_exposurecomp"
+            android:orientation="horizontal"
+            >
+
+            <TextView
+                android:id="@+id/tv_shutter"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:minWidth="50dp"
+                android:text="1/50"
+                android:textColor="@color/colorText"
+                />
+
+            <TextView
+                android:id="@+id/tv_aparture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="50dp"
+                android:text="F8"
+                android:textAlignment="center"
+                android:textColor="@color/colorText"/>
+        </LinearLayout>
+
+        //wbalance
 
         <LinearLayout
             android:id="@+id/ll_modesettings"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ll_exposurecomp"
             android:orientation="horizontal"
             >
 
@@ -208,7 +215,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
+                android:minWidth="50dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -234,7 +241,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
+                android:minWidth="50dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -258,7 +265,7 @@
         </LinearLayout>
 
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </RelativeLayout>
