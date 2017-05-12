@@ -16,12 +16,12 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
         //check if fragment container exists
         Log.d(TAG, "start");
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.ll_exposurecomp);
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.ll_settings);
         if (linearLayout != null) {
             ExposureCorrection myExposure = new ExposureCorrection(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-                    params.gravity = Gravity.CENTER_HORIZONTAL;
+            params.gravity = Gravity.CENTER_HORIZONTAL;
             myExposure.setLayoutParams(params);
             //Todo: Check for possibility to do compensation visualisation
 
