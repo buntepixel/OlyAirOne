@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#262626"
+                android:gravity="bottom">
+    <RelativeLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        >
+
+        <ImageButton
+            android:id="@+id/ib_shutterrelease"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@null"
+            android:contentDescription="Shutter"
+            android:src="@drawable/btn_shutter"
+            />
+
+        <ImageButton
+            android:id="@+id/ib_drivemode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginEnd="60dp"
+            android:layout_toLeftOf="@id/ib_shutterrelease"
+            android:background="@null"
+            android:contentDescription="DriveSettings"
+            android:src="@drawable/icn_drive_setting_seq_l"/>
+
+
+        <ImageButton
+            android:id="@+id/ib_metering"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="60dp"
+            android:layout_toEndOf="@id/ib_shutterrelease"
+            android:background="@null"
+            android:contentDescription="ActionMode"
+            android:src="?attr/actionModeSelectAllDrawable"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/ll_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ll_bottom"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        >
+        <!--expcorr-->
+
+        <LinearLayout
+            android:id="@+id/ll_exposurecomp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:minWidth="130dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_expoffset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="+0.3"
+                android:textColor="@color/colorText"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:weightSum="8"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:minWidth="10dp"
+                    android:text="-"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"/>
+
+                <com.example.mail.fragmenttest.ExposureCorrection
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:minWidth="10dp"
+                    android:text="+"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"/>
+
+            </LinearLayout>
+        </LinearLayout>
+        <!--fstop-->
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_toStartOf="@id/ll_exposurecomp"
+            android:orientation="horizontal"
+            >
+
+            <TextView
+                android:id="@+id/tv_shutter"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:gravity="center_horizontal"
+                android:minWidth="50dp"
+                android:text="1/50"
+                android:textColor="@color/colorText"
+                />
+
+            <TextView
+                android:id="@+id/tv_aparture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:minWidth="50dp"
+                android:text="F8"
+                android:textAlignment="center"
+                android:textColor="@color/colorText"/>
+        </LinearLayout>
+
+        <!--wbalance-->
+
+        <LinearLayout
+            android:id="@+id/ll_modesettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ll_exposurecomp"
+            android:orientation="horizontal"
+            >
+
+            <LinearLayout
+                android:id="@+id/ll_iso"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:minWidth="50dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_isotext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ISO"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"/>
+
+                <TextView
+                    android:id="@+id/tv_isoval"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2000"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_whitebalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:minWidth="50dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_wbtext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="WB"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"/>
+
+                <TextView
+                    android:id="@+id/tv_wbval"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2000"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorText"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+</RelativeLayout>

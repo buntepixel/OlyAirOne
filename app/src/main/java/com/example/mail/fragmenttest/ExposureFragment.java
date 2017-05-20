@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +19,6 @@ import android.widget.TextView;
 public class ExposureFragment extends Fragment {
     private static final String TAG = ExposureFragment.class.getSimpleName();
 
-    public ExposureFragment() {
-    }
-
     private LinearLayout mLinearLayout;
     private LinearLayout mContentLinLayout;
     private ScrollingValuePicker mScrollingValuePicker;
@@ -33,9 +29,10 @@ public class ExposureFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         try {
+
             mContentLinLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
             mContentLinLayout.setBackgroundColor(Color.GREEN);
             mContentLinLayout.setLayoutParams(params);
@@ -64,6 +61,7 @@ public class ExposureFragment extends Fragment {
             textView.setText(i);
             //textView.setTextSize(40);
             textView.setBackgroundColor(Color.BLUE);
+
 
             textView.setPaddingRelative(30, 0, 30, 0);
             textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
