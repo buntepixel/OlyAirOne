@@ -18,10 +18,7 @@ public class ScrollingValuePicker extends FrameLayout {
     private View mRightSpacer;
     private ObservableHorizontalScrollView mScrollView;
 
-
     private LinearLayout mLinearLayout;
-
-
     public LinearLayout getLinearLayout() {
         return mLinearLayout;
     }
@@ -29,7 +26,6 @@ public class ScrollingValuePicker extends FrameLayout {
     public void setLinearLayout(LinearLayout linearLayout) {
         mLinearLayout = linearLayout;
         Log.d(TAG, "ScrollingValuePicker"+ mLinearLayout.toString());
-
     }
 
     public ScrollingValuePicker(Context context, AttributeSet attrs) {
@@ -37,7 +33,6 @@ public class ScrollingValuePicker extends FrameLayout {
         mScrollView = new ObservableHorizontalScrollView(context, attrs);
     }
     public void execute(Context context, LinearLayout linearLayout){
-
         try{
             // Create our internal scroll view
             mScrollView.setHorizontalScrollBarEnabled(false);

@@ -57,29 +57,35 @@
     <ImageView
         android:id="@+id/cameraLiveImageView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="main screen"/>
-
+        android:layout_height="300dp"
+        android:layout_alignParentTop="true"
+        android:contentDescription="main screen"
+        android:src="@drawable/common_full_open_on_phone"/>
 
     <FrameLayout
         android:id="@+id/fl_FragCont_Trigger"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/cameraLiveImageView">
-    </FrameLayout>
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        />
 
     <FrameLayout
         android:id="@+id/fl_FragCont_ExpApart1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/fl_FragCont_Trigger">
-    </FrameLayout>
+        android:layout_height="20dp"
+        android:layout_above="@id/fl_FragCont_Trigger"
+        android:background="#35c239"/>
+
     <FrameLayout
         android:id="@+id/fl_FragCont_ExpApart2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/fl_FragCont_ExpApart1">
-    </FrameLayout>
+        android:layout_height="20dp"
+        android:layout_above="@id/fl_FragCont_ExpApart1"
+        android:background="#c2a835"/>
+
+
+
 
 
 </RelativeLayout>

@@ -23,7 +23,7 @@ public class ExposureFragment extends Fragment {
     private LinearLayout mContentLinLayout;
     private ScrollingValuePicker mScrollingValuePicker;
 
-    private static final String[] myString = {"2.8", "3.2", "3.5", "4", "4.5", "5", "A", "P", "M", "S", "A", "P", "M", "S", "A", "P"};
+    private static final String[] myString = {"2.8", "3.2", "3.5", "4", "4.5", "5", "A", "P", "Bulb"};
 
 
     @Override
@@ -34,11 +34,9 @@ public class ExposureFragment extends Fragment {
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
-            mContentLinLayout.setBackgroundColor(Color.GREEN);
             mContentLinLayout.setLayoutParams(params);
 
             this.CreateTextViewContent(myString);
-            // this.CreateImageViewContent(15);
 
             Log.d(TAG, "ExposureFrag" + mContentLinLayout.toString());
             View rootView = inflater.inflate(R.layout.fragment_exposure, container, false);
@@ -60,8 +58,6 @@ public class ExposureFragment extends Fragment {
             Log.d(TAG, "mystring:  " + i);
             textView.setText(i);
             //textView.setTextSize(40);
-            textView.setBackgroundColor(Color.BLUE);
-
 
             textView.setPaddingRelative(30, 0, 30, 0);
             textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -78,7 +74,6 @@ public class ExposureFragment extends Fragment {
             imageView.setImageResource(R.drawable.ic_rasterstrip);
             //imageView.setScaleX( (float) 0.5);
             //imageView.setScaleType(ImageView.ScaleType.FIT_END);
-            imageView.setBackgroundColor(Color.BLUE);
             if((i+1) % 5 !=0){
                 imageView.setScaleY( (float) 0.5);
                 imageView.setScaleX( (float) 0.5);

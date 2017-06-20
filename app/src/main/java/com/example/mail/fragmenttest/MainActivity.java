@@ -1,12 +1,11 @@
 package com.example.mail.fragmenttest;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 public class MainActivity extends FragmentActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -15,8 +14,27 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //check if fragment container exists
+
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         Log.d(TAG, "start");
+        //check for Trigger container
+
+        Fragment fTrigger = new TriggerFragment();
+        Fragment fExposure = new ExposureFragment();
+        Fragment fAparture = new ApartureFragment();
+
+
+        fTrigger.setArguments(getIntent().getExtras());
+        fAparture.setArguments(getIntent().getExtras());
+        fExposure.setArguments(getIntent().getExtras());
+        fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure);
+        fragmentTransaction.add(R.id.fl_FragCont_ExpApart2, fAparture);
+        fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger);
+
+        fragmentTransaction.commit();
+        //check for Exposure container
+       /* //check if fragment container exists
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.ll_settings);
         if (relativeLayout != null) {
             ExposureCorrection myExposure = new ExposureCorrection(this);
@@ -29,7 +47,7 @@ public class MainActivity extends FragmentActivity {
             //relativeLayout.addView(myExposure);
 
         }
-        if (findViewById(R.id.fl_fragment_container) != null) {
+        if (findViewById(R.id.fl_FragCont_Trigger) != null) {
             //check if we return from a previous state if yes do nothing if no
             //create new fragment.
             if (savedInstanceState != null) {
@@ -38,11 +56,11 @@ public class MainActivity extends FragmentActivity {
             Log.d(TAG, "start01");
             ExposureFragment exposureFragment = new ExposureFragment();
             exposureFragment.setArguments(getIntent().getExtras());
-            /*ApartureFragment apartureFragment = new ApartureFragment();
-            apartureFragment.setArguments(getIntent().getExtras());*/
+            *//*ApartureFragment apartureFragment = new ApartureFragment();
+            apartureFragment.setArguments(getIntent().getExtras());*//*
 
-            getSupportFragmentManager().beginTransaction().add(R.id.fl_fragment_container, exposureFragment).commit();
-        }
+            getSupportFragmentManager().beginTransaction().add(R.id.fl_FragCont_Trigger, exposureFragment).commit();
+        }*/
 
 
     }

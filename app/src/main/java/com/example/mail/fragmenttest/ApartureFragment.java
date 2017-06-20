@@ -1,11 +1,9 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,12 +35,11 @@ public class ApartureFragment extends Fragment {
         try {
             mContentLinLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setLayoutParams(params);
-            mContentLinLayout.setBackgroundColor(Color.GREEN);
+           // mContentLinLayout.setBackgroundColor(Color.RED);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-            //this.CreateTextViewContent(myString);
             this.CreateTextViewContent(myString);
 
             Log.d(TAG, "Aparture Fragment" + mContentLinLayout.toString());
@@ -65,8 +62,8 @@ public class ApartureFragment extends Fragment {
             Log.d(TAG, "mystring:  " + i);
             textView.setText(i);
             //textView.setTextSize(40);
-            textView.setBackgroundColor(Color.BLUE);
-            textView.setPaddingRelative(30, 0, 30, 0);
+            //textView.setBackgroundColor(Color.GREEN);
+            textView.setPaddingRelative(25, 0, 25, 0);
             textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
             //mContentLinLayout = (LinearLayout) rootView.findViewById(R.id.svp_expScrollingValuePicker);
@@ -81,10 +78,9 @@ public class ApartureFragment extends Fragment {
             imageView.setImageResource(R.drawable.ic_rasterstrip);
             //imageView.setScaleX( (float) 0.5);
             //imageView.setScaleType(ImageView.ScaleType.FIT_END);
-            imageView.setBackgroundColor(Color.BLUE);
-            if((i+1) % 5 !=0){
-                imageView.setScaleY( (float) 0.5);
-                imageView.setScaleX( (float) 0.5);
+            if ((i + 1) % 5 != 0) {
+                imageView.setScaleY((float) 0.5);
+                imageView.setScaleX((float) 0.5);
                 imageView.setScaleType(ImageView.ScaleType.FIT_START);
                 //imageView.setAdjustViewBounds(true);
             }
