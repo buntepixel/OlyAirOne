@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 25
+    buildToolsVersion '26.0.0'
     defaultConfig {
         applicationId "com.example.mail.fragmenttest"
         minSdkVersion 17
@@ -25,8 +25,8 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile files('D:/Coding/ANDROID/FragmentTest/lib/olycamerakit.jar')
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.android.support:support-v4:25.2.0'
     compile 'com.google.android.gms:play-services-plus:11.0.1'
     testCompile 'junit:junit:4.12'
 }

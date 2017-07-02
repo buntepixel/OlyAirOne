@@ -1,6 +1,7 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -27,22 +28,23 @@ public class ApartureFragment extends Fragment {
     private LinearLayout mContentLinLayout;
     private ScrollingValuePicker mScrollingValuePicker;
 
-    private static final String[] myString = {"2.8", "3.2", "3.5", "4", "4.5", "5", "A", "P", "M", "S", "A", "P", "M", "S", "A", "P"};
+    private static final String[] myString = {"app", "3.2", "3.5", "4", "4.5", "5", "A", "P", "M", "S", "A", "P", "M", "S", "A", "P"};
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         try {
+
             mContentLinLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setLayoutParams(params);
-           // mContentLinLayout.setBackgroundColor(Color.RED);
+            // mContentLinLayout.setBackgroundColor(Color.RED);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
-
             this.CreateTextViewContent(myString);
 
             Log.d(TAG, "Aparture Fragment" + mContentLinLayout.toString());
+
             View rootView = inflater.inflate(R.layout.fragment_aparture, container, false);
             mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_apScrollingValuePicker);
 
@@ -55,6 +57,7 @@ public class ApartureFragment extends Fragment {
         return null;
     }
 
+
     private void CreateTextViewContent(String[] stringArr) {
         //Adding Textview
         for (String i : stringArr) {
@@ -62,10 +65,11 @@ public class ApartureFragment extends Fragment {
             Log.d(TAG, "mystring:  " + i);
             textView.setText(i);
             //textView.setTextSize(40);
-            //textView.setBackgroundColor(Color.GREEN);
+            textView.setBackgroundColor(Color.GREEN);
             textView.setPaddingRelative(25, 0, 25, 0);
             textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
+
             //mContentLinLayout = (LinearLayout) rootView.findViewById(R.id.svp_expScrollingValuePicker);
             mContentLinLayout.addView(textView);
         }

@@ -4,5 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorText">#e0e0e0</color>
+    <color name="ColorTest1">#4a5639</color>
+    <color name="ColorTest2">#2c997a</color>
+
+
 
 </resources>

@@ -1,67 +1,81 @@
 package com.example.mail.fragmenttest;
 
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.widget.Toast;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity
+        implements TriggerFragment.OnShutterReleasePressed, MainSettingsFragment.OnFragmentInteractionListener{
     private static final String TAG = MainActivity.class.getSimpleName();
+    ExposureFragment fExposure;
+    ApartureFragment fAparture;
+    TriggerFragment fTrigger;
+    MainSettingsFragment fMainSettings;
+    FragmentManager fm = getSupportFragmentManager();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
         Log.d(TAG, "start");
         //check for Trigger container
+    if (findViewById(R.id.fl_FragCont_Trigger) != null){
+        Log.d(TAG, "if");
+    }
+        fTrigger = new TriggerFragment();
+        fExposure = new ExposureFragment();
+        fAparture = new ApartureFragment();
+        fMainSettings = new MainSettingsFragment();
 
-        Fragment fTrigger = new TriggerFragment();
-        Fragment fExposure = new ExposureFragment();
-        Fragment fAparture = new ApartureFragment();
 
-
-        fTrigger.setArguments(getIntent().getExtras());
-        fAparture.setArguments(getIntent().getExtras());
-        fExposure.setArguments(getIntent().getExtras());
-        fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure);
-        fragmentTransaction.add(R.id.fl_FragCont_ExpApart2, fAparture);
+        //fTrigger.setArguments(getIntent().getExtras());
+        // fAparture.setArguments(getIntent().getExtras());
+        //fExposure.setArguments(getIntent().getExtras());
+        fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure,"Expo");
+        //fragmentTransaction.add(R.id.fl_FragCont_ExpApart2, fAparture, "Apart");
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger);
+        fragmentTransaction.add(R.id.fl_FragCont_MainSettings,fMainSettings);
 
         fragmentTransaction.commit();
-        //check for Exposure container
-       /* //check if fragment container exists
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.ll_settings);
-        if (relativeLayout != null) {
-            ExposureCorrection myExposure = new ExposureCorrection(this);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.gravity = Gravity.CENTER_HORIZONTAL;
-            myExposure.setLayoutParams(params);
-            //Todo: Check for possibility to do compensation visualisation
+    }
 
-            //relativeLayout.addView(myExposure);
 
-        }
-        if (findViewById(R.id.fl_FragCont_Trigger) != null) {
-            //check if we return from a previous state if yes do nothing if no
-            //create new fragment.
-            if (savedInstanceState != null) {
-                return;
-            }
-            Log.d(TAG, "start01");
-            ExposureFragment exposureFragment = new ExposureFragment();
-            exposureFragment.setArguments(getIntent().getExtras());
-            *//*ApartureFragment apartureFragment = new ApartureFragment();
-            apartureFragment.setArguments(getIntent().getExtras());*//*
 
-            getSupportFragmentManager().beginTransaction().add(R.id.fl_FragCont_Trigger, exposureFragment).commit();
-        }*/
+    @Override
+    public void onShutterReleasedPressed(int pos) {
 
+        Toast.makeText(this, "Click!" + pos, Toast.LENGTH_SHORT).show();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+        ft.replace(R.id.fl_FragCont_ExpApart1, fExposure);
+        ft.addToBackStack(fExposure.toString());
+        ft.commit();
+    }
+
+    @Override
+    public void onDrivemodePressed() {
+        Toast.makeText(this, "drivemode!", Toast.LENGTH_SHORT).show();
+
+
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+        ft.replace(R.id.fl_FragCont_ExpApart1, fAparture,"Apart");
+        ft.addToBackStack(fAparture.toString());
+        ft.commit();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
     }
 }
+

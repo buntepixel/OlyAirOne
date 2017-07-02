@@ -23,7 +23,7 @@ public class ExposureFragment extends Fragment {
     private LinearLayout mContentLinLayout;
     private ScrollingValuePicker mScrollingValuePicker;
 
-    private static final String[] myString = {"2.8", "3.2", "3.5", "4", "4.5", "5", "A", "P", "Bulb"};
+    private static final String[] myString = {"Exp", "3.2", "3.5", "4", "4.5", "5", "A", "P", "Bulb"};
 
 
     @Override
@@ -57,6 +57,7 @@ public class ExposureFragment extends Fragment {
             TextView textView = new TextView(getActivity());
             Log.d(TAG, "mystring:  " + i);
             textView.setText(i);
+            textView.setBackgroundColor(Color.MAGENTA);
             //textView.setTextSize(40);
 
             textView.setPaddingRelative(30, 0, 30, 0);
@@ -65,7 +66,9 @@ public class ExposureFragment extends Fragment {
             //mContentLinLayout = (LinearLayout) rootView.findViewById(R.id.svp_expScrollingValuePicker);
             mContentLinLayout.addView(textView);
         }
+
     }
+
 
     private void CreateImageViewContent(int itemCount) {
         //Adding ImageView
