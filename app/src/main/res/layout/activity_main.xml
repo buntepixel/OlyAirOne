@@ -75,7 +75,7 @@
     <FrameLayout
         android:id="@+id/fl_FragCont_MainSettings"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="35dp"
         android:layout_above="@id/fl_FragCont_Trigger"
 
         />
