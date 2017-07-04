@@ -35,7 +35,7 @@ public class MainActivity extends FragmentActivity
 
                 modeCounter++;
                 Toast.makeText(MainActivity.this, "Hello" + modeCounter, Toast.LENGTH_SHORT).show();
-                ib_RecordMode.setImageResource(modeArr[modeCounter % (modeArr.length - 1)]);
+                ib_RecordMode.setImageResource(modeArr[modeCounter % (modeArr.length)]);
 
             }
         });
