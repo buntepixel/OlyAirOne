@@ -18,28 +18,40 @@ public class MainActivity extends FragmentActivity
     TriggerFragment fTrigger;
     MainSettingsFragment fMainSettings;
     FragmentManager fm = getSupportFragmentManager();
-    int[] modeArr = new int[]{R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_videomode};
+    int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
+    int modeCounter = 0;
 
+    private enum OLYRecordModes {
+        IAUTO,
+        P,
+        A,
+        S,
+        M,
+        ART,
+        MOVIEP,
+        MOVIEA,
+        MOVIES,
+        MOVIEM
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //recordMode
         final ImageButton ib_RecordMode = (ImageButton) findViewById(R.id.ib_RecordMode);
         ib_RecordMode.setOnClickListener(new View.OnClickListener() {
-            int modeCounter = 0;
+            int counter = 0;
 
             @Override
             public void onClick(View v) {
-
-                modeCounter++;
-                Toast.makeText(MainActivity.this, "Hello" + modeCounter, Toast.LENGTH_SHORT).show();
-                ib_RecordMode.setImageResource(modeArr[modeCounter % (modeArr.length)]);
+                counter++;
+                ib_RecordMode.setImageResource(modeArr[counter % (modeArr.length)]);
+                modeCounter = counter;
+                //Log.d(TAG, "start"+ counter);
 
             }
         });
-
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         Log.d(TAG, "start");
         //check for Trigger container
@@ -48,8 +60,30 @@ public class MainActivity extends FragmentActivity
         fExposure = new ExposureFragment();
         fAparture = new ApartureFragment();
         fMainSettings = new MainSettingsFragment();
+        int mode = modeCounter;
+        switch (mode) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2://Aparture
+                fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8:
+                break;
+        }
+
         fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure, "Expo");
-        //fragmentTransaction.add(R.id.fl_FragCont_ExpApart2, fAparture, "Apart");
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger);
         fragmentTransaction.add(R.id.fl_FragCont_MainSettings, fMainSettings);
 
@@ -85,4 +119,6 @@ public class MainActivity extends FragmentActivity
 
     }
 }
+
+
 

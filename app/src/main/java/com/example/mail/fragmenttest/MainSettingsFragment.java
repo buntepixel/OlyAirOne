@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ import android.widget.Toast;
  * create an instance of this fragment.
  */
 public class MainSettingsFragment extends Fragment {
+    private static final String TAG = MainSettingsFragment.class.getSimpleName();;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -119,66 +122,12 @@ public class MainSettingsFragment extends Fragment {
     }
 
     private LinearLayout CreateSettings(String[] inputStringArr, View rootView) {
-int padding = 45;
         LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.ll_mainSettings);
         linearLayout.setBackgroundColor(Color.YELLOW);
+        SetupButtons(linearLayout,true,false,true,false,true);
 
-        // exposure Time
-        TextView tv_expTime = new TextView(getActivity());
-        tv_expTime.setText(settingsArr[0]);
-        tv_expTime.setPaddingRelative(padding, 0, padding, 0);
-        tv_expTime.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
-            }
-        });
-        linearLayout.addView(tv_expTime);
 
-        //Fstop
-        TextView tv_fStop = new TextView(getActivity());
-        tv_fStop.setText(settingsArr[1]);
-        tv_fStop.setPaddingRelative(padding, 0, padding, 0);
-        tv_fStop.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
-            }
-        });
-        linearLayout.addView(tv_fStop);
 
-        //ExposureCorr
-        TextView tv_expCorr = new TextView(getActivity());
-        tv_expCorr.setText(settingsArr[2]);
-        tv_expCorr.setPaddingRelative(padding, 0, padding, 0);
-        tv_expCorr.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
-            }
-        });
-        linearLayout.addView(tv_expCorr);
-
-        //iso
-        TextView tv_iso = new TextView(getActivity());
-        tv_iso.setText(settingsArr[3]);
-        tv_iso.setGravity(Gravity.CENTER);
-        tv_iso.setPaddingRelative(padding, 0, padding, 0);
-        tv_iso.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
-            }
-        });
-        linearLayout.addView(tv_iso);
-
-        //WhiteBalance
-        TextView tv_wb = new TextView(getActivity());
-        tv_wb.setText(settingsArr[4]);
-        tv_wb.setGravity(Gravity.CENTER);
-        tv_wb.setPaddingRelative(padding, 0, padding, 0);
-        tv_wb.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
-            }
-        });
-        linearLayout.addView(tv_wb);
       /*  for (String i : inputStringArr) {
 
             TextView textView = new TextView(getActivity());
@@ -199,7 +148,100 @@ int padding = 45;
         linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         return linearLayout;
+    }
 
+    public void SetupButtons(LinearLayout linearLayout, boolean time, boolean aparture, boolean exposureAdj, boolean iso, boolean wb) {
+        int padding = 45;
+
+        int cTxtDis = ContextCompat.getColor(getContext(),R.color.ColorBarTextDisabled);
+        int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
+
+
+        // exposure Time
+        TextView tv_expTime = new TextView(getActivity());
+        tv_expTime.setText(settingsArr[0]);
+        tv_expTime.setPaddingRelative(padding, 0, padding, 0);
+        if (time) {
+            Log.d(TAG,"huuuuu");
+            tv_expTime.setTextColor(cTxtEn);
+            tv_expTime.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        else
+            tv_expTime.setTextColor(cTxtDis);
+        linearLayout.addView(tv_expTime);
+
+        //Fstop
+        TextView tv_fStop = new TextView(getActivity());
+        tv_fStop.setText(settingsArr[1]);
+        tv_fStop.setPaddingRelative(padding, 0, padding, 0);
+        if (aparture) {
+            tv_fStop.setTextColor(cTxtEn);
+            tv_fStop.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        else
+            Log.d(TAG,"fuck");
+            tv_fStop.setTextColor(cTxtDis);
+        linearLayout.addView(tv_fStop);
+
+        //ExposureCorr
+        TextView tv_expCorr = new TextView(getActivity());
+        tv_expCorr.setText(settingsArr[2]);
+        tv_expCorr.setPaddingRelative(padding, 0, padding, 0);
+        if (exposureAdj) {
+            tv_expCorr.setTextColor(cTxtEn);
+            tv_expCorr.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        else
+            tv_expCorr.setTextColor(cTxtDis);
+
+        linearLayout.addView(tv_expCorr);
+
+        //iso
+        TextView tv_iso = new TextView(getActivity());
+        tv_iso.setText(settingsArr[3]);
+        tv_iso.setGravity(Gravity.CENTER);
+        tv_iso.setPaddingRelative(padding, 0, padding, 0);
+        if (iso) {
+            tv_iso.setTextColor(cTxtEn);
+            tv_iso.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else
+            tv_iso.setTextColor(cTxtDis);
+
+        linearLayout.addView(tv_iso);
+
+        //WhiteBalance
+        TextView tv_wb = new TextView(getActivity());
+        tv_wb.setText(settingsArr[4]);
+        tv_wb.setGravity(Gravity.CENTER);
+        tv_wb.setPaddingRelative(padding, 0, padding, 0);
+        if (wb) {
+            tv_wb.setTextColor(cTxtEn);
+            tv_wb.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        else
+            tv_wb.setTextColor(cTxtDis);
+
+        linearLayout.addView(tv_wb);
 
     }
 }
