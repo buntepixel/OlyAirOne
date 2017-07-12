@@ -1,10 +1,13 @@
 package com.example.mail.fragmenttest;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -17,7 +20,6 @@ public class MainActivity extends FragmentActivity
     ApartureFragment fAparture;
     TriggerFragment fTrigger;
     MainSettingsFragment fMainSettings;
-    FragmentManager fm = getSupportFragmentManager();
     int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
     int modeCounter = 0;
 
@@ -38,6 +40,23 @@ public class MainActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        Log.d(TAG, "start");
+        //check for Trigger container
+
+        fTrigger = new TriggerFragment();
+        fExposure = new ExposureFragment();
+        fAparture = new ApartureFragment();
+        fMainSettings = new MainSettingsFragment();
+
+        fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure, "Expo");
+        fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
+        fragmentTransaction.add(R.id.fl_FragCont_MainSettings, fMainSettings, "Main");
+        //fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
+
+        fragmentTransaction.commit();
         //recordMode
         final ImageButton ib_RecordMode = (ImageButton) findViewById(R.id.ib_RecordMode);
         ib_RecordMode.setOnClickListener(new View.OnClickListener() {
@@ -48,26 +67,33 @@ public class MainActivity extends FragmentActivity
                 counter++;
                 ib_RecordMode.setImageResource(modeArr[counter % (modeArr.length)]);
                 modeCounter = counter;
+                SetMainSettingsButtons(counter % (modeArr.length));
                 //Log.d(TAG, "start"+ counter);
 
             }
         });
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        Log.d(TAG, "start");
-        //check for Trigger container
+    }
 
-        fTrigger = new TriggerFragment();
-        fExposure = new ExposureFragment();
-        fAparture = new ApartureFragment();
-        fMainSettings = new MainSettingsFragment();
-        int mode = modeCounter;
+    @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        View myView = super.onCreateView(parent, name, context, attrs);
+
+        return myView;
+    }
+
+
+    void SetMainSettingsButtons(int mode){
+        Log.d(TAG,"Hello");
         switch (mode) {
             case 0:
+                fMainSettings.SetButtonsBool( false,  false, true,true,true);
+
                 break;
             case 1:
+                fMainSettings.SetButtonsBool( false, true, false, true,true);
                 break;
             case 2://Aparture
-                fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
+                fMainSettings.SetButtonsBool(true, false, true, false, true);
                 break;
             case 3:
                 break;
@@ -82,20 +108,19 @@ public class MainActivity extends FragmentActivity
             case 8:
                 break;
         }
-
-        fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure, "Expo");
-        fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger);
-        fragmentTransaction.add(R.id.fl_FragCont_MainSettings, fMainSettings);
-
-        fragmentTransaction.commit();
+       /* FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.fl_FragCont_MainSettings, fMainSettings, "Expo");
+        fragmentTransaction.commit();*/
+        Fragment frg = getSupportFragmentManager().findFragmentByTag("Main");
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.detach(frg).attach(frg).commit();
     }
-
 
     @Override
     public void onShutterReleasedPressed(int pos) {
 
         Toast.makeText(this, "Click!" + pos, Toast.LENGTH_SHORT).show();
-        FragmentTransaction ft = fm.beginTransaction();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
         ft.replace(R.id.fl_FragCont_ExpApart1, fExposure);
         ft.addToBackStack(fExposure.toString());
@@ -107,7 +132,7 @@ public class MainActivity extends FragmentActivity
         Toast.makeText(this, "drivemode!", Toast.LENGTH_SHORT).show();
 
 
-        FragmentTransaction ft = fm.beginTransaction();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
         ft.replace(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
         ft.addToBackStack(fAparture.toString());

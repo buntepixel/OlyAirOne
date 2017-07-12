@@ -25,7 +25,8 @@ import android.widget.Toast;
  * create an instance of this fragment.
  */
 public class MainSettingsFragment extends Fragment {
-    private static final String TAG = MainSettingsFragment.class.getSimpleName();;
+    private static final String TAG = MainSettingsFragment.class.getSimpleName();
+    ;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -34,6 +35,10 @@ public class MainSettingsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    //bools for SetupButtons
+    private boolean time= true, aparture = true, exposureAdj, iso, wb;
+
     private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
 
     private OnFragmentInteractionListener mListener;
@@ -72,22 +77,18 @@ public class MainSettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_fragment_mainsettings, container, false);
         CreateSettings(settingsArr, rootView);
-
-
         return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+/*    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
-    }
+    }*/
 
     @Override
     public void onAttach(Context context) {
@@ -119,41 +120,28 @@ public class MainSettingsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+
     }
 
     private LinearLayout CreateSettings(String[] inputStringArr, View rootView) {
         LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.ll_mainSettings);
         linearLayout.setBackgroundColor(Color.YELLOW);
-        SetupButtons(linearLayout,true,false,true,false,true);
-
-
-
-      /*  for (String i : inputStringArr) {
-
-            TextView textView = new TextView(getActivity());
-            textView.setText(i);
-            textView.setGravity(Gravity.CENTER);
-
-            //textView.setTextSize(40);
-            textView.setPaddingRelative(25, 0, 25, 0);
-            //textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-            linearLayout.addView(textView);
-        }*/
+        SetupButtons(linearLayout);
         return linearLayout;
     }
 
-    private LinearLayout Create2LineTextView(String prefix, String text) {
-        LinearLayout linearLayout = new LinearLayout(getContext());
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        return linearLayout;
+    public void SetButtonsBool(boolean time,boolean aparture,boolean exposureAdj,boolean iso, boolean wb){
+        this.time = time;
+        this.aparture = aparture;
+        this.exposureAdj = exposureAdj;
+        this.iso = iso;
+        this.wb = wb;
     }
 
-    public void SetupButtons(LinearLayout linearLayout, boolean time, boolean aparture, boolean exposureAdj, boolean iso, boolean wb) {
+    private void SetupButtons(LinearLayout linearLayout) {
         int padding = 45;
-
-        int cTxtDis = ContextCompat.getColor(getContext(),R.color.ColorBarTextDisabled);
+        //LinearLayout linearLayout = ll_main;
+        int cTxtDis = ContextCompat.getColor(getContext(), R.color.ColorBarTextDisabled);
         int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
 
 
@@ -162,15 +150,14 @@ public class MainSettingsFragment extends Fragment {
         tv_expTime.setText(settingsArr[0]);
         tv_expTime.setPaddingRelative(padding, 0, padding, 0);
         if (time) {
-            Log.d(TAG,"huuuuu");
+            Log.d(TAG, "huuuuu");
             tv_expTime.setTextColor(cTxtEn);
             tv_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        else
+        } else
             tv_expTime.setTextColor(cTxtDis);
         linearLayout.addView(tv_expTime);
 
@@ -185,10 +172,9 @@ public class MainSettingsFragment extends Fragment {
                     Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        else
-            Log.d(TAG,"fuck");
-            tv_fStop.setTextColor(cTxtDis);
+        } else
+            Log.d(TAG, "fuck");
+        tv_fStop.setTextColor(cTxtDis);
         linearLayout.addView(tv_fStop);
 
         //ExposureCorr
@@ -202,8 +188,7 @@ public class MainSettingsFragment extends Fragment {
                     Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        else
+        } else
             tv_expCorr.setTextColor(cTxtDis);
 
         linearLayout.addView(tv_expCorr);
@@ -237,11 +222,17 @@ public class MainSettingsFragment extends Fragment {
                     Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        else
+        } else
             tv_wb.setTextColor(cTxtDis);
 
         linearLayout.addView(tv_wb);
 
     }
+    /*    private LinearLayout Create2LineTextView(String prefix, String text) {
+        LinearLayout linearLayout = new LinearLayout(getContext());
+        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        return linearLayout;
+    }*/
+
 }
