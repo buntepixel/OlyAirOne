@@ -12,7 +12,7 @@ import android.widget.ImageButton;
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends Fragment {
+public class IsoFragment extends Fragment {
     private static final String TAG = ExposureFragment.class.getSimpleName();
     OnShutterReleasePressed mCallback;
     OnDrivemodePressed mPressed;
@@ -31,8 +31,8 @@ public class TriggerFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-           /* mCallback = (OnShutterReleasePressed) context;
-            mPressed = (OnDrivemodePressed) context;*/
+            mCallback = (OnShutterReleasePressed) context;
+            mPressed = (OnDrivemodePressed) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnShutterReleasePressed");
         }

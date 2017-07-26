@@ -2,7 +2,6 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -13,13 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link MainSettingsFragment.OnFragmentInteractionListener} interface
+ * {@link OnMainSettingsFragmInteractionListener} interface
  * to handle interaction events.
  * Use the {@link MainSettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -37,11 +35,11 @@ public class MainSettingsFragment extends Fragment {
     private String mParam2;
 
     //bools for SetupButtons
-    private boolean time= true, aparture = true, exposureAdj, iso, wb;
+    private boolean time, aparture, exposureAdj, iso, wb;
 
     private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
 
-    private OnFragmentInteractionListener mListener;
+    private OnMainSettingsFragmInteractionListener mListener;
 
     public MainSettingsFragment() {
         // Required empty public constructor
@@ -93,11 +91,11 @@ public class MainSettingsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnMainSettingsFragmInteractionListener) {
+            mListener = (OnMainSettingsFragmInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnMainSettingsFragmInteractionListener");
         }
     }
 
@@ -117,9 +115,9 @@ public class MainSettingsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnMainSettingsFragmInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onMainSettinsInteraction(int settingsType);
 
     }
 
@@ -144,17 +142,18 @@ public class MainSettingsFragment extends Fragment {
         int cTxtDis = ContextCompat.getColor(getContext(), R.color.ColorBarTextDisabled);
         int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
 
-
+        Log.d(TAG, time+" "+aparture+" "+exposureAdj+" "+iso+" "+wb);
         // exposure Time
         TextView tv_expTime = new TextView(getActivity());
         tv_expTime.setText(settingsArr[0]);
         tv_expTime.setPaddingRelative(padding, 0, padding, 0);
         if (time) {
-            Log.d(TAG, "huuuuu");
+            //Log.d(TAG, "huuuuu");
             tv_expTime.setTextColor(cTxtEn);
             tv_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
+                    mListener.onMainSettinsInteraction(0);
                 }
             });
         } else
@@ -169,11 +168,12 @@ public class MainSettingsFragment extends Fragment {
             tv_fStop.setTextColor(cTxtEn);
             tv_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
+                    mListener.onMainSettinsInteraction(1);
                 }
             });
         } else
-            Log.d(TAG, "fuck");
+           // Log.d(TAG, "fuck");
         tv_fStop.setTextColor(cTxtDis);
         linearLayout.addView(tv_fStop);
 
@@ -185,7 +185,8 @@ public class MainSettingsFragment extends Fragment {
             tv_expCorr.setTextColor(cTxtEn);
             tv_expCorr.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
+                    mListener.onMainSettinsInteraction(2);
                 }
             });
         } else
@@ -202,7 +203,8 @@ public class MainSettingsFragment extends Fragment {
             tv_iso.setTextColor(cTxtEn);
             tv_iso.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
+                    mListener.onMainSettinsInteraction(3);
                 }
             });
         } else
@@ -219,7 +221,8 @@ public class MainSettingsFragment extends Fragment {
             tv_wb.setTextColor(cTxtEn);
             tv_wb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
+                    mListener.onMainSettinsInteraction(4);
                 }
             });
         } else

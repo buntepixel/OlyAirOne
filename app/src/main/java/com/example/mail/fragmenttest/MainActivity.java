@@ -1,7 +1,6 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -11,17 +10,23 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
+
 
 public class MainActivity extends FragmentActivity
-        implements TriggerFragment.OnShutterReleasePressed, MainSettingsFragment.OnFragmentInteractionListener {
+        implements MainSettingsFragment.OnMainSettingsFragmInteractionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     ExposureFragment fExposure;
     ApartureFragment fAparture;
     TriggerFragment fTrigger;
+    IsoFragment fIso;
+    WbFragment fWb;
     MainSettingsFragment fMainSettings;
+
     int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
-    int modeCounter = 0;
+    int currDriveMode = 0;
+    String currExpApart1;
+    String currExpApart2;
+
 
     private enum OLYRecordModes {
         IAUTO,
@@ -41,21 +46,20 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        Log.d(TAG, "start");
+
+        //Log.d(TAG, "start");
         //check for Trigger container
 
         fTrigger = new TriggerFragment();
         fExposure = new ExposureFragment();
         fAparture = new ApartureFragment();
         fMainSettings = new MainSettingsFragment();
-
-        fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure, "Expo");
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+//        fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fExposure, "Expo");
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
         fragmentTransaction.add(R.id.fl_FragCont_MainSettings, fMainSettings, "Main");
         //fragmentTransaction.add(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
-
         fragmentTransaction.commit();
         //recordMode
         final ImageButton ib_RecordMode = (ImageButton) findViewById(R.id.ib_RecordMode);
@@ -66,7 +70,7 @@ public class MainActivity extends FragmentActivity
             public void onClick(View v) {
                 counter++;
                 ib_RecordMode.setImageResource(modeArr[counter % (modeArr.length)]);
-                modeCounter = counter;
+                currDriveMode = counter;
                 SetMainSettingsButtons(counter % (modeArr.length));
                 //Log.d(TAG, "start"+ counter);
 
@@ -82,26 +86,34 @@ public class MainActivity extends FragmentActivity
     }
 
 
-    void SetMainSettingsButtons(int mode){
-        Log.d(TAG,"Hello");
+    void SetMainSettingsButtons(int mode) {
+        Log.d(TAG, "Mode: " + mode);
         switch (mode) {
-            case 0:
-                fMainSettings.SetButtonsBool( false,  false, true,true,true);
-
+            case 0://iAuto
+                fMainSettings.SetButtonsBool(false, false, false, false, false);
+                Log.d(TAG, "Iauto");
                 break;
-            case 1:
-                fMainSettings.SetButtonsBool( false, true, false, true,true);
+            case 1://Programm
+                fMainSettings.SetButtonsBool(false, false, true, true, true);
+                Log.d(TAG, "Programm");
                 break;
             case 2://Aparture
-                fMainSettings.SetButtonsBool(true, false, true, false, true);
+                fMainSettings.SetButtonsBool(false, true, true, true, true);
+                Log.d(TAG, "Aparture");
                 break;
-            case 3:
+            case 3://Speed
+                fMainSettings.SetButtonsBool(true, false, true, true, true);
+                Log.d(TAG, "Speed");
                 break;
-            case 4:
+            case 4://Manual
+                fMainSettings.SetButtonsBool(true, true, false, true, true);
+                Log.d(TAG, "Manual");
                 break;
             case 5:
                 break;
-            case 6:
+            case 6://Movie
+                fMainSettings.SetButtonsBool(false, false, true, false, true);
+                Log.d(TAG, "Movie");
                 break;
             case 7:
                 break;
@@ -116,33 +128,69 @@ public class MainActivity extends FragmentActivity
         ft.detach(frg).attach(frg).commit();
     }
 
-    @Override
-    public void onShutterReleasedPressed(int pos) {
 
-        Toast.makeText(this, "Click!" + pos, Toast.LENGTH_SHORT).show();
+    @Override
+    public void onMainSettinsInteraction(int settingsType) {
+        // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "bla " + settingsType);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-        ft.replace(R.id.fl_FragCont_ExpApart1, fExposure);
-        ft.addToBackStack(fExposure.toString());
-        ft.commit();
+        Fragment myFrag;
+        switch (settingsType) {
+            case 0:
+
+                ft.setCustomAnimations(R.anim.slidedown ,R.anim.slideup);
+                if ((myFrag = getSupportFragmentManager().findFragmentByTag("Expo")) != null){
+                    Log.d(TAG,"foundFrag Expo  "+myFrag.getId());
+                    ft.replace(R.id.fl_FragCont_ExpApart1, myFrag,"Expo");
+                }
+                else{
+                    Log.d(TAG,"Not foundFrag Expo  "+fExposure.getId());
+                    ft.replace(R.id.fl_FragCont_ExpApart1, fExposure, "Expo");
+                }
+                ft.addToBackStack("back");
+                ft.commit();
+                break;
+            case 1:
+            /*    if (currExpApart1 == "" && currDriveMode != 4) {
+                    ft.add(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
+                }
+                else {
+                    ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+                    ft.replace(R.id.fl_FragCont_ExpApart1, fAparture, "Expo");
+                }*/
+                ft.setCustomAnimations(R.anim.slidedown ,R.anim.slideup);
+                ft.replace(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
+                ft.commit();
+
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+        }
     }
+    //    @Override
+//    public void onShutterReleasedPressed(int pos) {
+//
+//        Toast.makeText(this, "Click!" + pos, Toast.LENGTH_SHORT).show();
+//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+//        ft.replace(R.id.fl_FragCont_ExpApart1, fExposure);
+//        ft.addToBackStack(fExposure.toString());
+//        ft.commit();
+//    }
 
-    @Override
-    public void onDrivemodePressed() {
-        Toast.makeText(this, "drivemode!", Toast.LENGTH_SHORT).show();
-
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-        ft.replace(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
-        ft.addToBackStack(fAparture.toString());
-        ft.commit();
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
+//    @Override
+//    public void onDrivemodePressed() {
+//        Toast.makeText(this, "drivemode!", Toast.LENGTH_SHORT).show();
+//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+//        ft.replace(R.id.fl_FragCont_ExpApart1, fAparture, "Apart");
+//        ft.addToBackStack(fAparture.toString());
+//        ft.commit();
+//    }
 }
 
 
