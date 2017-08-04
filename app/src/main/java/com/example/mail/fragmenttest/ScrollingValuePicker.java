@@ -31,6 +31,7 @@ public class ScrollingValuePicker extends FrameLayout {
     public ScrollingValuePicker(Context context, AttributeSet attrs) {
         super(context, attrs);
         mScrollView = new ObservableHorizontalScrollView(context, attrs);
+        mScrollView.generateViewId();
     }
     public void execute(Context context, LinearLayout linearLayout){
         try{
@@ -38,19 +39,20 @@ public class ScrollingValuePicker extends FrameLayout {
             mScrollView.setHorizontalScrollBarEnabled(false);
             addView(mScrollView);
             // Create a horizontal (by default) LinearLayout as our child container
-            final LinearLayout container = new LinearLayout(context);
+            final LinearLayout ll_container = new LinearLayout(context);
+            ll_container.generateViewId();
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            mScrollView.addView(container);
+            mScrollView.addView(ll_container);
 
             //the actual context gets Injected
-            container.addView(linearLayout);
+            ll_container.addView(linearLayout);
 
             // Create the left and right spacers, don't worry about their dimensions, yet
             mLeftSpacer = new View(context);
-            container.addView(mLeftSpacer,0);
+            ll_container.addView(mLeftSpacer,0);
             mRightSpacer = new View(context);
-            container.addView(mRightSpacer);
+            ll_container.addView(mRightSpacer);
         }catch(Exception e){
             Log.e(TAG, "exception: " + e.getMessage());
             Log.e(TAG, "exception: " + Log.getStackTraceString(e));

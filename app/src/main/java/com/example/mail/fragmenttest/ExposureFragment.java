@@ -31,6 +31,7 @@ public class ExposureFragment extends Fragment {
         try {
 
             mContentLinLayout = new LinearLayout(getContext());
+
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
