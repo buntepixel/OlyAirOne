@@ -42,6 +42,7 @@ public class TriggerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
+        view.setId(View.generateViewId());
         //shutter release pressed
         ImageButton ib_shutterRelease = (ImageButton) view.findViewById(R.id.ib_shutterrelease);
         ib_shutterRelease.setOnClickListener(new View.OnClickListener() {

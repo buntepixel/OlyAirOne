@@ -31,7 +31,7 @@ public class ScrollingValuePicker extends FrameLayout {
     public ScrollingValuePicker(Context context, AttributeSet attrs) {
         super(context, attrs);
         mScrollView = new ObservableHorizontalScrollView(context, attrs);
-        mScrollView.generateViewId();
+        mScrollView.setId(View.generateViewId());
     }
     public void execute(Context context, LinearLayout linearLayout){
         try{
@@ -40,7 +40,7 @@ public class ScrollingValuePicker extends FrameLayout {
             addView(mScrollView);
             // Create a horizontal (by default) LinearLayout as our child container
             final LinearLayout ll_container = new LinearLayout(context);
-            ll_container.generateViewId();
+            ll_container.setId(View.generateViewId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mScrollView.addView(ll_container);

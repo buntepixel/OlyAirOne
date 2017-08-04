@@ -23,9 +23,9 @@ public class ApartureFragment extends Fragment {
     public ApartureFragment() {
     }
 
-    private LinearLayout mLinearLayout;
+    //private LinearLayout mLinearLayout;
     //private LinearLayout mContentLinLayout;
-    private ScrollingValuePicker mScrollingValuePicker;
+    //private ScrollingValuePicker mScrollingValuePicker;
 
     private static final String[] myString = {"app", "3.2", "3.5", "4", "4.5", "5", "A", "P", "M", "S", "A", "P", "M", "S", "A", "P"};
 
@@ -35,7 +35,10 @@ public class ApartureFragment extends Fragment {
         try {
             //create LinLayout to hold the text view
             LinearLayout mContentLinLayout = new LinearLayout(getContext());
-            mContentLinLayout.generateViewId();
+
+            //mContentLinLayout.setId(R.id.mContentLinLayout);
+            mContentLinLayout.setId(View.generateViewId());
+            Log.d(TAG, "mContnentLinLayou id: " + mContentLinLayout.getId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setLayoutParams(params);
@@ -47,9 +50,14 @@ public class ApartureFragment extends Fragment {
             Log.d(TAG, "Aparture Fragment:: " + mContentLinLayout.toString());
 
             View rootView = inflater.inflate(R.layout.fragment_aparture, container, false);
+            rootView.setId(View.generateViewId());
+            Log.d(TAG, "RootView id: " + rootView.getId());
 
-            mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_apScrollingValuePicker);
+
+            ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_apScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
+            Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
+
             mScrollingValuePicker.execute(getContext(), mContentLinLayout);
             return rootView;
         } catch (Exception e) {
@@ -64,7 +72,10 @@ public class ApartureFragment extends Fragment {
         //Adding Textview
         for (String i : stringArr) {
             TextView textView = new TextView(getActivity());
-            textView.generateViewId();
+            textView.setId(View.generateViewId());
+            Log.d(TAG, "textView "+i+" id: " + textView.getId());
+
+
             //Log.d(TAG, "mystring:  " + i);
             textView.setText(i);
             //textView.setTextSize(40);
