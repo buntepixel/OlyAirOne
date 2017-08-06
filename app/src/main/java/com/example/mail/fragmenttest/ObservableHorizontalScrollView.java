@@ -58,7 +58,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
 //
 //        return ss;
 //    }
-
+//
 //    @Override
 //    public void onRestoreInstanceState(Parcelable state) {
 //        //begin boilerplate code so parent classes can restore state
@@ -73,7 +73,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
 //
 //        this.stateToSave = ss.stateToSave;
 //    }
-
+//
 //    static class SavedState extends BaseSavedState {
 //        int stateToSave;
 //

@@ -42,7 +42,7 @@ public class ExposureFragment extends Fragment {
             Log.d(TAG, "ExposureFrag" + mContentLinLayout.toString());
             View rootView = inflater.inflate(R.layout.fragment_exposure, container, false);
             mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_expScrollingValuePicker);
-
+            mScrollingValuePicker.setId(View.generateViewId());
             mScrollingValuePicker.execute(getContext(), mContentLinLayout);
             return rootView;
         } catch (Exception e) {
@@ -58,6 +58,7 @@ public class ExposureFragment extends Fragment {
             TextView textView = new TextView(getActivity());
             Log.d(TAG, "mystring:  " + i);
             textView.setText(i);
+            textView.setId(View.generateViewId());
             textView.setBackgroundColor(Color.MAGENTA);
             //textView.setTextSize(40);
 

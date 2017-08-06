@@ -40,6 +40,7 @@ public class ScrollingValuePicker extends FrameLayout {
             addView(mScrollView);
             // Create a horizontal (by default) LinearLayout as our child container
             final LinearLayout ll_container = new LinearLayout(context);
+
             ll_container.setId(View.generateViewId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -79,6 +80,8 @@ public class ScrollingValuePicker extends FrameLayout {
             rightParams.width = width / 2;
             //rightParams.width = 0;
             mRightSpacer.setLayoutParams(rightParams);
+            //mLinearLayout.scrollBy(width*2,0);
+
 
         }
     }

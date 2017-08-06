@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,29 +17,39 @@ import android.widget.TextView;
 
 public class WbFragment extends Fragment {
     private static final String TAG = WbFragment.class.getSimpleName();
+    private static final String[] myString = {"Auto", "Fine", "Shade", "Cloud", "Lamp", "Fluoresc", "Water", "Custom"};
 
-    private LinearLayout mLinearLayout;
-    private LinearLayout mContentLinLayout;
-    private ScrollingValuePicker mScrollingValuePicker;
+    public WbFragment() {
 
-    private static final String[] myString = {"Exp", "3.2", "3.5", "4", "4.5", "5", "A", "P", "Bulb"};
-
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         try {
+            //create LinLayout to hold the text view
+            LinearLayout mContentLinLayout = new LinearLayout(getContext());
 
-            mContentLinLayout = new LinearLayout(getContext());
+            //mContentLinLayout.setId(R.id.mContentLinLayout);
+            mContentLinLayout.setId(View.generateViewId());
+            Log.d(TAG, "mContnentLinLayou id: " + mContentLinLayout.getId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
             mContentLinLayout.setLayoutParams(params);
+            // mContentLinLayout.setBackgroundColor(Color.RED);
+            mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
+            //create text View for LinLayout
+            this.AddTextViewContent(myString, mContentLinLayout);
 
-            this.CreateTextViewContent(myString);
+            Log.d(TAG, "Aparture Fragment:: " + mContentLinLayout.toString());
 
-            Log.d(TAG, "ExposureFrag" + mContentLinLayout.toString());
-            View rootView = inflater.inflate(R.layout.fragment_exposure, container, false);
-            mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_expScrollingValuePicker);
+            View rootView = inflater.inflate(R.layout.fragment_wb, container, false);
+            rootView.setId(View.generateViewId());
+            Log.d(TAG, "RootView id: " + rootView.getId());
+
+
+            ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_wbScrollingValuePicker);
+            mScrollingValuePicker.generateViewId();
+            Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
 
             mScrollingValuePicker.execute(getContext(), mContentLinLayout);
             return rootView;
@@ -51,48 +60,29 @@ public class WbFragment extends Fragment {
         return null;
     }
 
-    private void CreateTextViewContent(String[] stringArr) {
+
+    private void AddTextViewContent(String[] stringArr, LinearLayout linearLayout) {
         //Adding Textview
         for (String i : stringArr) {
             TextView textView = new TextView(getActivity());
-            Log.d(TAG, "mystring:  " + i);
-            textView.setText(i);
-            textView.setBackgroundColor(Color.MAGENTA);
-            //textView.setTextSize(40);
+            textView.setId(View.generateViewId());
+            Log.d(TAG, "textView " + i + " id: " + textView.getId());
 
-            textView.setPaddingRelative(30, 0, 30, 0);
+
+            //Log.d(TAG, "mystring:  " + i);
+            textView.setText(i);
+            //textView.setTextSize(40);
+            textView.setBackgroundColor(Color.CYAN);
+            textView.setPaddingRelative(25, 0, 25, 0);
             textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
-            //mContentLinLayout = (LinearLayout) rootView.findViewById(R.id.svp_expScrollingValuePicker);
-            mContentLinLayout.addView(textView);
-        }
-
-    }
-
-
-    private void CreateImageViewContent(int itemCount) {
-        //Adding ImageView
-        for (int i = 0; i <= itemCount; i++) {
-            ImageView imageView = new ImageView(getActivity());
-            imageView.setImageResource(R.drawable.ic_rasterstrip);
-            //imageView.setScaleX( (float) 0.5);
-            //imageView.setScaleType(ImageView.ScaleType.FIT_END);
-            if((i+1) % 5 !=0){
-                imageView.setScaleY( (float) 0.5);
-                imageView.setScaleX( (float) 0.5);
-                imageView.setScaleType(ImageView.ScaleType.FIT_START);
-                //imageView.setAdjustViewBounds(true);
-            }
-            imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-
-            mContentLinLayout.addView(imageView);
+            linearLayout.addView(textView);
         }
     }
-
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
     }
+
 }

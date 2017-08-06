@@ -16,10 +16,7 @@ import android.widget.TextView;
  */
 
 public class ApartureFragment extends Fragment {
-
-
     private static final String TAG = ApartureFragment.class.getSimpleName();
-
     public ApartureFragment() {
     }
 
