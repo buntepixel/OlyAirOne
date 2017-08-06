@@ -16,12 +16,11 @@ import android.widget.ImageButton;
 public class MainActivity extends FragmentActivity
         implements MainSettingsFragment.OnMainSettingsFragmInteractionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
-    ExposureFragment fExposure;
-    ApartureFragment fAparture;
+
     TriggerFragment fTrigger;
-    IsoFragment fIso;
-    WbFragment fWb;
     MainSettingsFragment fMainSettings;
+
+
     Parcelable stateApa;
     int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
     int currDriveMode = 0;
@@ -55,10 +54,7 @@ public class MainActivity extends FragmentActivity
             return;
         }
         fTrigger = new TriggerFragment();
-//        fExposure = new ExposureFragment();
-//        fAparture = new ApartureFragment();
-//        fWb = new WbFragment();
-//        fIso = new IsoFragment();
+
         fMainSettings = new MainSettingsFragment();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();

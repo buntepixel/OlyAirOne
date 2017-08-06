@@ -42,12 +42,12 @@ public class WbFragment extends Fragment {
 
             Log.d(TAG, "Aparture Fragment:: " + mContentLinLayout.toString());
 
-            View rootView = inflater.inflate(R.layout.fragment_wb, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             rootView.setId(View.generateViewId());
             Log.d(TAG, "RootView id: " + rootView.getId());
 
 
-            ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_wbScrollingValuePicker);
+            ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
             Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
 

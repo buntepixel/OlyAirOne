@@ -40,8 +40,8 @@ public class ExposureFragment extends Fragment {
             this.CreateTextViewContent(myString);
 
             Log.d(TAG, "ExposureFrag" + mContentLinLayout.toString());
-            View rootView = inflater.inflate(R.layout.fragment_exposure, container, false);
-            mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_expScrollingValuePicker);
+            View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
+            mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.setId(View.generateViewId());
             mScrollingValuePicker.execute(getContext(), mContentLinLayout);
             return rootView;
