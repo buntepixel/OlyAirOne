@@ -14,7 +14,7 @@ import android.widget.ImageButton;
 
 
 public class MainActivity extends FragmentActivity
-        implements MainSettingsFragment.OnMainSettingsFragmInteractionListener {
+        implements TriggerFragment.OnTriggerFragmInteractionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     TriggerFragment fTrigger;
@@ -55,11 +55,11 @@ public class MainActivity extends FragmentActivity
         }
         fTrigger = new TriggerFragment();
 
-        fMainSettings = new MainSettingsFragment();
+        //fMainSettings = new MainSettingsFragment();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
-        fragmentTransaction.add(R.id.fl_FragCont_MainSettings, fMainSettings, "Main");
+        //fragmentTransaction.add(R.id.fl_FragCont_MainSettings, fMainSettings, "Main");
         fragmentTransaction.commit();
         //recordMode
         final ImageButton ib_RecordMode = (ImageButton) findViewById(R.id.ib_RecordMode);
@@ -88,29 +88,29 @@ public class MainActivity extends FragmentActivity
         Log.d(TAG, "Mode: " + mode);
         switch (mode) {
             case 0://iAuto
-                fMainSettings.SetButtonsBool(false, false, false, false, false);
+                fTrigger.SetButtonsBool(false, false, false, false, false);
                 Log.d(TAG, "Iauto");
                 break;
             case 1://Programm
-                fMainSettings.SetButtonsBool(false, false, true, true, true);
+                fTrigger.SetButtonsBool(false, false, true, true, true);
                 Log.d(TAG, "Programm");
                 break;
             case 2://Aparture
-                fMainSettings.SetButtonsBool(false, true, true, true, true);
+                fTrigger.SetButtonsBool(false, true, true, true, true);
                 Log.d(TAG, "Aparture");
                 break;
             case 3://Speed
-                fMainSettings.SetButtonsBool(true, false, true, true, true);
+                fTrigger.SetButtonsBool(true, false, true, true, true);
                 Log.d(TAG, "Speed");
                 break;
             case 4://Manual
-                fMainSettings.SetButtonsBool(true, true, false, true, true);
+                fTrigger.SetButtonsBool(true, true, false, true, true);
                 Log.d(TAG, "Manual");
                 break;
             case 5:
                 break;
             case 6://Movie
-                fMainSettings.SetButtonsBool(false, false, true, false, true);
+                fTrigger.SetButtonsBool(false, false, true, false, true);
                 Log.d(TAG, "Movie");
                 break;
             case 7:
@@ -128,7 +128,7 @@ public class MainActivity extends FragmentActivity
 
 
     @Override
-    public void onMainSettinsInteraction(int settingsType) {
+    public void  onTriggerFragmInteraction(int settingsType) {
         // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
         //Log.d(TAG, "bla " + settingsType);
         FragmentManager fm = getSupportFragmentManager();

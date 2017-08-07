@@ -3,8 +3,6 @@ package com.example.mail.fragmenttest;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
@@ -12,14 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends Fragment
-        implements MainSettingsFragment.OnMainSettingsFragmInteractionListener {
+public class TriggerFragment extends Fragment {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
     MainSettingsFragment fMainSettings;
@@ -27,9 +25,9 @@ public class TriggerFragment extends Fragment
     String currExpApart2;
     private boolean time, aparture, exposureAdj, iso, wb;
 
-    private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
-    private OnMainSettingsFragmInteractionListener mListener;
 
+    private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
+    private OnTriggerFragmInteractionListener mListener;
     //    OnShutterReleasePressed mCallback;
 //    OnDrivemodePressed mPressed;
 //
@@ -40,9 +38,12 @@ public class TriggerFragment extends Fragment
 //    public  interface OnDrivemodePressed{
 //        void onDrivemodePressed();
 //    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null)
+            return;
     }
 
 
@@ -52,6 +53,7 @@ public class TriggerFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
         view.setId(View.generateViewId());
+        CreateSettings(settingsArr, view);
 //        //shutter release pressed
 //        ImageButton ib_shutterRelease = (ImageButton) view.findViewById(R.id.ib_shutterrelease);
 //        ib_shutterRelease.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +74,14 @@ public class TriggerFragment extends Fragment
         return view;
     }
 
-    public void SetButtonsBool(boolean time,boolean aparture,boolean exposureAdj,boolean iso, boolean wb){
+    private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
+        RelativeLayout relativeLayout = (RelativeLayout) rootView.findViewById(R.id.rl_settings);
+        //linearLayout.setBackgroundColor(Color.YELLOW);
+        SetupButtons(relativeLayout);
+        return relativeLayout;
+    }
+
+    public void SetButtonsBool(boolean time, boolean aparture, boolean exposureAdj, boolean iso, boolean wb) {
         this.time = time;
         this.aparture = aparture;
         this.exposureAdj = exposureAdj;
@@ -80,63 +89,143 @@ public class TriggerFragment extends Fragment
         this.wb = wb;
     }
 
-    private void SetupButtons(LinearLayout linearLayout) {
-        int padding = 45;
+    private void SetupButtons(RelativeLayout relativeLayout) {
         //LinearLayout linearLayout = ll_main;
+        int padding = 45;
         int cTxtDis = ContextCompat.getColor(getContext(), R.color.ColorBarTextDisabled);
         int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
+        //ExposureCorr
 
-        Log.d(TAG, time+" "+aparture+" "+exposureAdj+" "+iso+" "+wb);
+        LinearLayout center_linearLayout = CreateExposureCorr(cTxtEn, cTxtDis, padding);
+        LinearLayout left_LinearLayout = CreateExpTFstop(cTxtEn, cTxtDis, padding, center_linearLayout);
+        LinearLayout right_LinearLayout = CreateIsoWBBtn(cTxtEn, cTxtDis, padding, center_linearLayout);
+
+        relativeLayout.addView(left_LinearLayout);
+        relativeLayout.addView(center_linearLayout);
+        relativeLayout.addView(right_LinearLayout);
+//        TextView tv_expCorr = new TextView(getActivity());
+//        tv_expCorr.setText(settingsArr[2]);
+//        tv_expCorr.setPaddingRelative(padding, 0, padding, 0);
+//        if (exposureAdj) {
+//            tv_expCorr.setTextColor(cTxtEn);
+//            tv_expCorr.setOnClickListener(new View.OnClickListener() {
+//                public void onClick(View v) {
+//                    // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
+//                    mListener.onTriggerFragmInteraction(2);
+//                }
+//            });
+//        } else
+//            tv_expCorr.setTextColor(cTxtDis);
+//        center_linearLayout.addView(tv_expCorr);
+
+
+    }
+
+    private LinearLayout CreateExpTFstop(int colEnable, int colDisable, int padding, LinearLayout alignLayout) {
+        LinearLayout root_linearLayout = new LinearLayout(getContext());
+        RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        root_linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        relParams.addRule(RelativeLayout.START_OF, alignLayout.getId());
+        relParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        //root_linearLayout.setGravity(Gravity.CENTER_VERTICAL);
+        root_linearLayout.setLayoutParams(relParams);
+
+        Log.d(TAG, time + " " + aparture + " " + exposureAdj + " " + iso + " " + wb);
+
         // exposure Time
         TextView tv_expTime = new TextView(getActivity());
         tv_expTime.setText(settingsArr[0]);
         tv_expTime.setPaddingRelative(padding, 0, padding, 0);
         if (time) {
-            //Log.d(TAG, "huuuuu");
-            tv_expTime.setTextColor(cTxtEn);
+            tv_expTime.setTextColor(colEnable);
             tv_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
-                    mListener.onMainSettinsInteraction(0);
+                    mListener.onTriggerFragmInteraction(0);
                 }
             });
         } else
-            tv_expTime.setTextColor(cTxtDis);
-        linearLayout.addView(tv_expTime);
+            tv_expTime.setTextColor(colDisable);
+        root_linearLayout.addView(tv_expTime);
 
         //Fstop
         TextView tv_fStop = new TextView(getActivity());
         tv_fStop.setText(settingsArr[1]);
         tv_fStop.setPaddingRelative(padding, 0, padding, 0);
         if (aparture) {
-            tv_fStop.setTextColor(cTxtEn);
+            tv_fStop.setTextColor(colEnable);
             tv_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
-                    mListener.onMainSettinsInteraction(1);
+                    mListener.onTriggerFragmInteraction(1);
                 }
             });
-        } else
-            // Log.d(TAG, "fuck");
-            tv_fStop.setTextColor(cTxtDis);
-        linearLayout.addView(tv_fStop);
+        } else {
+            tv_fStop.setTextColor(colDisable);
+        }
+        root_linearLayout.addView(tv_fStop);
+        return root_linearLayout;
+    }
 
-        //ExposureCorr
-        TextView tv_expCorr = new TextView(getActivity());
-        tv_expCorr.setText(settingsArr[2]);
-        tv_expCorr.setPaddingRelative(padding, 0, padding, 0);
-        if (exposureAdj) {
-            tv_expCorr.setTextColor(cTxtEn);
-            tv_expCorr.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
-                    mListener.onMainSettinsInteraction(2);
-                }
-            });
-        } else
-            tv_expCorr.setTextColor(cTxtDis);
+    private LinearLayout CreateExposureCorr(int colEnable, int colDisable, int padding) {
+        LinearLayout rootLinearLayout = new LinearLayout(getContext());
+        rootLinearLayout.setId(View.generateViewId());
+        RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        //relParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        rootLinearLayout.setMinimumWidth(130);
+        rootLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        rootLinearLayout.setLayoutParams(relParams);
 
-        linearLayout.addView(tv_expCorr);
+        String expOffestTxt = "+0.3 ";
+
+        TextView tv_expOffset = new TextView(getActivity());
+        tv_expOffset.setGravity(Gravity.CENTER_HORIZONTAL);
+        tv_expOffset.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        tv_expOffset.setText(expOffestTxt);
+        rootLinearLayout.addView(tv_expOffset);
+
+        LinearLayout containerLLayout = new LinearLayout(getContext());
+        LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        containerLLayout.setLayoutParams(linParams);
+        containerLLayout.setGravity(Gravity.CENTER_VERTICAL);
+        containerLLayout.setOrientation(LinearLayout.HORIZONTAL);
+        containerLLayout.setWeightSum(8);
+        rootLinearLayout.addView(containerLLayout);
+
+        TextView leftText = new TextView(getContext());
+        leftText.setGravity(Gravity.CENTER_HORIZONTAL);
+        leftText.setMinWidth(10);
+
+        leftText.setText("- ");
+        leftText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        containerLLayout.addView(leftText);
+
+
+        ExposureCorrection expCorr = new ExposureCorrection(getContext());
+        linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        expCorr.setLayoutParams(linParams);
+
+        containerLLayout.addView(expCorr);
+
+        TextView rightText = new TextView(getContext());
+        rightText.setGravity(Gravity.CENTER_VERTICAL);
+        rightText.setMinWidth(10);
+        rightText.setText(" +");
+        rightText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        containerLLayout.addView(rightText);
+
+        return rootLinearLayout;
+    }
+
+    private LinearLayout CreateIsoWBBtn(int colEnable, int colDisable, int padding, LinearLayout alignLayout) {
+        LinearLayout root_linerarLayout = new LinearLayout(getContext());
+        RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        //relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        relParams.addRule(RelativeLayout.END_OF, alignLayout.getId());
+        root_linerarLayout.setOrientation(LinearLayout.HORIZONTAL);
+        root_linerarLayout.setLayoutParams(relParams);
+
 
         //iso
         TextView tv_iso = new TextView(getActivity());
@@ -144,17 +233,16 @@ public class TriggerFragment extends Fragment
         tv_iso.setGravity(Gravity.CENTER);
         tv_iso.setPaddingRelative(padding, 0, padding, 0);
         if (iso) {
-            tv_iso.setTextColor(cTxtEn);
+            tv_iso.setTextColor(colEnable);
             tv_iso.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
-                    mListener.onMainSettinsInteraction(3);
+                    mListener.onTriggerFragmInteraction(3);
                 }
             });
         } else
-            tv_iso.setTextColor(cTxtDis);
-
-        linearLayout.addView(tv_iso);
+            tv_iso.setTextColor(colDisable);
+        root_linerarLayout.addView(tv_iso);
 
         //WhiteBalance
         TextView tv_wb = new TextView(getActivity());
@@ -162,170 +250,22 @@ public class TriggerFragment extends Fragment
         tv_wb.setGravity(Gravity.CENTER);
         tv_wb.setPaddingRelative(padding, 0, padding, 0);
         if (wb) {
-            tv_wb.setTextColor(cTxtEn);
+            tv_wb.setTextColor(colEnable);
             tv_wb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
-                    mListener.onMainSettinsInteraction(4);
+                    mListener.onTriggerFragmInteraction(4);
                 }
             });
         } else
-            tv_wb.setTextColor(cTxtDis);
-
-        linearLayout.addView(tv_wb);
-
+            tv_wb.setTextColor(colDisable);
+        root_linerarLayout.addView(tv_wb);
+        return root_linerarLayout;
     }
 
-   public void SetMainSettingsButtons(int mode) {
-        Log.d(TAG, "Mode: " + mode);
-        switch (mode) {
-            case 0://iAuto
-                fMainSettings.SetButtonsBool(false, false, false, false, false);
-                Log.d(TAG, "Iauto");
-                break;
-            case 1://Programm
-                fMainSettings.SetButtonsBool(false, false, true, true, true);
-                Log.d(TAG, "Programm");
-                break;
-            case 2://Aparture
-                fMainSettings.SetButtonsBool(false, true, true, true, true);
-                Log.d(TAG, "Aparture");
-                break;
-            case 3://Speed
-                fMainSettings.SetButtonsBool(true, false, true, true, true);
-                Log.d(TAG, "Speed");
-                break;
-            case 4://Manual
-                fMainSettings.SetButtonsBool(true, true, false, true, true);
-                Log.d(TAG, "Manual");
-                break;
-            case 5:
-                break;
-            case 6://Movie
-                fMainSettings.SetButtonsBool(false, false, true, false, true);
-                Log.d(TAG, "Movie");
-                break;
-            case 7:
-                break;
-            case 8:
-                break;
-        }
-       /* FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.fl_FragCont_MainSettings, fMainSettings, "Expo");
-        fragmentTransaction.commit();*/
-        Fragment frg = getFragmentManager().findFragmentByTag("Main");
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(frg).attach(frg).commit();
-    }
-
-
-    @Override
-    public void onMainSettinsInteraction(int settingsType) {
-        // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
-        //Log.d(TAG, "bla " + settingsType);
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        Fragment myFrag;
-        String myTag;
-        //Log.d(TAG,"visFrag"+ fm.getFragments().toString());
-        switch (settingsType) {
-            case 0:
-                myTag = "Expo";
-                if (currExpApart1 == myTag) {
-                    Log.d(TAG, "SameFrag");
-                    ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                    ft.remove(getFragmentManager().findFragmentByTag(myTag));
-                    currExpApart1 = "";
-                } else {
-                    if ((myFrag = getFragmentManager().findFragmentByTag(myTag)) != null) {
-                        Log.d(TAG, "Exists");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
-                        currExpApart1 = myTag;
-                    } else {
-                        Log.d(TAG, "New");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, new ExposureFragment(), myTag);
-                        currExpApart1 = myTag;
-                    }
-                }
-                ft.addToBackStack("back");
-                ft.commit();
-                break;
-            case 1:
-                myTag = "Apart";
-
-                if (currExpApart1 == myTag) {
-                    Log.d(TAG, "SameFrag");
-                    ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                    ft.remove(getFragmentManager().findFragmentByTag(myTag));
-                    currExpApart1 = "";
-                } else {
-                    if ((myFrag = getFragmentManager().findFragmentByTag(myTag)) != null) {
-                        Log.d(TAG, "Exists");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
-                        currExpApart1 = myTag;
-                    } else {
-                        Log.d(TAG, "New");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, new ApartureFragment(), myTag);
-                        currExpApart1 = myTag;
-                    }
-                }
-                ft.addToBackStack("back");
-                ft.commit();
-                Log.d(TAG, "visFrag " + fm.getFragments().size());
-                break;
-            case 2:
-                break;
-            case 3:
-                myTag = "Iso";
-                if (currExpApart1 == myTag) {
-                    Log.d(TAG, "SameFrag");
-                    ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                    ft.remove(getFragmentManager().findFragmentByTag(myTag));
-                    currExpApart1 = "";
-                } else {
-                    if ((myFrag = getFragmentManager().findFragmentByTag(myTag)) != null) {
-                        Log.d(TAG, "Exists");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
-                        currExpApart1 = myTag;
-                    } else {
-                        Log.d(TAG, "New");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, new IsoFragment(), myTag);
-                        currExpApart1 = myTag;
-                    }
-                }
-                ft.addToBackStack("back");
-                ft.commit();
-                break;
-            case 4:
-                myTag = "Wb";
-                if (currExpApart1 == myTag) {
-                    Log.d(TAG, "SameFrag");
-                    ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                    ft.remove(getFragmentManager().findFragmentByTag(myTag));
-                    currExpApart1 = "";
-                } else {
-                    if ((myFrag = getFragmentManager().findFragmentByTag(myTag)) != null) {
-                        Log.d(TAG, "Exists");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
-                        currExpApart1 = myTag;
-                    } else {
-                        Log.d(TAG, "New");
-                        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                        ft.replace(R.id.fl_FragCont_ExpApart1, new WbFragment(), myTag);
-                        currExpApart1 = myTag;
-                    }
-                }
-                ft.addToBackStack("back");
-                ft.commit();
-                break;
-        }
+    public interface OnTriggerFragmInteractionListener {
+        // TODO: Update argument type and name
+        void onTriggerFragmInteraction(int settingsType);
     }
 
     @Override
