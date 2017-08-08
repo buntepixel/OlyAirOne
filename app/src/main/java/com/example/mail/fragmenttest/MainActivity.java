@@ -129,11 +129,6 @@ public class MainActivity extends FragmentActivity
         } else {
             Log.w(TAG, "couldn't find Fragment with tag: Trigger");
         }
-
-
-       /* FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.fl_FragCont_MainSettings, fMainSettings, "Expo");
-        fragmentTransaction.commit();*/
         Log.d(TAG, "here");
         Fragment frg = getSupportFragmentManager().findFragmentByTag("Trigger");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -183,7 +178,7 @@ public class MainActivity extends FragmentActivity
         String myTag;
         Fragment myFrag;
         myTag = "Wb";
-        if (currExpApart1 == myTag) {
+        if (currExpApart1.equals(myTag)) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
@@ -207,7 +202,7 @@ public class MainActivity extends FragmentActivity
         String myTag;
         Fragment myFrag;
         myTag = "Iso";
-        if (currExpApart1 == myTag) {
+        if (currExpApart1.equals(myTag)) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
@@ -231,7 +226,7 @@ public class MainActivity extends FragmentActivity
         String myTag;
         Fragment myFrag;
         myTag = "Apart";
-        if (currExpApart1 == myTag) {
+        if (currExpApart1.equals(myTag)) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
@@ -255,7 +250,7 @@ public class MainActivity extends FragmentActivity
         String myTag;
         Fragment myFrag;
         myTag = "Expo";
-        if (TagOnFrameLayout == myTag) {
+        if (TagOnFrameLayout.equals(myTag)) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
@@ -276,8 +271,6 @@ public class MainActivity extends FragmentActivity
         }
         return myTag;
     }
-
-
 }
 
 
