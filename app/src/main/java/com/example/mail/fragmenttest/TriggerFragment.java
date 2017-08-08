@@ -176,7 +176,6 @@ public class TriggerFragment extends Fragment {
         rootLinearLayout.setId(View.generateViewId());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        //relParams.addRule(RelativeLayout.CENTER_VERTICAL);
         rootLinearLayout.setMinimumWidth(130);
         rootLinearLayout.setOrientation(LinearLayout.VERTICAL);
         rootLinearLayout.setLayoutParams(relParams);
@@ -199,7 +198,7 @@ public class TriggerFragment extends Fragment {
             tv_expOffset.setTextColor(colDisable);
 
         rootLinearLayout.addView(tv_expOffset);
-        //Expcorr Layout
+        //Expcorr Layout only if manual Mode
         if (driveMode == 4) {
             LinearLayout containerLLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -233,8 +232,6 @@ public class TriggerFragment extends Fragment {
             rightText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             containerLLayout.addView(rightText);
         }
-
-
         return rootLinearLayout;
     }
 
