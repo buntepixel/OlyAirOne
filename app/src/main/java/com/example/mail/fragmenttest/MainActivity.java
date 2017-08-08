@@ -17,7 +17,7 @@ public class MainActivity extends FragmentActivity
         implements TriggerFragment.OnTriggerFragmInteractionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    TriggerFragment fTrigger;
+
     MainSettingsFragment fMainSettings;
 
 
@@ -26,7 +26,6 @@ public class MainActivity extends FragmentActivity
     int currDriveMode = 0;
     String currExpApart1;
     String currExpApart2;
-
 
     private enum OLYRecordModes {
         IAUTO,
@@ -41,6 +40,7 @@ public class MainActivity extends FragmentActivity
         MOVIEM
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +53,7 @@ public class MainActivity extends FragmentActivity
         if (savedInstanceState != null) {
             return;
         }
-        fTrigger = new TriggerFragment();
+        TriggerFragment fTrigger = new TriggerFragment();
 
         //fMainSettings = new MainSettingsFragment();
         FragmentManager fm = getSupportFragmentManager();
@@ -86,49 +86,65 @@ public class MainActivity extends FragmentActivity
 
     void SetMainSettingsButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
-        switch (mode) {
-            case 0://iAuto
-                fTrigger.SetButtonsBool(false, false, false, false, false);
-                Log.d(TAG, "Iauto");
-                break;
-            case 1://Programm
-                fTrigger.SetButtonsBool(false, false, true, true, true);
-                Log.d(TAG, "Programm");
-                break;
-            case 2://Aparture
-                fTrigger.SetButtonsBool(false, true, true, true, true);
-                Log.d(TAG, "Aparture");
-                break;
-            case 3://Speed
-                fTrigger.SetButtonsBool(true, false, true, true, true);
-                Log.d(TAG, "Speed");
-                break;
-            case 4://Manual
-                fTrigger.SetButtonsBool(true, true, false, true, true);
-                Log.d(TAG, "Manual");
-                break;
-            case 5:
-                break;
-            case 6://Movie
-                fTrigger.SetButtonsBool(false, false, true, false, true);
-                Log.d(TAG, "Movie");
-                break;
-            case 7:
-                break;
-            case 8:
-                break;
+        TriggerFragment fTrigger = (TriggerFragment) getSupportFragmentManager().findFragmentByTag("Trigger");
+        if (fTrigger != null) {
+            switch (mode) {
+                case 0://iAuto
+                    fTrigger.SetButtonsBool(false, false, false, false, false);
+                    fTrigger.SetDriveMode(mode);
+                    Log.d(TAG, "Iauto");
+                    break;
+                case 1://Programm
+                    fTrigger.SetButtonsBool(false, false, true, true, true);
+                    fTrigger.SetDriveMode(mode);
+                    Log.d(TAG, "Programm");
+                    break;
+                case 2://Aparture
+                    fTrigger.SetButtonsBool(false, true, true, true, true);
+                    fTrigger.SetDriveMode(mode);
+                    Log.d(TAG, "Aparture");
+                    break;
+                case 3://Speed
+                    fTrigger.SetButtonsBool(true, false, true, true, true);
+                    fTrigger.SetDriveMode(mode);
+                    Log.d(TAG, "Speed");
+                    break;
+                case 4://Manual
+                    fTrigger.SetButtonsBool(true, true, false, true, true);
+                    fTrigger.SetDriveMode(mode);
+                    Log.d(TAG, "Manual");
+                    break;
+                case 5:
+                    break;
+                case 6://Movie
+                    fTrigger.SetButtonsBool(false, false, true, false, true);
+                    fTrigger.SetDriveMode(mode);
+                    Log.d(TAG, "Movie");
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+            }
         }
+        else {
+            Log.w(TAG,"couldn't find Fragment with tag: Trigger");
+        }
+
+
        /* FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.fl_FragCont_MainSettings, fMainSettings, "Expo");
         fragmentTransaction.commit();*/
-        Fragment frg = getSupportFragmentManager().findFragmentByTag("Main");
+        Log.d(TAG, "here");
+        Fragment frg = getSupportFragmentManager().findFragmentByTag("Trigger");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.detach(frg).attach(frg).commit();
+        Log.d(TAG, "There");
     }
 
 
     @Override
-    public void  onTriggerFragmInteraction(int settingsType) {
+    public void onTriggerFragmInteraction(int settingsType) {
         // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
         //Log.d(TAG, "bla " + settingsType);
         FragmentManager fm = getSupportFragmentManager();
@@ -183,7 +199,7 @@ public class MainActivity extends FragmentActivity
                 }
                 ft.addToBackStack("back");
                 ft.commit();
-                Log.d(TAG,"visFrag "+ fm.getFragments().size());
+                Log.d(TAG, "visFrag " + fm.getFragments().size());
                 break;
             case 2:
                 break;
@@ -235,6 +251,8 @@ public class MainActivity extends FragmentActivity
                 break;
         }
     }
+
+
 }
 
 

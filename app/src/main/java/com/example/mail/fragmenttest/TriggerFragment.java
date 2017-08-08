@@ -20,14 +20,14 @@ import android.widget.TextView;
 public class TriggerFragment extends Fragment {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
-    MainSettingsFragment fMainSettings;
     String currExpApart1;
     String currExpApart2;
     private boolean time, aparture, exposureAdj, iso, wb;
-
-
     private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
+    private int driveMode;
     private OnTriggerFragmInteractionListener mListener;
+
+
     //    OnShutterReleasePressed mCallback;
 //    OnDrivemodePressed mPressed;
 //
@@ -39,9 +39,21 @@ public class TriggerFragment extends Fragment {
 //        void onDrivemodePressed();
 //    }
 
+//    public TriggerFragment(){
+//        this.mListener = null;
+//    }
+//    public void setTriggerFragmListener(OnTriggerFragmInteractionListener listener){
+//        this.mListener = listener;
+//    }
+
+    public interface OnTriggerFragmInteractionListener {
+        void onTriggerFragmInteraction(int settingsType);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (savedInstanceState != null)
             return;
     }
@@ -51,6 +63,7 @@ public class TriggerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         // Inflate the layout for this fragment
+        Log.d(TAG, "notdead A");
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
         view.setId(View.generateViewId());
         CreateSettings(settingsArr, view);
@@ -76,6 +89,8 @@ public class TriggerFragment extends Fragment {
 
     private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
         RelativeLayout relativeLayout = (RelativeLayout) rootView.findViewById(R.id.rl_settings);
+        Log.d(TAG, "notDead B");
+
         //linearLayout.setBackgroundColor(Color.YELLOW);
         SetupButtons(relativeLayout);
         return relativeLayout;
@@ -89,13 +104,18 @@ public class TriggerFragment extends Fragment {
         this.wb = wb;
     }
 
+    public void SetDriveMode(int driveMode) {
+        this.driveMode = driveMode;
+    }
+
+
     private void SetupButtons(RelativeLayout relativeLayout) {
         //LinearLayout linearLayout = ll_main;
-        int padding = 45;
+        int padding = 40;
         int cTxtDis = ContextCompat.getColor(getContext(), R.color.ColorBarTextDisabled);
         int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
         //ExposureCorr
-
+        Log.d(TAG, "notDead C");
         LinearLayout center_linearLayout = CreateExposureCorr(cTxtEn, cTxtDis, padding);
         LinearLayout left_LinearLayout = CreateExpTFstop(cTxtEn, cTxtDis, padding, center_linearLayout);
         LinearLayout right_LinearLayout = CreateIsoWBBtn(cTxtEn, cTxtDis, padding, center_linearLayout);
@@ -103,22 +123,6 @@ public class TriggerFragment extends Fragment {
         relativeLayout.addView(left_LinearLayout);
         relativeLayout.addView(center_linearLayout);
         relativeLayout.addView(right_LinearLayout);
-//        TextView tv_expCorr = new TextView(getActivity());
-//        tv_expCorr.setText(settingsArr[2]);
-//        tv_expCorr.setPaddingRelative(padding, 0, padding, 0);
-//        if (exposureAdj) {
-//            tv_expCorr.setTextColor(cTxtEn);
-//            tv_expCorr.setOnClickListener(new View.OnClickListener() {
-//                public void onClick(View v) {
-//                    // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
-//                    mListener.onTriggerFragmInteraction(2);
-//                }
-//            });
-//        } else
-//            tv_expCorr.setTextColor(cTxtDis);
-//        center_linearLayout.addView(tv_expCorr);
-
-
     }
 
     private LinearLayout CreateExpTFstop(int colEnable, int colDisable, int padding, LinearLayout alignLayout) {
@@ -177,43 +181,59 @@ public class TriggerFragment extends Fragment {
         rootLinearLayout.setOrientation(LinearLayout.VERTICAL);
         rootLinearLayout.setLayoutParams(relParams);
 
-        String expOffestTxt = "+0.3 ";
+        String expOffsetTxt = "+ 0.3 ";
 
         TextView tv_expOffset = new TextView(getActivity());
         tv_expOffset.setGravity(Gravity.CENTER_HORIZONTAL);
         tv_expOffset.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        tv_expOffset.setText(expOffestTxt);
+        tv_expOffset.setText(expOffsetTxt);
+        if (exposureAdj) {
+            tv_expOffset.setTextColor(colEnable);
+            tv_expOffset.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
+                    mListener.onTriggerFragmInteraction(2);
+                }
+            });
+        } else
+            tv_expOffset.setTextColor(colDisable);
+
         rootLinearLayout.addView(tv_expOffset);
+        //Expcorr Layout
+        if (driveMode == 4) {
+            LinearLayout containerLLayout = new LinearLayout(getContext());
+            LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            containerLLayout.setLayoutParams(linParams);
+            containerLLayout.setGravity(Gravity.CENTER_VERTICAL);
+            containerLLayout.setOrientation(LinearLayout.HORIZONTAL);
+            containerLLayout.setWeightSum(8);
+            rootLinearLayout.addView(containerLLayout);
 
-        LinearLayout containerLLayout = new LinearLayout(getContext());
-        LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        containerLLayout.setLayoutParams(linParams);
-        containerLLayout.setGravity(Gravity.CENTER_VERTICAL);
-        containerLLayout.setOrientation(LinearLayout.HORIZONTAL);
-        containerLLayout.setWeightSum(8);
-        rootLinearLayout.addView(containerLLayout);
+            TextView leftText = new TextView(getContext());
+            leftText.setGravity(Gravity.CENTER_HORIZONTAL);
+            leftText.setMinWidth(10);
 
-        TextView leftText = new TextView(getContext());
-        leftText.setGravity(Gravity.CENTER_HORIZONTAL);
-        leftText.setMinWidth(10);
-
-        leftText.setText("- ");
-        leftText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        containerLLayout.addView(leftText);
+            leftText.setText("-  ");
+            leftText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorText));
+            leftText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            containerLLayout.addView(leftText);
 
 
-        ExposureCorrection expCorr = new ExposureCorrection(getContext());
-        linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        expCorr.setLayoutParams(linParams);
+            ExposureCorrection expCorr = new ExposureCorrection(getContext());
+            linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            expCorr.setLayoutParams(linParams);
 
-        containerLLayout.addView(expCorr);
+            containerLLayout.addView(expCorr);
 
-        TextView rightText = new TextView(getContext());
-        rightText.setGravity(Gravity.CENTER_VERTICAL);
-        rightText.setMinWidth(10);
-        rightText.setText(" +");
-        rightText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        containerLLayout.addView(rightText);
+            TextView rightText = new TextView(getContext());
+            rightText.setGravity(Gravity.CENTER_VERTICAL);
+            rightText.setMinWidth(10);
+            rightText.setText(" +");
+            rightText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorText));
+            rightText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            containerLLayout.addView(rightText);
+        }
+
 
         return rootLinearLayout;
     }
@@ -263,20 +283,23 @@ public class TriggerFragment extends Fragment {
         return root_linerarLayout;
     }
 
-    public interface OnTriggerFragmInteractionListener {
-        // TODO: Update argument type and name
-        void onTriggerFragmInteraction(int settingsType);
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
+            mListener = (OnTriggerFragmInteractionListener) context;
            /* mCallback = (OnShutterReleasePressed) context;
             mPressed = (OnDrivemodePressed) context;*/
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnShutterReleasePressed");
+            throw new ClassCastException(context.toString() + " must implement OnTriggerFragmInteractionListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 }
 
