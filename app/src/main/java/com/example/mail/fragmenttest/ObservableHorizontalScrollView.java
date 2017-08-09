@@ -16,9 +16,9 @@ import android.widget.HorizontalScrollView;
 public class ObservableHorizontalScrollView extends HorizontalScrollView {
 
     private OnScrollChangedListener mOnScrollChangedListener;
-    private int stateToSave;
-
-    private int stuff; // stuff
+    public void setOnScrollChangedListener(OnScrollChangedListener listener) {
+        mOnScrollChangedListener = listener;
+    }
     public interface OnScrollChangedListener{
         /**
          * Called when the scroll position of <code>view</code> changes.
@@ -29,12 +29,11 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
          */
         void onScrollChanged(ObservableHorizontalScrollView view,int l, int t);
     }
+
     public ObservableHorizontalScrollView(Context context, AttributeSet attrs){
         super(context,attrs);
     }
-    public void setOnScrollChangedListener(OnScrollChangedListener l) {
-        mOnScrollChangedListener = l;
-    }
+
 
 
     @Override
@@ -44,64 +43,4 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
             mOnScrollChangedListener.onScrollChanged(this, l, t);
         }
     }
-
-    //// TODO: 01/08/2017 mabe remove
-//    @Override
-//    public Parcelable onSaveInstanceState() {
-//        //begin boilerplate code that allows parent classes to save state
-//        Parcelable superState = super.onSaveInstanceState();
-//
-//        SavedState ss = new SavedState(superState);
-//        //end
-//
-//        ss.stateToSave = this.stateToSave;
-//
-//        return ss;
-//    }
-//
-//    @Override
-//    public void onRestoreInstanceState(Parcelable state) {
-//        //begin boilerplate code so parent classes can restore state
-//        if(!(state instanceof SavedState)) {
-//            super.onRestoreInstanceState(state);
-//            return;
-//        }
-//
-//        SavedState ss = (SavedState)state;
-//        super.onRestoreInstanceState(ss.getSuperState());
-//        //end
-//
-//        this.stateToSave = ss.stateToSave;
-//    }
-//
-//    static class SavedState extends BaseSavedState {
-//        int stateToSave;
-//
-//        SavedState(Parcelable superState) {
-//            super(superState);
-//        }
-//
-//        private SavedState(Parcel in) {
-//            super(in);
-//            this.stateToSave = in.readInt();
-//        }
-//
-//        @Override
-//        public void writeToParcel(Parcel out, int flags) {
-//            super.writeToParcel(out, flags);
-//            out.writeInt(this.stateToSave);
-//        }
-//
-//        //required field that makes Parcelables from a Parcel
-//        public static final Parcelable.Creator<SavedState> CREATOR =
-//                new Parcelable.Creator<SavedState>() {
-//                    public SavedState createFromParcel(Parcel in) {
-//                        return new SavedState(in);
-//                    }
-//                    public SavedState[] newArray(int size) {
-//                        return new SavedState[size];
-//                    }
-//                };
-//    }
-
 }

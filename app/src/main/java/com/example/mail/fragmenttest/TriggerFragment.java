@@ -20,8 +20,6 @@ import android.widget.TextView;
 public class TriggerFragment extends Fragment {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
-    String currExpApart1;
-    String currExpApart2;
     private boolean time, aparture, exposureAdj, iso, wb;
     private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
     private int driveMode;
@@ -89,7 +87,7 @@ public class TriggerFragment extends Fragment {
 
     private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
         RelativeLayout relativeLayout = (RelativeLayout) rootView.findViewById(R.id.rl_settings);
-        Log.d(TAG, "notDead B");
+        //Log.d(TAG, "notDead B");
 
         //linearLayout.setBackgroundColor(Color.YELLOW);
         SetupButtons(relativeLayout);
@@ -115,7 +113,7 @@ public class TriggerFragment extends Fragment {
         int cTxtDis = ContextCompat.getColor(getContext(), R.color.ColorBarTextDisabled);
         int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
         //ExposureCorr
-        Log.d(TAG, "notDead C");
+        //Log.d(TAG, "notDead C");
         LinearLayout center_linearLayout = CreateExposureCorr(cTxtEn, cTxtDis, padding);
         LinearLayout left_LinearLayout = CreateExpTFstop(cTxtEn, cTxtDis, padding, center_linearLayout);
         LinearLayout right_LinearLayout = CreateIsoWBBtn(cTxtEn, cTxtDis, padding, center_linearLayout);
@@ -131,9 +129,7 @@ public class TriggerFragment extends Fragment {
         root_linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         relParams.addRule(RelativeLayout.START_OF, alignLayout.getId());
         relParams.addRule(RelativeLayout.CENTER_VERTICAL);
-        //root_linearLayout.setGravity(Gravity.CENTER_VERTICAL);
         root_linearLayout.setLayoutParams(relParams);
-
         Log.d(TAG, time + " " + aparture + " " + exposureAdj + " " + iso + " " + wb);
 
         // exposure Time

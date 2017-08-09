@@ -39,7 +39,7 @@ public class ExposureFragment extends Fragment {
 
             this.CreateTextViewContent(myString);
 
-            Log.d(TAG, "ExposureFrag" + mContentLinLayout.toString());
+            //Log.d(TAG, "ExposureFrag" + mContentLinLayout.toString());
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.setId(View.generateViewId());
@@ -56,7 +56,7 @@ public class ExposureFragment extends Fragment {
         //Adding Textview
         for (String i : stringArr) {
             TextView textView = new TextView(getActivity());
-            Log.d(TAG, "mystring:  " + i);
+            //Log.d(TAG, "mystring:  " + i);
             textView.setText(i);
             textView.setId(View.generateViewId());
             textView.setBackgroundColor(Color.MAGENTA);

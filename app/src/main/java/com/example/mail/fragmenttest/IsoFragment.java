@@ -30,7 +30,7 @@ public class IsoFragment extends Fragment {
 
             //mContentLinLayout.setId(R.id.mContentLinLayout);
             mContentLinLayout.setId(View.generateViewId());
-            Log.d(TAG, "mContnentLinLayou id: " + mContentLinLayout.getId());
+            //Log.d(TAG, "mContnentLinLayou id: " + mContentLinLayout.getId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setLayoutParams(params);
@@ -39,16 +39,16 @@ public class IsoFragment extends Fragment {
             //create text View for LinLayout
             this.AddTextViewContent(myString, mContentLinLayout);
 
-            Log.d(TAG, "Iso Fragment:: " + mContentLinLayout.toString());
+            //Log.d(TAG, "Iso Fragment:: " + mContentLinLayout.toString());
 
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             rootView.setId(View.generateViewId());
-            Log.d(TAG, "RootView id: " + rootView.getId());
+            //Log.d(TAG, "RootView id: " + rootView.getId());
 
 
             ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
-            Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
+            //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
 
             mScrollingValuePicker.execute(getContext(), mContentLinLayout);
             return rootView;
@@ -65,7 +65,7 @@ public class IsoFragment extends Fragment {
         for (String i : stringArr) {
             TextView textView = new TextView(getActivity());
             textView.setId(View.generateViewId());
-            Log.d(TAG, "textView "+i+" id: " + textView.getId());
+            //Log.d(TAG, "textView "+i+" id: " + textView.getId());
 
 
             //Log.d(TAG, "mystring:  " + i);

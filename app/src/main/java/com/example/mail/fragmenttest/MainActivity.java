@@ -27,6 +27,7 @@ public class MainActivity extends FragmentActivity
     String currExpApart1;
     String currExpApart2;
 
+
     private enum OLYRecordModes {
         IAUTO,
         P,
@@ -53,13 +54,11 @@ public class MainActivity extends FragmentActivity
         if (savedInstanceState != null) {
             return;
         }
+        //add Trigger Fragment
         TriggerFragment fTrigger = new TriggerFragment();
-
-        //fMainSettings = new MainSettingsFragment();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
-        //fragmentTransaction.add(R.id.fl_FragCont_MainSettings, fMainSettings, "Main");
         fragmentTransaction.commit();
         //recordMode
         final ImageButton ib_RecordMode = (ImageButton) findViewById(R.id.ib_RecordMode);
@@ -69,12 +68,15 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onClick(View v) {
                 counter++;
-                ib_RecordMode.setImageResource(modeArr[counter % (modeArr.length)]);
-                currDriveMode = counter;
+                int counterMod = counter % modeArr.length;
+                ib_RecordMode.setImageResource(modeArr[counterMod]);
+                currDriveMode = counterMod;
                 SetMainSettingsButtons(counter % (modeArr.length));
                 //Log.d(TAG, "start"+ counter);
             }
         });
+
+
     }
 
     @Override
@@ -83,10 +85,10 @@ public class MainActivity extends FragmentActivity
         return myView;
     }
 
-
     void SetMainSettingsButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
         TriggerFragment fTrigger = (TriggerFragment) getSupportFragmentManager().findFragmentByTag("Trigger");
+
         if (fTrigger != null) {
             switch (mode) {
                 case 0://iAuto
@@ -129,33 +131,49 @@ public class MainActivity extends FragmentActivity
         } else {
             Log.w(TAG, "couldn't find Fragment with tag: Trigger");
         }
-        Log.d(TAG, "here");
+
         Fragment frg = getSupportFragmentManager().findFragmentByTag("Trigger");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.detach(frg).attach(frg).commit();
-        Log.d(TAG, "There");
+
+        //remove fragments that are still on
+
+
+        ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+
+        if (currExpApart1 != null && currExpApart1 != "") {
+            ft.remove(getSupportFragmentManager().findFragmentByTag(currExpApart1));
+            currExpApart1 = "";
+        }
+        if (currExpApart2 != null && currExpApart2 != "") {
+            ft.remove(getSupportFragmentManager().findFragmentByTag(currExpApart2));
+            currExpApart2 = "";
+        }
+        ft.commit();
     }
 
 
     @Override
     public void onTriggerFragmInteraction(int settingsType) {
         // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
-        //Log.d(TAG, "bla " + settingsType);
+         Log.d(TAG, "settingsType: " + settingsType);
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        Fragment myFrag;
-        String myTag;
+
         //Log.d(TAG,"visFrag"+ fm.getFragments().toString());
         int fragLayout;
+        Log.d(TAG,"currdriveMode: "+currDriveMode);
         if (currDriveMode == 4 && settingsType <= 1) {
-            currExpApart2 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, currExpApart2);
+            ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
             AparturePressed(ft);
-            ft.addToBackStack("back");
+            Log.d(TAG, "A_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
             ft.commit();
+            Log.d(TAG, "B_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
         } else {
             switch (settingsType) {
                 case 0:
-                    currExpApart1 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart1, currExpApart1);
+                    currExpApart1 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart1, 1);
                     break;
                 case 1:
                     AparturePressed(ft);
@@ -169,8 +187,9 @@ public class MainActivity extends FragmentActivity
                     WbPressed(ft);
                     break;
             }
-            ft.addToBackStack("back");
+            //ft.addToBackStack("back");
             ft.commit();
+            Log.d(TAG, "C_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
         }
     }
 
@@ -178,7 +197,7 @@ public class MainActivity extends FragmentActivity
         String myTag;
         Fragment myFrag;
         myTag = "Wb";
-        if (currExpApart1.equals(myTag)) {
+        if (currExpApart1 == myTag) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
@@ -202,7 +221,7 @@ public class MainActivity extends FragmentActivity
         String myTag;
         Fragment myFrag;
         myTag = "Iso";
-        if (currExpApart1.equals(myTag)) {
+        if (currExpApart1 == myTag) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
@@ -226,7 +245,7 @@ public class MainActivity extends FragmentActivity
         String myTag;
         Fragment myFrag;
         myTag = "Apart";
-        if (currExpApart1.equals(myTag)) {
+        if (currExpApart1 == myTag) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
@@ -246,27 +265,43 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    private String ExposurePressed(FragmentTransaction ft, int FrameLayout, String TagOnFrameLayout) {
-        String myTag;
+    private String ExposurePressed(FragmentTransaction ft, int FrameLayout, int FrameLayoutId) {
         Fragment myFrag;
-        myTag = "Expo";
-        if (TagOnFrameLayout.equals(myTag)) {
+        String currTag;
+        if (FrameLayoutId == 1)
+            currTag = currExpApart1;
+        else
+            currTag = currExpApart2;
+        String myTag = "Expo";
+        if (currTag == myTag) {
             Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
-            //currExpApart1 = "";
-            myTag = "";
+            if (FrameLayoutId == 1) {
+                currExpApart1 = "";
+                Log.d(TAG, "currExpoApart 1");
+            } else {
+                currExpApart2 = "";
+                Log.d(TAG, "currExpoApart 2:  " + currExpApart2);
+            }
+
         } else {
             if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
                 Log.d(TAG, "Exists");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(FrameLayout, myFrag, myTag);
-                //currExpApart1 = myTag;
+                if (FrameLayoutId == 1)
+                    currExpApart1 = myTag;
+                else
+                    currExpApart2 = myTag;
             } else {
                 Log.d(TAG, "New");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(FrameLayout, new ExposureFragment(), myTag);
-                //currExpApart1 = myTag;
+                if (FrameLayoutId == 1)
+                    currExpApart1 = myTag;
+                else
+                    currExpApart2 = myTag;
             }
         }
         return myTag;
