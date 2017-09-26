@@ -61,7 +61,7 @@ public class TriggerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         // Inflate the layout for this fragment
-        Log.d(TAG, "notdead A");
+        //Log.d(TAG, "notdead A");
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
         view.setId(View.generateViewId());
         CreateSettings(settingsArr, view);
@@ -282,6 +282,7 @@ public class TriggerFragment extends Fragment {
         super.onAttach(context);
         try {
             mListener = (OnTriggerFragmInteractionListener) context;
+
            /* mCallback = (OnShutterReleasePressed) context;
             mPressed = (OnDrivemodePressed) context;*/
         } catch (ClassCastException e) {

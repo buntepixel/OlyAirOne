@@ -12,30 +12,27 @@ import android.widget.LinearLayout;
  * Created by mail on 13/10/2016.
  */
 
-public class ScrollingValuePicker extends FrameLayout {
+public class ScrollingValuePicker extends FrameLayout  {
     private static final String TAG = ScrollingValuePicker.class.getSimpleName();
     private View mLeftSpacer;
     private View mRightSpacer;
     private ObservableHorizontalScrollView mScrollView;
 
-//    private LinearLayout mLinearLayout;
-//    public LinearLayout getLinearLayout() {
-//        return mLinearLayout;
-//    }
-
-//    public void setLinearLayout(LinearLayout linearLayout) {
-//        mLinearLayout = linearLayout;
-//        Log.d(TAG, "ScrollingValuePicker"+ mLinearLayout.toString());
-//    }
-
     public ScrollingValuePicker(Context context, AttributeSet attrs) {
         super(context, attrs);
         mScrollView = new ObservableHorizontalScrollView(context, attrs);
-
         mScrollView.setId(View.generateViewId());
-
-
+        mScrollView.setOnScrollChangedListener(OnScrollChanged);
     }
+
+    private ObservableHorizontalScrollView.OnScrollChangedListener OnScrollChanged = new ObservableHorizontalScrollView.OnScrollChangedListener() {
+        @Override
+        public void onScrollChanged(ObservableHorizontalScrollView view, int l, int t) {
+            Log.d(TAG, "Hello");
+            float value = (float) l / view.getMaxScrollAmount();
+            Log.d(TAG, "ScrollValue: " + value);
+        }
+    };
 
     public void execute(Context context, LinearLayout linearLayout) {
         try {
@@ -44,7 +41,6 @@ public class ScrollingValuePicker extends FrameLayout {
             addView(mScrollView);
             // Create a horizontal (by default) LinearLayout as our child container
             final LinearLayout ll_container = new LinearLayout(context);
-
             ll_container.setId(View.generateViewId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -58,6 +54,7 @@ public class ScrollingValuePicker extends FrameLayout {
             ll_container.addView(mLeftSpacer, 0);
             mRightSpacer = new View(context);
             ll_container.addView(mRightSpacer);
+
         } catch (Exception e) {
             Log.e(TAG, "exception: " + e.getMessage());
             Log.e(TAG, "exception: " + Log.getStackTraceString(e));
@@ -82,6 +79,7 @@ public class ScrollingValuePicker extends FrameLayout {
             mRightSpacer.setLayoutParams(rightParams);
         }
     }
+
 
     // do stuff with the scroll listener we created early to make our values usable.
 

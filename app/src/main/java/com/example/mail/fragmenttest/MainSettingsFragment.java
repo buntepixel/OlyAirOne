@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -170,7 +171,7 @@ public class MainSettingsFragment extends Fragment {
             tv_fStop.setTextColor(cTxtEn);
             tv_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
                     mListener.onMainSettinsInteraction(1);
                 }
             });

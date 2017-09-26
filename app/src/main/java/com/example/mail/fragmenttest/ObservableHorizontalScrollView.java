@@ -13,12 +13,16 @@ import android.widget.HorizontalScrollView;
  */
 
 
-public class ObservableHorizontalScrollView extends HorizontalScrollView {
+public class ObservableHorizontalScrollView extends HorizontalScrollView
+{
+    private static final String TAG = ObservableHorizontalScrollView.class.getSimpleName();
 
-    private OnScrollChangedListener mOnScrollChangedListener;
-    public void setOnScrollChangedListener(OnScrollChangedListener listener) {
-        mOnScrollChangedListener = listener;
-    }
+
+    /**
+     * Interface definition for a callback to be invoked with the scroll
+     * position changes.
+     */
+
     public interface OnScrollChangedListener{
         /**
          * Called when the scroll position of <code>view</code> changes.
@@ -29,11 +33,15 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
          */
         void onScrollChanged(ObservableHorizontalScrollView view,int l, int t);
     }
+    private OnScrollChangedListener mOnScrollChangedListener;
 
     public ObservableHorizontalScrollView(Context context, AttributeSet attrs){
         super(context,attrs);
     }
 
+    public void setOnScrollChangedListener(OnScrollChangedListener listener) {
+        mOnScrollChangedListener = listener;
+    }
 
 
     @Override

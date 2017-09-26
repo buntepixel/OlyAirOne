@@ -167,9 +167,9 @@ public class MainActivity extends FragmentActivity
         if (currDriveMode == 4 && settingsType <= 1) {
             ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
             AparturePressed(ft);
-            Log.d(TAG, "A_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
+            //Log.d(TAG, "A_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
             ft.commit();
-            Log.d(TAG, "B_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
+            //Log.d(TAG, "B_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
         } else {
             switch (settingsType) {
                 case 0:
@@ -189,7 +189,7 @@ public class MainActivity extends FragmentActivity
             }
             //ft.addToBackStack("back");
             ft.commit();
-            Log.d(TAG, "C_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
+            //Log.d(TAG, "C_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
         }
     }
 
@@ -198,18 +198,18 @@ public class MainActivity extends FragmentActivity
         Fragment myFrag;
         myTag = "Wb";
         if (currExpApart1 == myTag) {
-            Log.d(TAG, "SameFrag");
+            //Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
             currExpApart1 = "";
         } else {
             if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                Log.d(TAG, "Exists");
+               // Log.d(TAG, "Exists");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
                 currExpApart1 = myTag;
             } else {
-                Log.d(TAG, "New");
+                //Log.d(TAG, "New");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(R.id.fl_FragCont_ExpApart1, new WbFragment(), myTag);
                 currExpApart1 = myTag;
@@ -222,18 +222,18 @@ public class MainActivity extends FragmentActivity
         Fragment myFrag;
         myTag = "Iso";
         if (currExpApart1 == myTag) {
-            Log.d(TAG, "SameFrag");
+            //Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
             currExpApart1 = "";
         } else {
             if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                Log.d(TAG, "Exists");
+                //Log.d(TAG, "Exists");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
                 currExpApart1 = myTag;
             } else {
-                Log.d(TAG, "New");
+                //Log.d(TAG, "New");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(R.id.fl_FragCont_ExpApart1, new IsoFragment(), myTag);
                 currExpApart1 = myTag;
@@ -246,18 +246,18 @@ public class MainActivity extends FragmentActivity
         Fragment myFrag;
         myTag = "Apart";
         if (currExpApart1 == myTag) {
-            Log.d(TAG, "SameFrag");
+            ///Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
             currExpApart1 = "";
         } else {
             if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                Log.d(TAG, "Exists");
+                //Log.d(TAG, "Exists");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
                 currExpApart1 = myTag;
             } else {
-                Log.d(TAG, "New");
+                //Log.d(TAG, "New");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(R.id.fl_FragCont_ExpApart1, new ApartureFragment(), myTag);
                 currExpApart1 = myTag;
@@ -274,20 +274,20 @@ public class MainActivity extends FragmentActivity
             currTag = currExpApart2;
         String myTag = "Expo";
         if (currTag == myTag) {
-            Log.d(TAG, "SameFrag");
+            //Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
             if (FrameLayoutId == 1) {
                 currExpApart1 = "";
-                Log.d(TAG, "currExpoApart 1");
+                //Log.d(TAG, "currExpoApart 1");
             } else {
                 currExpApart2 = "";
-                Log.d(TAG, "currExpoApart 2:  " + currExpApart2);
+                //Log.d(TAG, "currExpoApart 2:  " + currExpApart2);
             }
 
         } else {
             if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                Log.d(TAG, "Exists");
+                //Log.d(TAG, "Exists");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(FrameLayout, myFrag, myTag);
                 if (FrameLayoutId == 1)
@@ -295,7 +295,7 @@ public class MainActivity extends FragmentActivity
                 else
                     currExpApart2 = myTag;
             } else {
-                Log.d(TAG, "New");
+                //Log.d(TAG, "New");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(FrameLayout, new ExposureFragment(), myTag);
                 if (FrameLayoutId == 1)

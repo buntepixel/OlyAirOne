@@ -57,10 +57,12 @@ public class ApartureFragment extends Fragment
             ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
 
+            //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
 
             //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
 
             mScrollingValuePicker.execute(getContext(), mContentLinLayout);
+
             return rootView;
         } catch (Exception e) {
             Log.e(TAG, "exception: " + e.getMessage());
@@ -108,6 +110,7 @@ public class ApartureFragment extends Fragment
 //            mContentLinLayout.addView(imageView);
 //        }
 //    }
+
 
 
     @Override
