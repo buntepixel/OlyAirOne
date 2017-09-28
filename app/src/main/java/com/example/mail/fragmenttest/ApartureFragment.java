@@ -56,6 +56,12 @@ public class ApartureFragment extends Fragment
 
             ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
+            mScrollingValuePicker.setScrollingValueListener(new ScrollingValuePicker.ScrollingValueListener() {
+                @Override
+                public void onScrollChanged(float scrollValue, int visibleScrollBarVal) {
+
+                }
+            });
 
             //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
 

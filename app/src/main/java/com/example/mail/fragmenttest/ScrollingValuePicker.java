@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
  * Created by mail on 13/10/2016.
  */
 
-public class ScrollingValuePicker extends FrameLayout  {
+public class ScrollingValuePicker extends FrameLayout {
     private static final String TAG = ScrollingValuePicker.class.getSimpleName();
     private View mLeftSpacer;
     private View mRightSpacer;
@@ -80,7 +80,15 @@ public class ScrollingValuePicker extends FrameLayout  {
         }
     }
 
+    public interface ScrollingValueListener {
+        public void onScrollChanged(float scrollValue, int visibleScrollBarVal);
+    }
 
+    private ScrollingValueListener mScrollingValueListener;
+
+    public void setScrollingValueListener(ScrollingValueListener listener) {
+        this.mScrollingValueListener = listener;
+    }
     // do stuff with the scroll listener we created early to make our values usable.
 
 
