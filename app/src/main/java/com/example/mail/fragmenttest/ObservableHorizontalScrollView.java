@@ -31,7 +31,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
          * @param l Current horizontal scroll origin.
          * @param t Current vertical scroll origin.
          */
-        void onScrollChanged(ObservableHorizontalScrollView view,int l, int t);
+        void onScrollChanged(ObservableHorizontalScrollView view,int l, int t,int scrollBarWidth);
     }
     private OnScrollChangedListener mOnScrollChangedListener;
 
@@ -48,7 +48,8 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
         if (mOnScrollChangedListener != null) {
-            mOnScrollChangedListener.onScrollChanged(this, l, t);
+            int scrollBarWidth = this.computeHorizontalScrollRange();
+            mOnScrollChangedListener.onScrollChanged(this, l, t, scrollBarWidth);
         }
     }
 }

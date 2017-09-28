@@ -22,17 +22,16 @@ public class ScrollingValuePicker extends FrameLayout {
         super(context, attrs);
         mScrollView = new ObservableHorizontalScrollView(context, attrs);
         mScrollView.setId(View.generateViewId());
-        mScrollView.setOnScrollChangedListener(OnScrollChanged);
+        mScrollView.setOnScrollChangedListener(new ObservableHorizontalScrollView.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged(ObservableHorizontalScrollView view, int l, int t,int scrollBarWidth) {
+                int visScrollBarWidth = scrollBarWidth- getWidth();
+                float scrollValue = (float) l;// visScrollBarWidth;
+                mScrollingValueListener.onScrollChanged(view,scrollValue,visScrollBarWidth);
+            }
+        });
     }
 
-    private ObservableHorizontalScrollView.OnScrollChangedListener OnScrollChanged = new ObservableHorizontalScrollView.OnScrollChangedListener() {
-        @Override
-        public void onScrollChanged(ObservableHorizontalScrollView view, int l, int t) {
-            Log.d(TAG, "Hello");
-            float value = (float) l / view.getMaxScrollAmount();
-            Log.d(TAG, "ScrollValue: " + value);
-        }
-    };
 
     public void execute(Context context, LinearLayout linearLayout) {
         try {
@@ -81,7 +80,7 @@ public class ScrollingValuePicker extends FrameLayout {
     }
 
     public interface ScrollingValueListener {
-        public void onScrollChanged(float scrollValue, int visibleScrollBarVal);
+        public void onScrollChanged(ObservableHorizontalScrollView view,float scrollValue, int visibleScrollBarVal);
     }
 
     private ScrollingValueListener mScrollingValueListener;

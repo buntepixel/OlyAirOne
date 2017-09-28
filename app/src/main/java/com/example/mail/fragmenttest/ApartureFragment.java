@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -15,8 +16,7 @@ import android.widget.TextView;
  * Created by mail on 13/10/2016.
  */
 
-public class ApartureFragment extends Fragment
-        implements ObservableHorizontalScrollView.OnScrollChangedListener {
+public class ApartureFragment extends Fragment {
     private static final String TAG = ApartureFragment.class.getSimpleName();
 
     public ApartureFragment() {
@@ -26,7 +26,7 @@ public class ApartureFragment extends Fragment
     //private LinearLayout mContentLinLayout;
     //private ScrollingValuePicker mScrollingValuePicker;
 
-    private static final String[] myString = {"app", "3.2", "3.5", "4", "4.5", "5", "A", "P", "M", "S", "A", "P", "M", "S", "A", "P"};
+    private static final String[] myString = {"app", "3.2", "3.5", "4", "4.5", "5", "6", "7", "8.0"};
 
 
     @Override
@@ -51,15 +51,35 @@ public class ApartureFragment extends Fragment
 
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             rootView.setId(View.generateViewId());
-           // Log.d(TAG, "RootView id: " + rootView.getId());
+            // Log.d(TAG, "RootView id: " + rootView.getId());
 
 
-            ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
+            final ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
             mScrollingValuePicker.setScrollingValueListener(new ScrollingValuePicker.ScrollingValueListener() {
                 @Override
-                public void onScrollChanged(float scrollValue, int visibleScrollBarVal) {
-
+                public void onScrollChanged(ObservableHorizontalScrollView view, float scrollValue, int visibleScrollBarVal) {
+                    Log.d(TAG, "scrollVal: " + scrollValue + " visScrollVal: " + visibleScrollBarVal);
+                    int barSegment = visibleScrollBarVal / myString.length;
+                    // scrollvalue from 0-0,99999999
+                    float decScrollVal = scrollValue / (visibleScrollBarVal + 1);//add 1 so it never gets 1 and breaks the index
+                    int currIndex = (int) Math.floor((decScrollVal * myString.length));
+                    final int newScrollVal = (int) Math.round((barSegment * currIndex) - (barSegment / 2));
+                    // view.scrollTo(newScrollVal,0);
+                    Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex);
+                    view.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+                                Log.d("TouchTest", "Touch down");
+                            } else if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                                Log.d("TouchTest", "Touch up"+ newScrollVal);
+                                v.scrollTo(newScrollVal, 0);
+                            }
+                            return true;
+                        }
+                    });
+                    //Log.d(TAG,"index: "+currIndex+" value: "+myString[currIndex]);
                 }
             });
 
@@ -118,17 +138,12 @@ public class ApartureFragment extends Fragment
 //    }
 
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
     }
 
-    @Override
-    public void onScrollChanged(ObservableHorizontalScrollView view, int l, int t) {
-        float value = (float) l / view.getMaxScrollAmount();
-        Log.d(TAG, "ScrollValue: " + value);
-    }
+
 }
 
 
