@@ -26,6 +26,9 @@ public class MainActivity extends FragmentActivity
     int currDriveMode = 0;
     String currExpApart1;
     String currExpApart2;
+    TriggerFragment fTrigger;
+
+
 
 
     private enum OLYRecordModes {
@@ -55,7 +58,7 @@ public class MainActivity extends FragmentActivity
             return;
         }
         //add Trigger Fragment
-        TriggerFragment fTrigger = new TriggerFragment();
+        fTrigger = new TriggerFragment();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
@@ -157,13 +160,13 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onTriggerFragmInteraction(int settingsType) {
         // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
-         Log.d(TAG, "settingsType: " + settingsType);
+        Log.d(TAG, "settingsType: " + settingsType);
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
         //Log.d(TAG,"visFrag"+ fm.getFragments().toString());
         int fragLayout;
-        Log.d(TAG,"currdriveMode: "+currDriveMode);
+        Log.d(TAG, "currdriveMode: " + currDriveMode);
         if (currDriveMode == 4 && settingsType <= 1) {
             ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
             AparturePressed(ft);
@@ -204,7 +207,7 @@ public class MainActivity extends FragmentActivity
             currExpApart1 = "";
         } else {
             if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-               // Log.d(TAG, "Exists");
+                // Log.d(TAG, "Exists");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
                 currExpApart1 = myTag;
@@ -258,8 +261,15 @@ public class MainActivity extends FragmentActivity
                 currExpApart1 = myTag;
             } else {
                 //Log.d(TAG, "New");
+                ApartureFragment apartureFragment = new ApartureFragment();
+                apartureFragment.setSliderValueListener(new ApartureFragment.sliderValue() {
+                    @Override
+                    public void onSlideValueBar(String value) {
+                    fTrigger.SetFstopValue(value);
+                    }
+                });
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(R.id.fl_FragCont_ExpApart1, new ApartureFragment(), myTag);
+                ft.replace(R.id.fl_FragCont_ExpApart1, apartureFragment, myTag);
                 currExpApart1 = myTag;
             }
         }

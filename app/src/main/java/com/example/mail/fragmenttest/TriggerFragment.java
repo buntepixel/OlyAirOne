@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,8 +22,8 @@ public class TriggerFragment extends Fragment {
     private boolean time, aparture, exposureAdj, iso, wb;
     private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
     private int driveMode;
-    private OnTriggerFragmInteractionListener mListener;
 
+    private TextView tv_fStop;
 
     //    OnShutterReleasePressed mCallback;
 //    OnDrivemodePressed mPressed;
@@ -37,15 +36,19 @@ public class TriggerFragment extends Fragment {
 //        void onDrivemodePressed();
 //    }
 
-//    public TriggerFragment(){
+    //    public TriggerFragment(){
 //        this.mListener = null;
 //    }
 //    public void setTriggerFragmListener(OnTriggerFragmInteractionListener listener){
 //        this.mListener = listener;
 //    }
+    private OnTriggerFragmInteractionListener mListener;
 
     public interface OnTriggerFragmInteractionListener {
         void onTriggerFragmInteraction(int settingsType);
+    }
+    public void SetFstopValue(String value){
+        tv_fStop.setText(value);
     }
 
     @Override
@@ -130,7 +133,7 @@ public class TriggerFragment extends Fragment {
         relParams.addRule(RelativeLayout.START_OF, alignLayout.getId());
         relParams.addRule(RelativeLayout.CENTER_VERTICAL);
         root_linearLayout.setLayoutParams(relParams);
-        Log.d(TAG, time + " " + aparture + " " + exposureAdj + " " + iso + " " + wb);
+        //Log.d(TAG, time + " " + aparture + " " + exposureAdj + " " + iso + " " + wb);
 
         // exposure Time
         TextView tv_expTime = new TextView(getActivity());
@@ -149,7 +152,7 @@ public class TriggerFragment extends Fragment {
         root_linearLayout.addView(tv_expTime);
 
         //Fstop
-        TextView tv_fStop = new TextView(getActivity());
+        tv_fStop = new TextView(getActivity());
         tv_fStop.setText(settingsArr[1]);
         tv_fStop.setPaddingRelative(padding, 0, padding, 0);
         if (aparture) {

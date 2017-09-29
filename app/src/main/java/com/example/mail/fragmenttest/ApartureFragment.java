@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -22,12 +21,21 @@ public class ApartureFragment extends Fragment {
     public ApartureFragment() {
     }
 
+    private sliderValue sliderValueListener;
+
+    public interface sliderValue {
+        void onSlideValueBar(String value);
+    }
+
+    public void setSliderValueListener(sliderValue listener) {
+        this.sliderValueListener = listener;
+    }
     //private LinearLayout mLinearLayout;
     //private LinearLayout mContentLinLayout;
     //private ScrollingValuePicker mScrollingValuePicker;
 
     private static final String[] myString = {"app", "3.2", "3.5", "4", "4.5", "5", "6", "7", "8.0"};
-
+    int newScrollVal;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,35 +62,26 @@ public class ApartureFragment extends Fragment {
             // Log.d(TAG, "RootView id: " + rootView.getId());
 
 
-            final ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
+            ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
             mScrollingValuePicker.setScrollingValueListener(new ScrollingValuePicker.ScrollingValueListener() {
                 @Override
                 public void onScrollChanged(ObservableHorizontalScrollView view, float scrollValue, int visibleScrollBarVal) {
                     Log.d(TAG, "scrollVal: " + scrollValue + " visScrollVal: " + visibleScrollBarVal);
+
                     int barSegment = visibleScrollBarVal / myString.length;
                     // scrollvalue from 0-0,99999999
                     float decScrollVal = scrollValue / (visibleScrollBarVal + 1);//add 1 so it never gets 1 and breaks the index
                     int currIndex = (int) Math.floor((decScrollVal * myString.length));
-                    final int newScrollVal = (int) Math.round((barSegment * currIndex) - (barSegment / 2));
-                    // view.scrollTo(newScrollVal,0);
+                    newScrollVal = (int) Math.round((barSegment * currIndex));//- (barSegment / 2));
                     Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex);
-                    view.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
-                                Log.d("TouchTest", "Touch down");
-                            } else if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
-                                Log.d("TouchTest", "Touch up"+ newScrollVal);
-                                v.scrollTo(newScrollVal, 0);
-                            }
-                            return true;
-                        }
-                    });
+                    //view.scrollTo(newScrollVal, 0);
+                    if (sliderValueListener != null)
+                        sliderValueListener.onSlideValueBar(myString[currIndex]);
                     //Log.d(TAG,"index: "+currIndex+" value: "+myString[currIndex]);
                 }
             });
-
+//
             //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
 
             //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());

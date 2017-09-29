@@ -16,7 +16,7 @@ public class ScrollingValuePicker extends FrameLayout {
     private static final String TAG = ScrollingValuePicker.class.getSimpleName();
     private View mLeftSpacer;
     private View mRightSpacer;
-    private ObservableHorizontalScrollView mScrollView;
+    public final ObservableHorizontalScrollView mScrollView;
 
     public ScrollingValuePicker(Context context, AttributeSet attrs) {
         super(context, attrs);
