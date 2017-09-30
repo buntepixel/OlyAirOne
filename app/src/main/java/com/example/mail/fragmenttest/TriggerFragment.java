@@ -20,35 +20,29 @@ public class TriggerFragment extends Fragment {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
-    private final String[] settingsArr = new String[]{"4", "F5.6", "0.0", "ISO\n250", "WB\nAuto"};
+    private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
     private int driveMode;
 
+
+    private TextView tv_expTime;
     private TextView tv_fStop;
+    private TextView tv_iso;
+    private TextView tv_wb;
+    private TextView tv_expOffset;
 
-    //    OnShutterReleasePressed mCallback;
-//    OnDrivemodePressed mPressed;
-//
-//    public interface OnShutterReleasePressed {
-//        void onShutterReleasedPressed(int pos);
-//
-//    }
-//    public  interface OnDrivemodePressed{
-//        void onDrivemodePressed();
-//    }
 
-    //    public TriggerFragment(){
-//        this.mListener = null;
-//    }
-//    public void setTriggerFragmListener(OnTriggerFragmInteractionListener listener){
-//        this.mListener = listener;
-//    }
     private OnTriggerFragmInteractionListener mListener;
 
     public interface OnTriggerFragmInteractionListener {
         void onTriggerFragmInteraction(int settingsType);
     }
-    public void SetFstopValue(String value){
+
+    public void SetFstopValue(String value) {
         tv_fStop.setText(value);
+    }
+
+    public void SetIsoValue(String value) {
+        tv_iso.setText(value);
     }
 
     @Override
@@ -136,28 +130,48 @@ public class TriggerFragment extends Fragment {
         //Log.d(TAG, time + " " + aparture + " " + exposureAdj + " " + iso + " " + wb);
 
         // exposure Time
-        TextView tv_expTime = new TextView(getActivity());
+        LinearLayout ll_expTime = new LinearLayout(getContext());
+        ll_expTime.setOrientation(LinearLayout.VERTICAL);
+        ll_expTime.setId(View.generateViewId());
+
+        TextView tv_expTimeText = new TextView(getContext());
+        tv_expTimeText.setText("EXP");
+        tv_expTimeText.setGravity(Gravity.CENTER_HORIZONTAL);
+        tv_expTime = new TextView(getActivity());
         tv_expTime.setText(settingsArr[0]);
         tv_expTime.setPaddingRelative(padding, 0, padding, 0);
         if (time) {
             tv_expTime.setTextColor(colEnable);
-            tv_expTime.setOnClickListener(new View.OnClickListener() {
+            tv_expTimeText.setTextColor(colEnable);
+            ll_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
                     mListener.onTriggerFragmInteraction(0);
                 }
             });
-        } else
+        } else {
             tv_expTime.setTextColor(colDisable);
-        root_linearLayout.addView(tv_expTime);
+            tv_expTimeText.setTextColor(colDisable);
+        }
+        ll_expTime.addView(tv_expTimeText);
+        ll_expTime.addView(tv_expTime);
+        root_linearLayout.addView(ll_expTime);
 
         //Fstop
+        LinearLayout ll_fStop = new LinearLayout(getContext());
+        ll_fStop.setOrientation(LinearLayout.VERTICAL);
+        ll_fStop.setId(View.generateViewId());
+
+        TextView tv_fStopText = new TextView(getContext());
+        tv_fStopText.setText("F");
+        tv_fStopText.setGravity(Gravity.CENTER_HORIZONTAL);
         tv_fStop = new TextView(getActivity());
         tv_fStop.setText(settingsArr[1]);
         tv_fStop.setPaddingRelative(padding, 0, padding, 0);
         if (aparture) {
             tv_fStop.setTextColor(colEnable);
-            tv_fStop.setOnClickListener(new View.OnClickListener() {
+            tv_fStopText.setTextColor(colEnable);
+            ll_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
                     mListener.onTriggerFragmInteraction(1);
@@ -165,8 +179,11 @@ public class TriggerFragment extends Fragment {
             });
         } else {
             tv_fStop.setTextColor(colDisable);
+            tv_fStopText.setTextColor(colDisable);
         }
-        root_linearLayout.addView(tv_fStop);
+        ll_fStop.addView(tv_fStopText);
+        ll_fStop.addView(tv_fStop);
+        root_linearLayout.addView(ll_fStop);
         return root_linearLayout;
     }
 
@@ -181,7 +198,7 @@ public class TriggerFragment extends Fragment {
 
         String expOffsetTxt = "+ 0.3 ";
 
-        TextView tv_expOffset = new TextView(getActivity());
+        tv_expOffset = new TextView(getActivity());
         tv_expOffset.setGravity(Gravity.CENTER_HORIZONTAL);
         tv_expOffset.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         tv_expOffset.setText(expOffsetTxt);
@@ -235,48 +252,72 @@ public class TriggerFragment extends Fragment {
     }
 
     private LinearLayout CreateIsoWBBtn(int colEnable, int colDisable, int padding, LinearLayout alignLayout) {
-        LinearLayout root_linerarLayout = new LinearLayout(getContext());
+        LinearLayout root_linearLayout = new LinearLayout(getContext());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         //relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         relParams.addRule(RelativeLayout.END_OF, alignLayout.getId());
-        root_linerarLayout.setOrientation(LinearLayout.HORIZONTAL);
-        root_linerarLayout.setLayoutParams(relParams);
+        root_linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        root_linearLayout.setLayoutParams(relParams);
 
 
         //iso
-        TextView tv_iso = new TextView(getActivity());
+        LinearLayout ll_iso = new LinearLayout(getContext());
+        ll_iso.setOrientation(LinearLayout.VERTICAL);
+        ll_iso.setId(View.generateViewId());
+
+        TextView tv_isoText = new TextView(getContext());
+        tv_isoText.setText("ISO");
+        tv_isoText.setGravity(Gravity.CENTER_HORIZONTAL);
+        tv_iso = new TextView(getActivity());
         tv_iso.setText(settingsArr[3]);
         tv_iso.setGravity(Gravity.CENTER);
         tv_iso.setPaddingRelative(padding, 0, padding, 0);
         if (iso) {
             tv_iso.setTextColor(colEnable);
-            tv_iso.setOnClickListener(new View.OnClickListener() {
+            tv_isoText.setTextColor(colEnable);
+            ll_iso.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
                     mListener.onTriggerFragmInteraction(3);
                 }
             });
-        } else
+        } else {
             tv_iso.setTextColor(colDisable);
-        root_linerarLayout.addView(tv_iso);
+            tv_isoText.setTextColor(colDisable);
+        }
+        ll_iso.addView(tv_isoText);
+        ll_iso.addView(tv_iso);
+        root_linearLayout.addView(ll_iso);
 
         //WhiteBalance
-        TextView tv_wb = new TextView(getActivity());
+        LinearLayout ll_linLayoutWb = new LinearLayout(getContext());
+        ll_linLayoutWb.setOrientation(LinearLayout.VERTICAL);
+        ll_linLayoutWb.setId(View.generateViewId());
+
+        TextView tv_wbText = new TextView(getContext());
+        tv_wbText.setText("WB");
+        tv_wbText.setGravity(Gravity.CENTER_HORIZONTAL);
+        tv_wb = new TextView(getActivity());
         tv_wb.setText(settingsArr[4]);
         tv_wb.setGravity(Gravity.CENTER);
         tv_wb.setPaddingRelative(padding, 0, padding, 0);
         if (wb) {
             tv_wb.setTextColor(colEnable);
-            tv_wb.setOnClickListener(new View.OnClickListener() {
+            tv_wbText.setTextColor(colEnable);
+            ll_linLayoutWb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
                     mListener.onTriggerFragmInteraction(4);
                 }
             });
-        } else
+        } else {
             tv_wb.setTextColor(colDisable);
-        root_linerarLayout.addView(tv_wb);
-        return root_linerarLayout;
+            tv_wbText.setTextColor(colDisable);
+        }
+        ll_linLayoutWb.addView(tv_wbText);
+        ll_linLayoutWb.addView(tv_wb);
+        root_linearLayout.addView(ll_linLayoutWb);
+        return root_linearLayout;
     }
 
 

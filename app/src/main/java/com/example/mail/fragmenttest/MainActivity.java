@@ -238,7 +238,14 @@ public class MainActivity extends FragmentActivity
             } else {
                 //Log.d(TAG, "New");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(R.id.fl_FragCont_ExpApart1, new IsoFragment(), myTag);
+                IsoFragment isoFragment = new IsoFragment();
+                isoFragment.setSliderValueListener(new parentSlidebarFragment.sliderValue() {
+                    @Override
+                    public void onSlideValueBar(String value) {
+                        fTrigger.SetIsoValue(value);
+                    }
+                });
+                ft.replace(R.id.fl_FragCont_ExpApart1, isoFragment, myTag);
                 currExpApart1 = myTag;
             }
         }
