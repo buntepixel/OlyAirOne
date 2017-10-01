@@ -37,12 +37,20 @@ public class TriggerFragment extends Fragment {
         void onTriggerFragmInteraction(int settingsType);
     }
 
+    public void SetExpTimeValue(String value){
+        tv_expTime.setText(value);
+    }
+
     public void SetFstopValue(String value) {
         tv_fStop.setText(value);
     }
 
     public void SetIsoValue(String value) {
         tv_iso.setText(value);
+    }
+
+    public void SetWBValue(String value){
+        tv_wb.setText(value);
     }
 
     @Override
