@@ -1,98 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rl_MainFrame"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#262626"
-    android:gravity="top"
+    android:layout_marginTop="60dp"
+    android:orientation="vertical"
+    android:weightSum="1"
+
     >
-
-    <ImageButton
-        android:id="@+id/ib_RecordMode"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/ic_iautomode"/>
-
-
-
-
-    <LinearLayout
-        android:id="@+id/ll_topBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_toStartOf="@id/ib_RecordMode"
         android:orientation="horizontal">
-
         <TextView
-            android:id="@+id/tv_FocusMode"
+            android:id="@+id/tv_Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="S-AF"
-            android:textColor="@color/colorText"/>
-
+            android:text="Olympus Air One"
+            android:layout_centerInParent="true"
+            />
         <ImageView
-            android:id="@+id/iv_sdCardIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@null"
-            android:scaleType="center"
-            android:scaleX="0.5"
-            android:scaleY="0.5"
-            android:src="@drawable/ic_sdcard"/>
-
-        <TextView
-            android:id="@+id/tv_SdCardSpaceRemain"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="2345"
-            android:textColor="@color/colorText"/>
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/cameraLiveImageView"
+            android:src="@drawable/ic_settings_white_48dp"
+           android:layout_alignParentEnd="true"
+            android:layout_marginRight="10dp" />
+    </RelativeLayout>
+    <Button
+        android:id="@+id/btnCamera"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_alignParentTop="true"
-        android:contentDescription="main screen"
-        android:src="@drawable/common_full_open_on_phone"/>
+        android:layout_height="wrap_content"
+        android:text="Camera"
+        android:layout_weight="0.2"
+        android:elevation="4dp"/>
 
-    <FrameLayout
-        android:id="@+id/fl_FragCont_Trigger"
+    <Button
+        android:id="@+id/btnViewImages"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary"
-        />
-
-    <FrameLayout
-        android:id="@+id/fl_FragCont_ExpApart1"
+        android:layout_height="wrap_content"
+        android:text="View Pictures"
+        android:layout_weight="0.2"
+        android:elevation="4dp"/>
+    <Button
+        android:id="@+id/btnCamSettings"
         android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_above= "@+id/fl_FragCont_Trigger"
+        android:layout_height="wrap_content"
+        android:text="Camera Settings"
+        android:layout_weight="0.2"
+        android:elevation="4dp"/>
 
-        />
-
-    <FrameLayout
-        android:id="@+id/fl_FragCont_ExpApart2"
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_above="@id/fl_FragCont_ExpApart1"
-        />
-
-
-
-
-
-
-</RelativeLayout>
-
-
+</LinearLayout>

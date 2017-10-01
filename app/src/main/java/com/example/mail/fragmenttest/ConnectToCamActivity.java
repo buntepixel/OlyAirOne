@@ -1,5 +1,6 @@
 package com.example.mail.fragmenttest;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +10,6 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -21,8 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class ConnectToCamAktivity extends AppCompatActivity {
-    private static final String TAG = ConnectToCamAktivity.class.getSimpleName();
+public class ConnectToCamActivity extends Activity {
+    private static final String TAG = ConnectToCamActivity.class.getSimpleName();
 
 
     private String mSavedSsid, mSavedPw;
@@ -38,10 +37,8 @@ public class ConnectToCamAktivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect_to_cam_aktivity);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.connectToCamActivityToolbar);
-        setSupportActionBar(myToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setContentView(R.layout.activity_connect_to_cam);
+
         //initializes necessary components
         initControl();
 
@@ -83,7 +80,7 @@ public class ConnectToCamAktivity extends AppCompatActivity {
     }
 
     private void initControl() {
-        mWifiManager = (WifiManager) this.getSystemService(this.WIFI_SERVICE);
+        mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(this.WIFI_SERVICE);
         //Animation Icon
         waitconnect = (ImageView) findViewById(R.id.iv_waitconnect);
         Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.waitconnect);

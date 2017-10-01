@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_MainFrame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#262626"
+    android:gravity="top"
+    >
+
+    <ImageButton
+        android:id="@+id/ib_RecordMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_iautomode"/>
+
+    <LinearLayout
+        android:id="@+id/ll_topBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_toStartOf="@id/ib_RecordMode"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_FocusMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="S-AF"
+            android:textColor="@color/colorText"/>
+
+        <ImageView
+            android:id="@+id/iv_sdCardIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@null"
+            android:scaleType="center"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:src="@drawable/ic_sdcard"/>
+
+        <TextView
+            android:id="@+id/tv_SdCardSpaceRemain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="2345"
+            android:textColor="@color/colorText"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/cameraLiveImageView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentTop="true"
+        android:contentDescription="main screen"
+        android:src="@drawable/common_full_open_on_phone"/>
+
+    <FrameLayout
+        android:id="@+id/fl_FragCont_Trigger"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        />
+
+    <FrameLayout
+        android:id="@+id/fl_FragCont_ExpApart1"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_above= "@+id/fl_FragCont_Trigger"
+
+        />
+
+    <FrameLayout
+        android:id="@+id/fl_FragCont_ExpApart2"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_above="@id/fl_FragCont_ExpApart1"
+        />
+
+
+
+
+
+
+</RelativeLayout>
+
+

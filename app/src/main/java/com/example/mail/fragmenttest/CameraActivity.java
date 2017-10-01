@@ -48,7 +48,7 @@ public class CameraActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_camera);
         //Log.d(TAG, "start");
         //check for Trigger container
         // However, if we're being restored from a previous state,
