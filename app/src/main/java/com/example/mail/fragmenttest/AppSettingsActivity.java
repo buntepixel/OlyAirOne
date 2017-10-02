@@ -1,10 +1,10 @@
 package com.example.mail.fragmenttest;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -13,7 +13,7 @@ import android.widget.EditText;
  * Created by mail on 30/09/2016.
  */
 
-public class AppSettingsActivity extends AppCompatActivity {
+public class AppSettingsActivity extends Activity {
     private static final String TAG = AppSettingsActivity.class.getSimpleName();
     private EditText mPassword, mSsid;
 
@@ -48,9 +48,5 @@ public class AppSettingsActivity extends AppCompatActivity {
         editor.commit();
         Log.d(TAG, "Ssid_is now::: " + mySettings.getString(getResources().getString(R.string.pref_ssid), null));
         Log.d(TAG, "Pwis now::: " + mySettings.getString(getResources().getString(R.string.pref_Pw), null));
-
-
     }
-
-
 }

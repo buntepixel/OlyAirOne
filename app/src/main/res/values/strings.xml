@@ -22,6 +22,7 @@
     <string name="title_activity_connect_to_cam_aktivity">Connect To Camera</string>
     <string name="connecting_to_camera">Connecting to Camera</string>
     <string name="title_activity_camera">CameraActivity</string>
+    <string name="ToastEnableWifi">Wifi not Enabled!\nPlease enable Wifi.</string>
 
 
 </resources>
