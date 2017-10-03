@@ -15,10 +15,10 @@ import android.widget.TextView;
  * Created by mail on 13/10/2016.
  */
 
-public class parentSlidebarFragment extends Fragment {
-    private static final String TAG = parentSlidebarFragment.class.getSimpleName();
+public class MasterSlidebarFragment extends Fragment {
+    private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
 
-    public parentSlidebarFragment() {
+    public MasterSlidebarFragment() {
     }
 
     private sliderValue sliderValueListener;

@@ -1,17 +1,20 @@
 package com.example.mail.fragmenttest;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -22,7 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class ConnectToCamActivity extends Activity {
+public class ConnectToCamActivity extends Activity
+        implements WificredentialsDialogueFragment.SaveCredentialsListener {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
 
 
@@ -48,14 +52,6 @@ public class ConnectToCamActivity extends Activity {
 
     }
 
-    private void init() {
-        mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(this.WIFI_SERVICE);
-        //Animation Icon
-        waitconnect = (ImageView) findViewById(R.id.iv_waitconnect);
-        Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.waitconnect);
-        waitconnect.startAnimation(myAnim);
-    }
-
     @Override
     protected void onResume() {
         if (mWifiManager.isWifiEnabled()) {
@@ -69,20 +65,33 @@ public class ConnectToCamActivity extends Activity {
             }
             try {
                 List<String> credentials = checkWifiCredentialExist(this);
-                String ssid = credentials.get(0);
-                String Pw = credentials.get(1);
-                //refreshing the availiable networks
-                mWifiManager.startScan(); //getting the result in a broadcast receiver
+                if (credentials == null) {
+                    showWifiCredetialsDialog();
+                } else {
+                    String ssid = credentials.get(0);
+                    String Pw = credentials.get(1);
+                    //refreshing the availiable networks
+                    mWifiManager.startScan(); //getting the result in a broadcast receiver
+                }
             } catch (Exception e) {
                 String stackTrace = Log.getStackTraceString(e);
                 System.err.println(TAG + e.getMessage());
                 Log.d(TAG, stackTrace);
             }
         } else {
-            Toast.makeText(this, R.string.ToastEnableWifi, Toast.LENGTH_SHORT).show();
-            finish();
+            goToWifiSettingsDialogue("Wifi NOT enabled!\ngo to Wifi settings?\n", "Yes", "No");
+            /*Toast.makeText(this, R.string.ToastEnableWifi, Toast.LENGTH_SHORT).show();
+            finish();*/
         }
         super.onResume();
+    }
+
+    @Override
+    public void OnSaveCredentials(String ssid, String pw) {
+        //SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+        mSavedSsid = ssid;
+        mSavedPw = pw;
+        Toast.makeText(this, "SSid: " + ssid + "   pw: " + pw, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -92,30 +101,69 @@ public class ConnectToCamActivity extends Activity {
             unregisterReceiver(wifiScanReceiver);
     }
 
+    private void init() {
+        mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(this.WIFI_SERVICE);
+        //Animation Icon
+        waitconnect = (ImageView) findViewById(R.id.iv_waitconnect);
+        Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.waitconnect);
+        waitconnect.startAnimation(myAnim);
+    }
 
-    private boolean checkCorrectWifiNW(String SSID) {
-        boolean retVal = false;
-        String ssid = null;
+    private void goToWifiSettingsDialogue(String text, String btn_Pos, String btn_Neg) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setMessage(text);
+        builder1.setCancelable(true);
 
+        builder1.setPositiveButton(
+                btn_Pos,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                    }
+                });
 
-        //check wifi enabled
-        if (mWifiManager.isWifiEnabled()) {
+        builder1.setNegativeButton(
+                btn_Neg,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        finish();
+                    }
+                });
 
-            WifiInfo currentWifi = mWifiManager.getConnectionInfo();
-            if (currentWifi != null && !TextUtils.isEmpty(currentWifi.getSSID())) {
-                ssid = currentWifi.getSSID();
-            } else {
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
 
+    private void showWifiCredetialsDialog() {
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("WifiCredDialogue");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        WificredentialsDialogueFragment wifiFragDialogue = WificredentialsDialogueFragment.newInstance();
+        wifiFragDialogue.show(ft, "WifiCredDialogue");
+        wifiFragDialogue.setSaveCredentialsListener(new WificredentialsDialogueFragment.SaveCredentialsListener() {
+            @Override
+            public void OnSaveCredentials(String ssid, String pw) {
+
+                //SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+                mSavedSsid = ssid;
+                mSavedPw = pw;
+                Log.d(TAG, "OtherSide: "+ssid+"  "+ pw);
+                WificredentialsDialogueFragment prev = (WificredentialsDialogueFragment) getFragmentManager().findFragmentByTag("WifiCredDialogue");
+                if(prev!=null)
+                    prev.dismiss();
+                //Toast.makeText(getParent(), "SSid: "+ssid+"   pw: "+pw,Toast.LENGTH_LONG).show();
             }
 
-            //getting the Scan results of last scan
-            myScanResults = mWifiManager.getScanResults();
-        } else {
-            Toast.makeText(this, R.string.ToastEnableWifi, Toast.LENGTH_SHORT).show();
-            finish();
-        }
-
-        return retVal;
+        });
     }
 
 
@@ -198,34 +246,6 @@ public class ConnectToCamActivity extends Activity {
         }
     }
 
-    // TODO: 10/10/2016 Delete Method
-    private Boolean enableWifi(Context context) {
-        //check if wifi is enabled
-        Log.d(TAG, "bevore checkenabled");
-        Boolean enabled = false;
-        if (!mWifiManager.isWifiEnabled()) {
-            mWifiManager.setWifiEnabled(true);
-            Toast.makeText(context, "Wifi not enabled, enabeling Wifi", Toast.LENGTH_SHORT).show();
-        }
-        Log.d(TAG, "bevore wait");
-        //Waiting for wifi to enable
-        int count = 0;
-        while (!mWifiManager.isWifiEnabled()) {
-            if (count >= 10) {
-                Log.i(TAG, "Took too long to enable wi-fi, quitting");
-                return enabled;
-            }
-            Log.i(TAG, "Still waiting for wi-fi to enable...");
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException ie) {
-                // continue
-            }
-            count++;
-        }
-        enabled = true;
-        return enabled;
-    }
 
     private WifiConfiguration setWifiConfig(Context context, String ssid, String Pw) {
         Log.d(TAG, "Entered setWifiConfig");
@@ -253,28 +273,29 @@ public class ConnectToCamActivity extends Activity {
         Log.d(TAG, "Entered checkWifiCredetialsExist");
         //get Log in Data From Pref File if exist
         SharedPreferences mySettings = context.getSharedPreferences(context.getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
-        mSavedSsid = mySettings.getString(context.getResources().getString(R.string.pref_ssid), "");
-        mSavedPw = mySettings.getString(context.getResources().getString(R.string.pref_Pw), "");
+        mSavedSsid = mySettings.getString(context.getResources().getString(R.string.pref_ssid), null);
+        mSavedPw = mySettings.getString(context.getResources().getString(R.string.pref_Pw), null);
 
-        Log.d(TAG, "MySavedPw" + mSavedPw.isEmpty() + "MySavedSSID" + mSavedSsid);
+        //early return if no credentials are save
         List<String> credentials = Arrays.asList(mSavedSsid, mSavedPw);
-        // if now credetials saved promt to settings Activity
-        if (mSavedPw.isEmpty()) {
-            Log.d(TAG, "Nothing is Saved");
-            Intent goToSettingsActivity = new Intent(context, AppSettingsActivity.class);
-            context.startActivity(goToSettingsActivity);
-            //If credentials exist get them and return them
+        if (mSavedSsid == null && mSavedPw == null) {
+            return null;
         } else {
             Log.d(TAG, "CredentialsFound");
-            credentials.set(0, mSavedSsid);
-            credentials.set(1, mSavedPw);
-            Log.d(TAG, "Pw Is:" + mySettings.getString(context.getResources().getString(R.string.pref_Pw), null));
+            if (mSavedSsid != null)
+                credentials.set(0, mSavedSsid);
+            else {
+                credentials.set(0, "");
+            }
+            if (mSavedPw != null)
+                credentials.set(1, mSavedPw);
+            else {
+                credentials.set(1, "");
+            }
         }
         Log.d(TAG, "EXIT checkWifiCredetialsExist");
         return credentials;
-
     }
-
 
     private String getWifiInfo(Context context) {
         String currSsid = "";
@@ -288,6 +309,7 @@ public class ConnectToCamActivity extends Activity {
         return currSsid;
     }
 
+
     //Broadcast receiver
     private class ScanForWifiAcessPoints extends BroadcastReceiver {
 
@@ -300,13 +322,7 @@ public class ConnectToCamActivity extends Activity {
             if (intent.getAction().equals(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
                 Log.d(TAG, "GettingResponse");
                 connectToCamWifi();
-
             }
-
-
         }
-
     }
-
-
 }

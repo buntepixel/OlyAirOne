@@ -295,7 +295,7 @@ public class CameraActivity extends FragmentActivity
                 //Log.d(TAG, "New");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
                 IsoFragment isoFragment = new IsoFragment();
-                isoFragment.setSliderValueListener(new parentSlidebarFragment.sliderValue() {
+                isoFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
                     @Override
                     public void onSlideValueBar(String value) {
                         fTrigger.SetIsoValue(value);
@@ -326,7 +326,7 @@ public class CameraActivity extends FragmentActivity
                 //Log.d(TAG, "New");
                 WbFragment whiteBalanceFragment = new WbFragment();
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                whiteBalanceFragment.setSliderValueListener(new parentSlidebarFragment.sliderValue() {
+                whiteBalanceFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
                     @Override
                     public void onSlideValueBar(String value) {
                         fTrigger.SetWBValue(value);
