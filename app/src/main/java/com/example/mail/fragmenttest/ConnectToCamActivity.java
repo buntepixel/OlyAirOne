@@ -24,16 +24,14 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.example.mail.fragmenttest.R.string.ssid;
-
 
 public class ConnectToCamActivity extends Activity {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
     //private String mSavedSsid, mSavedPw;
     private SharedPreferences settings;
     private WifiManager mWifiManager;
-    private List<ScanResult> myScanResults;
-    private List<WifiConfiguration> myWifiConfig;
+
+
     private ImageView waitconnect;
 
     private ScanForWifiAcessPoints wifiScanReceiver;
@@ -140,12 +138,11 @@ public class ConnectToCamActivity extends Activity {
         // Create and show the dialog.
         WificredentialsDialogueFragment wifiFragDialogue = WificredentialsDialogueFragment.newInstance();
         wifiFragDialogue.show(ft, "WifiCredDialogue");
+
         wifiFragDialogue.setSaveCredentialsListener(new WificredentialsDialogueFragment.SaveCredentialsListener() {
             @Override
             public void OnSaveCredentials(String ssid, String pw) {
-
                 //SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
-
                 Log.d(TAG, "OtherSide: " + ssid + "  " + pw);
                 WificredentialsDialogueFragment prev = (WificredentialsDialogueFragment) getFragmentManager().findFragmentByTag("WifiCredDialogue");
                 if (prev != null)
@@ -153,8 +150,8 @@ public class ConnectToCamActivity extends Activity {
                 //Toast.makeText(getParent(), "SSid: "+ssid+"   pw: "+pw,Toast.LENGTH_LONG).show();
                 connectToCamWifi();
             }
-
         });
+
     }
 
 
@@ -166,21 +163,20 @@ public class ConnectToCamActivity extends Activity {
         String pw = mySettings.getString(context.getResources().getString(R.string.pref_Pw), null);
         List<String> credentials = Arrays.asList(ssid, pw);
         if (ssid == null || pw == null) {
-            showWifiCredentialsDialog();
+            return null;
+           /* showWifiCredentialsDialog();
+            Log.d(TAG, "NO CredentialsFound");
             ssid = mySettings.getString(context.getResources().getString(R.string.pref_ssid), null);
             pw = mySettings.getString(context.getResources().getString(R.string.pref_Pw), null);
+            if (ssid != null)
+                credentials.set(0, ssid);
+            if (pw != null)
+                credentials.set(1, pw);*/
         }
-        Log.d(TAG, "CredentialsFound");
-        if (ssid != null)
-            credentials.set(0, ssid);
         else {
-            credentials.set(0, "");
+            Log.d(TAG, "CredentialsFound");
         }
-        if (pw != null)
-            credentials.set(1, pw);
-        else {
-            credentials.set(1, "");
-        }
+
         Log.d(TAG, "EXIT checkWifiCredetialsExist");
         return credentials;
     }
@@ -191,10 +187,14 @@ public class ConnectToCamActivity extends Activity {
         Log.d(TAG, "Enter connect to Cam Wifi");
         //getting current wifi network
         String activeSSID = mWifiManager.getConnectionInfo().getSSID();
-        WifiConfiguration wifiConfiguration = null;
+        Boolean foundTargetNwActive = false;
         Log.d(TAG, "Active Wifi::" + activeSSID);
-        //getting the Scan results of last scan
-        myScanResults = mWifiManager.getScanResults();
+
+        List<String> credentials = getWifiCredentials(this);
+        String ssid = credentials.get(0);
+        String pw = credentials.get(1);
+
+
         Log.d(TAG, "Currently saved Credentials: " + ssid + "::" + pw);
         try {
             String mySSID = "\"" + ssid + "\"";
@@ -206,51 +206,51 @@ public class ConnectToCamActivity extends Activity {
                 Log.d(TAG, "Already Connected SwitchingtoCamActivity");
                 startActivity(switchToCamActivtiy);
             } else {
-                myWifiConfig = mWifiManager.getConfiguredNetworks();
-                for (WifiConfiguration i : myWifiConfig) {
-
-                    Log.d(TAG, "i==  " + i.SSID);
-                    Log.d(TAG, "mySSID==  " + mySSID);
-                    if (i.SSID != null && i.SSID.equals(mySSID)) {
-                        Log.d(TAG, "Enter config search: " + mySSID);
-                        //parsing it to a empty wificonfiguration object
-                        wifiConfiguration = i;
-                        Log.d(TAG, "FoundConfig::" + i.SSID);
-                        break;
-                    } else {
-                        Log.d(TAG, "FoundNOConfig::" + i.SSID);
-                        Toast.makeText(this, "Couldn't find a network that matches your saved configuration. " +
-                                "Please check if Cams Wifi is endabled,\nor check your credentials in the Settings page.", Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                }
-                Boolean foundTargetNwActive = false;
-                //comparing the SSID to the last Scan results for check if active
-                for (ScanResult i : myScanResults) {
-
-                    String item = wifiConfiguration.SSID;
-                    String scanSSID = "\"" + i.SSID + "\"";
-                    Log.d(TAG, "WifiSSID: " + item);
-                    Log.d(TAG, "ScanSSID: " + scanSSID);
-                    if (myScanResults != null && item.equals(scanSSID)) {
-                        Log.d(TAG, "Enter scanResult search: " + scanSSID);
+                //getting the Scan results of last scan
+                List<ScanResult> myScanResults = mWifiManager.getScanResults();
+                List<WifiConfiguration> myWifiConfigList = mWifiManager.getConfiguredNetworks();
+                WifiConfiguration myWifiConfig = null;
+                for (ScanResult result : myScanResults) {
+                    String scanSSID = "\"" + result.SSID + "\"";
+                    if (scanSSID != null && scanSSID == ssid) {
                         foundTargetNwActive = true;
                         Log.d(TAG, "FoundTatgetNetwork::" + scanSSID);
+
+                        for (WifiConfiguration config : myWifiConfigList) {
+
+                            if (config.SSID != null && (config.SSID == mySSID)) {
+                                Log.d(TAG, "Enter config search: " + mySSID);
+                                //parsing it to a empty wificonfiguration object
+                                Log.d(TAG, "FoundConfig::" + config.SSID);
+                                myWifiConfig = config;
+                                break;
+                            } else {
+                                Log.d(TAG, "FoundNOConfig::" + config.SSID);
+                            }
+                        }
                         break;
                     }
                 }
                 if (foundTargetNwActive) {
-                    Log.d(TAG, "Setting Target Network" + wifiConfiguration.networkId);
-                    mWifiManager.enableNetwork(wifiConfiguration.networkId, true);
+                    Log.d(TAG, "Setting Target Network" + myWifiConfig.networkId);
+                    if (myWifiConfig == null) {
+                        myWifiConfig = new WifiConfiguration();
+                        myWifiConfig.SSID = mySSID;
+                        myWifiConfig.wepKeys[0] = "\"" + pw + "\"";
+                    }
+                    mWifiManager.enableNetwork(myWifiConfig.networkId, true);
 
                     //Connection sucessful switching to camera Activity
                     Log.d(TAG, "Connected SwitchingtoCamActivity");
                     startActivity(switchToCamActivtiy);
+
                 } else {
-                    Log.d(TAG, "Target network:" + wifiConfiguration.SSID + "seems to be not active\n" +
+                    Log.d(TAG, "Target network:" + myWifiConfig.SSID + "seems to be not active\n" +
                             "check your camera");
-                    Toast.makeText(this, "Camwifi seems not active, please enable", Toast.LENGTH_LONG).show();
-                    this.finish();
+
+                    Toast.makeText(this, "Couldn't find a network that matches your saved configuration. " +
+                            "Please check if Cams Wifi is enabled,\nor check your credentials in the Settings page.", Toast.LENGTH_LONG).show();
+                    finish();
                 }
             }
 
