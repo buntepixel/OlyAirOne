@@ -2,6 +2,8 @@ package com.example.mail.fragmenttest;
 
 
 import android.app.DialogFragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -40,6 +42,13 @@ public class WificredentialsDialogueFragment extends DialogFragment {
         Button cancel = (Button) v.findViewById(R.id.btn_cancel);
         ssid = (EditText) v.findViewById(R.id.et_SSID);
         pw = (EditText) v.findViewById(R.id.et_password);
+        Context context = this.getActivity();
+        //setting credentials
+        SharedPreferences mySettings = context.getSharedPreferences(context.getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mySettings.edit();
+        editor.putString(getResources().getString(R.string.pref_ssid), String.valueOf(ssid));
+        editor.putString(getResources().getString(R.string.pref_Pw), String.valueOf(pw));
+        editor.commit();
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
