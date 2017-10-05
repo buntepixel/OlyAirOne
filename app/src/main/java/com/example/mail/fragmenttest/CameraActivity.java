@@ -10,11 +10,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 
 
 public class CameraActivity extends FragmentActivity
-        implements TriggerFragment.OnTriggerFragmInteractionListener {
+        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
 
 
@@ -22,13 +21,24 @@ public class CameraActivity extends FragmentActivity
 
 
     Parcelable stateApa;
-    int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
     int currDriveMode = 0;
     String currExpApart1;
     String currExpApart2;
     TriggerFragment fTrigger;
+    LiveViewFragment fLiveView;
 
-
+    @Override
+    public void onMainSettingsButtonPressed(int currDriveMode) {
+        try {
+            Log.d(TAG, "Works:  " + currDriveMode);
+            this.currDriveMode = currDriveMode;
+            SetMainSettingsButtons(currDriveMode);
+        } catch (Exception e) {
+            String stackTrace = Log.getStackTraceString(e);
+            System.err.println(TAG + e.getMessage());
+            Log.d(TAG, stackTrace);
+        }
+    }
 
 
     private enum OLYRecordModes {
@@ -57,27 +67,14 @@ public class CameraActivity extends FragmentActivity
         if (savedInstanceState != null) {
             return;
         }
-        //add Trigger Fragment
+        //add Trigger,LiveView Fragment
         fTrigger = new TriggerFragment();
+        fLiveView = new LiveViewFragment();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
+        fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, "LiveView");
         fragmentTransaction.commit();
-        //recordMode
-        final ImageButton ib_RecordMode = (ImageButton) findViewById(R.id.ib_RecordMode);
-        ib_RecordMode.setOnClickListener(new View.OnClickListener() {
-            int counter = 0;
-
-            @Override
-            public void onClick(View v) {
-                counter++;
-                int counterMod = counter % modeArr.length;
-                ib_RecordMode.setImageResource(modeArr[counterMod]);
-                currDriveMode = counterMod;
-                SetMainSettingsButtons(counter % (modeArr.length));
-                //Log.d(TAG, "start"+ counter);
-            }
-        });
 
 
     }
@@ -155,7 +152,6 @@ public class CameraActivity extends FragmentActivity
         }
         ft.commit();
     }
-
 
     @Override
     public void onTriggerFragmInteraction(int settingsType) {
