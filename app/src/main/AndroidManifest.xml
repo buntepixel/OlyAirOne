@@ -30,6 +30,10 @@
             android:name=".AppSettingsActivity"
             android:parentActivityName=".MainActivity">
         </activity>
+        <activity
+            android:name=".CameraActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
 
     </application>
 
