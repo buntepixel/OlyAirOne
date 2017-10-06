@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
@@ -17,11 +19,17 @@ public class MainActivity extends Activity {
     private BroadcastReceiver mReceiver;
     private WifiManager mWifiManager;
 
+    static SharedPreferences preferences;
+
+    public static SharedPreferences getPreferences() {
+        return preferences;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        preferences= PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         btnCamera = (Button) findViewById(R.id.btnCamera);
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override

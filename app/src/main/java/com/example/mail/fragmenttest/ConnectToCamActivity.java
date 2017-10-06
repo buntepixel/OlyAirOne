@@ -22,18 +22,29 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCameraConnectionListener;
+import jp.co.olympus.camerakit.OLYCameraKitException;
 
 
-public class ConnectToCamActivity extends Activity {
+public class ConnectToCamActivity extends Activity implements OLYCameraConnectionListener {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
     //private String mSavedSsid, mSavedPw;
-    private SharedPreferences settings;
 
+    private boolean isActive = false;
+    private SharedPreferences settings;
+    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
     private WifiManager mWifiManager;
     private ScanForWifiAcessPoints wifiScanReceiver;
 
     private ImageView waitconnect;
+    private OLYCamera camera = null;
 
 
     @Override
@@ -57,11 +68,10 @@ public class ConnectToCamActivity extends Activity {
                     wifiScanReceiver = new ScanForWifiAcessPoints();
                     IntentFilter intentFilter = new IntentFilter();
                     intentFilter.addAction(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+                    intentFilter.addAction(mWifiManager.EXTRA_SUPPLICANT_CONNECTED);
                     registerReceiver(wifiScanReceiver, intentFilter);
                 }
                 mWifiManager.startScan(); //getting the result in a broadcast receiver
-
-
             } else {
                 goToWifiSettingsDialogue("Wifi NOT enabled!\ngo to Wifi settings?\n", "Yes", "No");
             /*Toast.makeText(this, R.string.ToastEnableWifi, Toast.LENGTH_SHORT).show();
@@ -88,6 +98,10 @@ public class ConnectToCamActivity extends Activity {
         waitconnect = (ImageView) findViewById(R.id.iv_waitconnect);
         Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.waitconnect);
         waitconnect.startAnimation(myAnim);
+        camera = new OLYCamera();
+        camera.setContext(getApplicationContext());
+        camera.setConnectionListener(this);
+        CameraActivity.camera = camera;
     }
 
     private void goToWifiSettingsDialogue(String text, String btn_Pos, String btn_Neg) {
@@ -133,39 +147,143 @@ public class ConnectToCamActivity extends Activity {
 
         wifiFragDialogue.setSaveCredentialsListener(new WificredentialsDialogueFragment.SaveCredentialsListener() {
             @Override
-            public void OnSaveCredentials(String ssid, String pw) {
+            public void OnSaveCredentials(String ssid) {
                 //SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
-                Log.d(TAG, "OtherSide: " + ssid + "  " + pw);
+                Log.d(TAG, "OtherSide: " + ssid);
                 WificredentialsDialogueFragment prev = (WificredentialsDialogueFragment) getFragmentManager().findFragmentByTag("WifiCredDialogue");
                 if (prev != null)
                     prev.dismiss();
-                //Toast.makeText(getParent(), "SSid: "+ssid+"   pw: "+pw,Toast.LENGTH_LONG).show();
                 connectToCamWifi();
             }
         });
 
     }
 
+    private void startConnectingCamera() {
+        connectionExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                SharedPreferences preferences = getSharedPreferences("AirOneSettings", Context.MODE_PRIVATE);
+                try {
+                    camera.connect(OLYCamera.ConnectionType.WiFi);
+                } catch (OLYCameraKitException e) {
+                    alertConnectingFailed(e);
+                    return;
+                }
+                try {
+                    camera.changeLiveViewSize(toLiveViewSize(preferences.getString("live_view_quality", "QVGA")));
+                } catch (OLYCameraKitException e) {
+                    Log.w(TAG, "You had better uninstall this application and install it again.");
+                    alertConnectingFailed(e);
+                    return;
+                }
+                try {
+                    camera.changeRunMode(OLYCamera.RunMode.Recording);
+                } catch (OLYCameraKitException e) {
+                    alertConnectingFailed(e);
+                    return;
+                }
+
+                // Restores my settings.
+                if (camera.isConnected()) {
+                    Map<String, String> values = new HashMap<String, String>();
+                    for (String name : Arrays.asList(
+                            "TAKEMODE",
+                            "TAKE_DRIVE",
+                            "APERTURE",
+                            "SHUTTER",
+                            "EXPREV",
+                            "WB",
+                            "ISO",
+                            "RECVIEW"
+                    )) {
+                        String value = preferences.getString(name, null);
+                        if (value != null) {
+                            values.put(name, value);
+                        }
+                    }
+                    if (values.size() > 0) {
+                        try {
+                            camera.setCameraPropertyValues(values);
+                        } catch (OLYCameraKitException e) {
+                            Log.w(TAG, "To change the camera properties is failed: " + e.getMessage());
+                        }
+                    }
+                }
+
+                if (!camera.isAutoStartLiveView()) { // Please refer a document about OLYCamera.autoStartLiveView.
+                    // Start the live-view.
+                    // If you forget calling this method, live view will not be displayed on the screen.
+                    try {
+                        camera.startLiveView();
+                    } catch (OLYCameraKitException e) {
+                        Log.w(TAG, "To start the live-view is failed: " + e.getMessage());
+                        return;
+                    }
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onConnectedToCamera();
+                    }
+                });
+            }
+        });
+    }
+
+    private void onConnectedToCamera() {
+        if (isActive) {
+
+            Intent switchToCamActivtiy = new Intent(this, CameraActivity.class);
+
+            startActivity(switchToCamActivtiy);
+        }
+    }
 
     private List<String> getWifiCredentials() {
-        Log.d(TAG, "Entered checkWifiCredetialsExist");
-        //get Log in Data From Pref File if exist
-        SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
-        String ssid = mySettings.getString(getResources().getString(R.string.pref_ssid), null);
-        String pw = mySettings.getString(getResources().getString(R.string.pref_Pw), null);
-        List<String> credentials = Arrays.asList(ssid, pw);
-        if (ssid == null || pw == null) {
-            return null;
-        } else {
-            Log.d(TAG, "CredentialsFound");
+        try {
+            Log.d(TAG, "Entered checkWifiCredetialsExist");
+            //get Log in Data From Pref File if exist
+            SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+            String ssid = mySettings.getString(getResources().getString(R.string.pref_ssid), null);
+            //String pw = mySettings.getString(getResources().getString(R.string.pref_Pw), null);
+            List<String> credentials = Arrays.asList(ssid);
+            if (ssid == null ) {
+                return null;
+            } else {
+                Log.d(TAG, "CredentialsFound");
+            }
+            Log.d(TAG, "EXIT checkWifiCredetialsExist");
+            return credentials;
+        } catch (Error e) {
+            Log.e(TAG, "exception: " + e.getMessage());
+            Log.e(TAG, "cause: " + e.getCause());
+            Log.e(TAG, "exception: " + Log.getStackTraceString(e));
         }
+        return  null;
+    }
 
-        Log.d(TAG, "EXIT checkWifiCredetialsExist");
-        return credentials;
+    private void alertConnectingFailed(Exception e) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("Connect failed")
+                .setMessage(e.getMessage() != null ? e.getMessage() : "Unknown error")
+                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //startScanningCamera();
+                        connectToCamWifi();
+                    }
+                });
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                builder.show();
+            }
+        });
     }
 
 
-    //Todo whats going on
     private void connectToCamWifi() {
         Log.d(TAG, "Enter connect to Cam Wifi");
         //getting current wifi network
@@ -175,19 +293,20 @@ public class ConnectToCamActivity extends Activity {
 
         List<String> credentials = getWifiCredentials();
         String ssid = credentials.get(0);
-        String pw = credentials.get(1);
 
 
-        Log.d(TAG, "Currently saved Credentials: " + ssid + "::" + pw);
+
+        Log.d(TAG, "Currently saved Credentials: " + ssid );
         try {
             String mySSID = "\"" + ssid + "\"";
-            Intent switchToCamActivtiy = new Intent(this, CameraActivity.class);
+
             // switching wifi if not already connected too the correct wifi
             if (activeSSID.equals(mySSID)) {
                 Toast.makeText(this, "Already Connected to: " + mySSID, Toast.LENGTH_SHORT).show();
                 //Already Connectecd switching to camera Activity
                 Log.d(TAG, "Already Connected SwitchingtoCamActivity");
-                startActivity(switchToCamActivtiy);
+                isActive = true;
+                startConnectingCamera();
             } else {
                 //getting the Scan results of last scan
                 List<ScanResult> myScanResults = mWifiManager.getScanResults();
@@ -226,7 +345,9 @@ public class ConnectToCamActivity extends Activity {
 
                         //Connection sucessful switching to camera Activity
                         Log.d(TAG, "Connected SwitchingtoCamActivity");
-                        startActivity(switchToCamActivtiy);
+                        //TODO: get intent that network is connected
+                        //startConnectingCamera();
+                        //startActivity(switchToCamActivtiy);
                     }
                 } else {
                     Toast.makeText(this, "Couldn't find a network that matches your saved configuration. " +
@@ -234,69 +355,56 @@ public class ConnectToCamActivity extends Activity {
                     finish();
                 }
             }
-
-
             // return;
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);
             System.err.println(TAG + e.getMessage());
             Log.d(TAG, stackTrace);
-
-
         }
     }
 
-    private WifiConfiguration setWifiConfig(Context context, String ssid, String Pw) {
-        Log.d(TAG, "Entered setWifiConfig");
-        WifiConfiguration camWifiConfig = new WifiConfiguration();
-        List<WifiConfiguration> list = mWifiManager.getConfiguredNetworks();
-        Boolean foundConfiguration = false;
-        for (WifiConfiguration i : list) {
-            if (i.SSID != null && i.SSID.equals("\"" + ssid + "\"")) {
-                foundConfiguration = true;
-                camWifiConfig = i;
-                break;
-            }
+
+    private OLYCamera.LiveViewSize toLiveViewSize(String quality) {
+        if (quality.equalsIgnoreCase("QVGA")) {
+            return OLYCamera.LiveViewSize.QVGA;
+        } else if (quality.equalsIgnoreCase("VGA")) {
+            return OLYCamera.LiveViewSize.VGA;
+        } else if (quality.equalsIgnoreCase("SVGA")) {
+            return OLYCamera.LiveViewSize.SVGA;
+        } else if (quality.equalsIgnoreCase("XGA")) {
+            return OLYCamera.LiveViewSize.XGA;
         }
-        if (!foundConfiguration) {
-            camWifiConfig.SSID = String.format("\"%s\"", ssid);
-            camWifiConfig.preSharedKey = String.format("\"%s\"", Pw);
-            mWifiManager.addNetwork(camWifiConfig);
-            return camWifiConfig;
-        }
-        Log.d(TAG, "Exit   setWifiConfig");
-        return camWifiConfig;
+        return OLYCamera.LiveViewSize.QVGA;
     }
 
-    private String getWifiInfo(Context context) {
-        String currSsid = "";
-        if (mWifiManager.isWifiEnabled()) {
-            currSsid = mWifiManager.getConnectionInfo().getSSID();
-            Log.d(TAG, "WifiEnabled");
-        } else {
-            Toast.makeText(context, "Wifi Off, Enabeling Wifi", Toast.LENGTH_LONG).show();
-            Log.d(TAG, "Wifi NOT Enabled");
-        }
-        return currSsid;
-    }
+    @Override
+    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
 
+    }
 
     //Broadcast receiver
     private class ScanForWifiAcessPoints extends BroadcastReceiver {
-
         public static final String CONNECTED_KEY = "connected";
         WifiConfiguration wifiConfiguration;
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            Log.d(TAG, "BroadcastReceiver: " + intent.getAction().toString());
             if (intent.getAction().equals(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-                Log.d(TAG, "GettingResponse");
+                Log.d(TAG, "GettingResponse: SCAN_RESULTS_AVAILABLE_ACTION");
                 List<String> credentials = getWifiCredentials();
                 if (credentials == null) {
                     showWifiCredentialsDialog();
                 } else {
                     connectToCamWifi();
+                }
+            } else if (intent.getAction().equals(mWifiManager.EXTRA_SUPPLICANT_CONNECTED)) {
+                String connectedSSID = mWifiManager.getConnectionInfo().getSSID();
+                List<String> credentials = getWifiCredentials();
+                Log.d(TAG, "GettingResponse: SUPPLICANT_CONNECTION_CHANGE_ACTION");
+                if (credentials != null && connectedSSID.equals("\"" + credentials.get(0) + "\"")) {
+                    Log.d(TAG, "starting to connect to cam");
+                    startConnectingCamera();
                 }
             }
         }

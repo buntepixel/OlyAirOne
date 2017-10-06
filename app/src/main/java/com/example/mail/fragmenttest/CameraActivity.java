@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import jp.co.olympus.camerakit.OLYCamera;
+
 
 public class CameraActivity extends FragmentActivity
         implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener {
@@ -26,6 +28,7 @@ public class CameraActivity extends FragmentActivity
     String currExpApart2;
     TriggerFragment fTrigger;
     LiveViewFragment fLiveView;
+    public static OLYCamera camera = null;
 
     @Override
     public void onMainSettingsButtonPressed(int currDriveMode) {

@@ -28,7 +28,7 @@ public class WificredentialsDialogueFragment extends DialogFragment {
     private SaveCredentialsListener mListener;
 
     public interface SaveCredentialsListener {
-        void OnSaveCredentials(String ssid, String pw);
+        void OnSaveCredentials(String ssid);
     }
 
     public void setSaveCredentialsListener(SaveCredentialsListener listener) {
@@ -43,22 +43,28 @@ public class WificredentialsDialogueFragment extends DialogFragment {
         Button save = (Button) v.findViewById(R.id.btn_save);
         Button cancel = (Button) v.findViewById(R.id.btn_cancel);
         ssid = (EditText) v.findViewById(R.id.et_SSID);
-        pw = (EditText) v.findViewById(R.id.et_password);
+
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mListener != null) {
-                    //mListener.OnSaveCredentials("SSID;)", "MyPassword");
-                    Log.d(TAG, "SSID: " + ssid.getText().toString() + " pw: " + pw.getText().toString());
-                    Context context = getActivity();
-                    //setting credentials
-                    SharedPreferences mySettings = context.getSharedPreferences(context.getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = mySettings.edit();
-                    editor.putString(getResources().getString(R.string.pref_ssid), ssid.getText().toString());
-                    editor.putString(getResources().getString(R.string.pref_Pw), pw.getText().toString());
-                    editor.commit();
-                    mListener.OnSaveCredentials(ssid.getText().toString(), pw.getText().toString());
+                try {
+                    if (mListener != null) {
+                        //mListener.OnSaveCredentials("SSID;)", "MyPassword");
+                        Log.d(TAG, "SSID: " + ssid.getText().toString() );
+                        Context context = getActivity();
+                        //setting credentials
+                        SharedPreferences mySettings = context.getSharedPreferences(context.getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = mySettings.edit();
+                        editor.putString(getResources().getString(R.string.pref_ssid), ssid.getText().toString());
+                        editor.commit();
+                        mListener.OnSaveCredentials(ssid.getText().toString());
+                        Log.d(TAG, "saveCredEnd");
+                    }
+                }catch (Error e){
+                    Log.e(TAG, "exception: " + e.getMessage());
+                    Log.e(TAG, "cause: " + e.getCause());
+                    Log.e(TAG, "exception: " + Log.getStackTraceString(e));
                 }
             }
         });
