@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -21,21 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
-import jp.co.olympus.camerakit.OLYCameraAutoFocusResult;
 import jp.co.olympus.camerakit.OLYCameraKitException;
-import jp.co.olympus.camerakit.OLYCameraLiveViewListener;
-import jp.co.olympus.camerakit.OLYCameraPropertyListener;
-import jp.co.olympus.camerakit.OLYCameraRecordingListener;
-import jp.co.olympus.camerakit.OLYCameraRecordingSupportsListener;
-import jp.co.olympus.camerakit.OLYCameraStatusListener;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener,
-        OLYCameraStatusListener, OLYCameraPropertyListener, OLYCameraRecordingListener, OLYCameraRecordingSupportsListener,
-        View.OnClickListener, View.OnTouchListener {
+public class LiveViewFragment extends Fragment  {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
     int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
 
@@ -166,11 +157,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         enabledTouchShutter = preferences.getBoolean("touch_shutter", false);
         unlockImageView.setVisibility(enabledTouchShutter ? View.INVISIBLE : View.VISIBLE);
 
-        camera.setLiveViewListener(this);
+        /*camera.setLiveViewListener(this);
         camera.setCameraPropertyListener(this);
         camera.setCameraStatusListener(this);
         camera.setRecordingListener(this);
-        camera.setRecordingSupportsListener(this);
+        camera.setRecordingSupportsListener(this);*/
 
 /*        updateDrivemodeImageView();
         updateTakemodeTextView();
@@ -210,79 +201,14 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         super.onDetach();
     }
 
-    @Override
-    public void onClick(View v) {
 
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
-    }
-
-    @Override
+   /* @Override
     public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
         //imageView.setImageData(bytes, map);
         Log.d(TAG,"finished updateLiveView");
     }
 
-    @Override
-    public void onUpdateCameraProperty(OLYCamera olyCamera, String s) {
-        Log.d(TAG, "onUpdateCameraProperty" );
-    }
+*/
 
-    @Override
-    public void onStartRecordingVideo(OLYCamera olyCamera) {
-        Log.d(TAG, "onStartRecordingVideo" );
-    }
 
-    @Override
-    public void onStopRecordingVideo(OLYCamera olyCamera) {
-        Log.d(TAG, "onStopRecordingVideo" );
-    }
-
-    @Override
-    public void onChangeAutoFocusResult(OLYCamera olyCamera, OLYCameraAutoFocusResult olyCameraAutoFocusResult) {
-        Log.d(TAG, "nChangeAutoFocusResult" );
-    }
-
-    @Override
-    public void onReadyToReceiveCapturedImagePreview(OLYCamera olyCamera) {
-        Log.d(TAG, "onReadyToReceiveCapturedImagePreview" );
-    }
-
-    @Override
-    public void onReceiveCapturedImagePreview(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
-        Log.d(TAG, "onReceiveCapturedImagePreview" );
-    }
-
-    @Override
-    public void onFailToReceiveCapturedImagePreview(OLYCamera olyCamera, Exception e) {
-        Log.d(TAG, "onFailToReceiveCapturedImagePreview" );
-    }
-
-    @Override
-    public void onReadyToReceiveCapturedImage(OLYCamera olyCamera) {
-        Log.d(TAG, "onReadyToReceiveCapturedImage" );
-    }
-
-    @Override
-    public void onReceiveCapturedImage(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
-        Log.d(TAG, "onReceiveCapturedImage" );
-    }
-
-    @Override
-    public void onFailToReceiveCapturedImage(OLYCamera olyCamera, Exception e) {
-        Log.d(TAG, "onFailToReceiveCapturedImage" );
-    }
-
-    @Override
-    public void onStopDrivingZoomLens(OLYCamera olyCamera) {
-        Log.d(TAG, "onStopDrivingZoomLens" );
-    }
-
-    @Override
-    public void onUpdateStatus(OLYCamera olyCamera, String s) {
-        Log.d(TAG, "onUpdateStatus" );
-    }
 }
