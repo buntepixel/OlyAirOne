@@ -2,10 +2,8 @@ package com.example.mail.fragmenttest;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -16,11 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import jp.co.olympus.camerakit.OLYCamera;
-import jp.co.olympus.camerakit.OLYCameraKitException;
+import static com.example.mail.fragmenttest.CameraActivity.camera;
 
 
 /**
@@ -69,7 +63,7 @@ public class LiveViewFragment extends Fragment  {
         // Required empty public constructor
     }
 
-    private OLYCamera camera;
+  /*  private OLYCamera camera;
 
     public void setCamera(OLYCamera camera) {
         this.camera = camera;
@@ -112,7 +106,7 @@ public class LiveViewFragment extends Fragment  {
             put("<BATTERY_LEVEL/SUPPLY_FULL>", R.drawable.tt_icn_battery_supply_full);
         }
     };
-
+*/
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,7 +127,6 @@ public class LiveViewFragment extends Fragment  {
         final ImageButton ib_RecordMode = (ImageButton) view.findViewById(R.id.ib_RecordMode);
         ib_RecordMode.setOnClickListener(new View.OnClickListener() {
             int counter = 0;
-
             @Override
             public void onClick(View v) {
                 counter++;
@@ -153,10 +146,10 @@ public class LiveViewFragment extends Fragment  {
     public void onResume() {
         super.onResume();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+      /*  SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         enabledTouchShutter = preferences.getBoolean("touch_shutter", false);
         unlockImageView.setVisibility(enabledTouchShutter ? View.INVISIBLE : View.VISIBLE);
-
+*/
         /*camera.setLiveViewListener(this);
         camera.setCameraPropertyListener(this);
         camera.setCameraStatusListener(this);
@@ -171,14 +164,14 @@ public class LiveViewFragment extends Fragment  {
         updateIsoSensitivityTextView();
         updateWhiteBalanceImageView();
         updateBatteryLevelImageView();
-        updateRemainingRecordableImagesTextView();*/
+        updateRemainingRecordableImagesTextView();
 
         try {
             camera.clearAutoFocusPoint();
             camera.unlockAutoFocus();
         } catch (OLYCameraKitException ee) {
         }
-        enabledFocusLock = false;
+        enabledFocusLock = false;*/
     }
 
     @Override
@@ -187,7 +180,7 @@ public class LiveViewFragment extends Fragment  {
         try {
             focusedSoundPlayer = MediaPlayer.create(getContext(), R.raw.focusedsound);
             shutterSoundPlayer = MediaPlayer.create(getContext(), R.raw.shuttersound);
-            camera = CameraActivity.camera;
+            camera = camera;
 
             mListener = (OnLiveViewInteractionListener) context;
             Log.d(TAG,"finished onAttatch");

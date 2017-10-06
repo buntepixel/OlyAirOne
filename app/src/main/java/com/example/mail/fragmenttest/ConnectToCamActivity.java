@@ -293,9 +293,6 @@ public class ConnectToCamActivity extends Activity implements OLYCameraConnectio
 
         List<String> credentials = getWifiCredentials();
         String ssid = credentials.get(0);
-
-
-
         Log.d(TAG, "Currently saved Credentials: " + ssid );
         try {
             String mySSID = "\"" + ssid + "\"";
