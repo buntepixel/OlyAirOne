@@ -14,13 +14,18 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Map;
+
+import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCameraLiveViewListener;
+
 import static com.example.mail.fragmenttest.CameraActivity.camera;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LiveViewFragment extends Fragment  {
+public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
     int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
 
@@ -111,10 +116,8 @@ public class LiveViewFragment extends Fragment  {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (savedInstanceState != null)
             return;
-
     }
 
     @Override
@@ -151,8 +154,8 @@ public class LiveViewFragment extends Fragment  {
         enabledTouchShutter = preferences.getBoolean("touch_shutter", false);
         unlockImageView.setVisibility(enabledTouchShutter ? View.INVISIBLE : View.VISIBLE);
 */
-        /*camera.setLiveViewListener(this);
-        camera.setCameraPropertyListener(this);
+        camera.setLiveViewListener(this);
+        /*camera.setCameraPropertyListener(this);
         camera.setCameraStatusListener(this);
         camera.setRecordingListener(this);
         camera.setRecordingSupportsListener(this);*/
@@ -202,7 +205,7 @@ public class LiveViewFragment extends Fragment  {
         Log.d(TAG,"finished updateLiveView");
     }
 */
- /*  @Override
+   @Override
    public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
        try {
            imageView.setImageData(bytes, map);
@@ -211,6 +214,6 @@ public class LiveViewFragment extends Fragment  {
            Log.e(TAG, "exception: " + e.getMessage());
            Log.e(TAG, "exception: " + Log.getStackTraceString(e));
        }
-   }*/
+   }
 
 }
