@@ -55,6 +55,7 @@ public class LiveViewFragment extends Fragment  {
     private OnLiveViewInteractionListener mListener;
 
 
+
     public interface OnLiveViewInteractionListener {
         void onMainSettingsButtonPressed(int currDriveMode);
     }
@@ -200,8 +201,16 @@ public class LiveViewFragment extends Fragment  {
         //imageView.setImageData(bytes, map);
         Log.d(TAG,"finished updateLiveView");
     }
-
 */
-
+ /*  @Override
+   public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
+       try {
+           imageView.setImageData(bytes, map);
+       }
+       catch (Error e){
+           Log.e(TAG, "exception: " + e.getMessage());
+           Log.e(TAG, "exception: " + Log.getStackTraceString(e));
+       }
+   }*/
 
 }

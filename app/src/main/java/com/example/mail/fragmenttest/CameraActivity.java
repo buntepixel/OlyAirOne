@@ -2,7 +2,6 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -10,19 +9,19 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCameraConnectionListener;
+import jp.co.olympus.camerakit.OLYCameraKitException;
 
 
 public class CameraActivity extends FragmentActivity
-        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener {
+        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
+        OLYCameraConnectionListener{
     private static final String TAG = CameraActivity.class.getSimpleName();
 
-
-    MainSettingsFragment fMainSettings;
-
-
-    Parcelable stateApa;
+    Boolean isActive = true;
     int currDriveMode = 0;
     String currExpApart1;
     String currExpApart2;
@@ -41,6 +40,12 @@ public class CameraActivity extends FragmentActivity
             System.err.println(TAG + e.getMessage());
             Log.d(TAG, stackTrace);
         }
+    }
+
+    @Override
+    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
+        Toast.makeText(this,"Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT ).show();
+        finish();
     }
 
 
@@ -86,6 +91,16 @@ public class CameraActivity extends FragmentActivity
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         View myView = super.onCreateView(parent, name, context, attrs);
         return myView;
+    }
+
+    @Override
+    protected void onResume() {
+            super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+            super.onPause();
     }
 
     void SetMainSettingsButtons(int mode) {
