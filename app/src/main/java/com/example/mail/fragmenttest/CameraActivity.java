@@ -154,36 +154,39 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "currdriveMode: " + currDriveMode);
         if (currDriveMode == 4 && settingsType <= 1) {
             //ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
-            generalPressed(exposureFragment, CAMERA_PROPERTY_SHUTTER_SPEED,R.id.fl_FragCont_ExpApart2, ft);
-
-            generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE,R.id.fl_FragCont_ExpApart1, ft);
+            generalPressed(exposureFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart2, ft, 1);
+            generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1, ft, 0);
             //Log.d(TAG, "A_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
             ft.commit();
             //Log.d(TAG, "B_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
+
         } else {
             switch (settingsType) {
                 case 0:
                     //currExpApart1 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart1, 1);
-                    currExpApart1 = generalPressed(exposureFragment,CAMERA_PROPERTY_SHUTTER_SPEED,R.id.fl_FragCont_ExpApart1,ft);
+                    currExpApart1 = generalPressed(exposureFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
                 case 1:
                     //AparturePressed(ft);
-                    generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE,R.id.fl_FragCont_ExpApart1, ft);
+                    generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
                 case 2:
                     break;
                 case 3:
                     //IsoPressed(ft);
-                    generalPressed(isoFragment,CAMERA_PROPERTY_ISO_SENSITIVITY,R.id.fl_FragCont_ExpApart1,ft);
+                    generalPressed(isoFragment, CAMERA_PROPERTY_ISO_SENSITIVITY, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
                 case 4:
                     //WbPressed(ft);
-                    generalPressed(wbFragment,CAMERA_PROPERTY_WHITE_BALANCE,R.id.fl_FragCont_ExpApart1,ft);
+                    generalPressed(wbFragment, CAMERA_PROPERTY_WHITE_BALANCE, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
             }
-            //ft.addToBackStack("back");
+
+            if (!currExpApart2.equals("")){
+                ft.remove(getSupportFragmentManager().findFragmentByTag(currExpApart2));
+                currExpApart2 = "";
+            }
             ft.commit();
-            //Log.d(TAG, "C_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
         }
     }
 
@@ -373,10 +376,8 @@ public class CameraActivity extends FragmentActivity
     }
 
     //Todo: find out why no values appear
-    private String generalPressed(MasterSlidebarFragment myFragment, final String propertyName, int FrameLayoutToAppear, FragmentTransaction ft) {
+    private String generalPressed(MasterSlidebarFragment myFragment, final String propertyName, int frameLayoutToAppear, FragmentTransaction ft, int frameLayoutId) {
 
-
-        //Fragment myFrag = myFragment;
         //getting possible values
         List<String> valueList;
         try {
@@ -386,14 +387,8 @@ public class CameraActivity extends FragmentActivity
             return null;
         }
         if (valueList == null || valueList.size() == 0) return null;
-        //::::::::::::::::::::::::::::::::
-        /*for(String value: valueList){
-            Log.d(TAG, "Value: "+ camera.getCameraPropertyValueTitle(value));
-        }*/
-
 
         myFragment.setBarStringArr(valueList.toArray(new String[0]));
-
         //get Value
         String value;
         try {
@@ -403,19 +398,25 @@ public class CameraActivity extends FragmentActivity
             return null;
         }
         if (value == null) return null;
+        //::::::::::::::
+        //todo:find better way of doing
+        String currFlName;
+        if (frameLayoutId == 1)
+            currFlName = currExpApart2;
+        else
+            currFlName = currExpApart1;
 
-        if (currExpApart1 == propertyName) {
+        if (currFlName == propertyName) {
             //Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(getSupportFragmentManager().findFragmentByTag(propertyName));
-            currExpApart1 = "";
+            currFlName = "";
         } else {
-
             if ((getSupportFragmentManager().findFragmentByTag(propertyName)) != null) {
                 //Log.d(TAG, "Exists");
                 ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(FrameLayoutToAppear, myFragment, propertyName);
-                currExpApart1 = propertyName;
+                ft.replace(frameLayoutToAppear, myFragment, propertyName);
+                currFlName = propertyName;
             } else {
                 //Log.d(TAG, "New");
 
@@ -423,13 +424,18 @@ public class CameraActivity extends FragmentActivity
                 myFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
                     @Override
                     public void onSlideValueBar(String value) {
-                        fTrigger.SetSliderResult(value,propertyName);
+                        fTrigger.SetSliderResult(value, propertyName);
                     }
                 });
-                ft.replace(FrameLayoutToAppear, myFragment, propertyName);
-                currExpApart1 = propertyName;
+                ft.replace(frameLayoutToAppear, myFragment, propertyName);
+                currFlName = propertyName;
             }
         }
+        //todo:find better way of doing
+        if (frameLayoutId == 1)
+            currExpApart2 = currFlName;
+        else
+            currExpApart1 = currFlName;
         return propertyName;
     }
 /*
