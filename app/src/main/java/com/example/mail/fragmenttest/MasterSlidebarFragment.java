@@ -77,18 +77,27 @@ public abstract class MasterSlidebarFragment extends Fragment {
             mScrollingValuePicker.setScrollingValueListener(new ScrollingValuePicker.ScrollingValueListener() {
                 @Override
                 public void onScrollChanged(ObservableHorizontalScrollView view, float scrollValue, int visibleScrollBarVal) {
-                    Log.d(TAG, "scrollVal: " + scrollValue + " visScrollVal: " + visibleScrollBarVal);
+                    try {
+                        Log.d(TAG, "scrollVal: " + scrollValue + " visScrollVal: " + visibleScrollBarVal);
 
-                    int barSegment = visibleScrollBarVal / myString.length;
-                    // scrollvalue from 0-0,99999999
-                    float decScrollVal = scrollValue / (visibleScrollBarVal + 1);//add 1 so it never gets 1 and breaks the index
-                    int currIndex = (int) Math.floor((decScrollVal * myString.length));
-                    newScrollVal = (int) Math.round((barSegment * currIndex));//- (barSegment / 2));
-                    Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex);
-                    //view.scrollTo(newScrollVal, 0);
-                    if (sliderValueListener != null)
-                        sliderValueListener.onSlideValueBar(myString[currIndex]);
-                    //Log.d(TAG,"index: "+currIndex+" value: "+myString[currIndex]);
+                        int barSegment = visibleScrollBarVal / myString.length;
+                        // scrollvalue from 0-0,99999999
+                        float decScrollVal = scrollValue / (visibleScrollBarVal + 1);//add 1 so it never gets 1 and breaks the index
+                        int currIndex = (int) Math.floor((decScrollVal * myString.length));
+                        //make sure index doesn't get out of range on overscroll
+                        currIndex= Math.max(0,currIndex);
+                        currIndex= Math.min(myString.length-1,currIndex);
+
+                        newScrollVal = (int) Math.round((barSegment * currIndex));//- (barSegment / 2));
+                        Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex);
+                        //view.scrollTo(newScrollVal, 0);
+                        if (sliderValueListener != null)
+                            sliderValueListener.onSlideValueBar(myString[currIndex]);
+                        //Log.d(TAG,"index: "+currIndex+" value: "+myString[currIndex]);
+                    }catch ( Exception ex){
+                        String stackTrace = Log.getStackTraceString(ex);
+                        Log.d(TAG, stackTrace);
+                    }
                 }
             });
 //

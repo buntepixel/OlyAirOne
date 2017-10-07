@@ -27,7 +27,13 @@ import static com.example.mail.fragmenttest.CameraActivity.camera;
  */
 public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
-    int[] modeArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode, R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
+    int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
+            R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
+
+
+
+
+
 
     private static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
@@ -57,12 +63,12 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     private Boolean enabledFocusLock;
     private CameraLiveImageView imageView;
 
-    private OnLiveViewInteractionListener mListener;
+    private OnLiveViewInteractionListener mOnLiveViewInteractionListener;
 
 
 
     public interface OnLiveViewInteractionListener {
-        void onMainSettingsButtonPressed(int currDriveMode);
+        void onTakeModeButtonPressed(int currDriveMode);
     }
 
     public LiveViewFragment() {
@@ -134,12 +140,12 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             @Override
             public void onClick(View v) {
                 counter++;
-                int counterMod = counter % modeArr.length;
-                ib_RecordMode.setImageResource(modeArr[counterMod]);
+                int counterMod = counter % takeModeDrawablesArr.length;
+                ib_RecordMode.setImageResource(takeModeDrawablesArr[counterMod]);
                 //currDriveMode = counterMod;
-                if (mListener != null)
-                    mListener.onMainSettingsButtonPressed(counter % (modeArr.length));
-                //SetMainSettingsButtons(counter % (modeArr.length));
+                if (mOnLiveViewInteractionListener != null)
+                    mOnLiveViewInteractionListener.onTakeModeButtonPressed(counter % (takeModeDrawablesArr.length));
+                //SetMainSettingsButtons(counter % (takeModeDrawablesArr.length));
                 //Log.d(TAG, "start"+ counter);
             }
         });
@@ -186,7 +192,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             shutterSoundPlayer = MediaPlayer.create(getContext(), R.raw.shuttersound);
             camera = camera;
 
-            mListener = (OnLiveViewInteractionListener) context;
+            mOnLiveViewInteractionListener = (OnLiveViewInteractionListener) context;
             Log.d(TAG,"finished onAttatch");
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnTriggerFragmInteractionListener");
@@ -199,12 +205,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
 
-   /* @Override
-    public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
-        //imageView.setImageData(bytes, map);
-        Log.d(TAG,"finished updateLiveView");
-    }
-*/
+
    @Override
    public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
        try {

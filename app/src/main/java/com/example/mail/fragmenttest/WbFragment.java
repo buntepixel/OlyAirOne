@@ -11,4 +11,7 @@ public class WbFragment extends MasterSlidebarFragment {
     public WbFragment() {
         this.setBarStringArr(myString);
     }
+    public void SetContentString(String[] myString) {
+        this.setBarStringArr(myString);
+    }
 }

@@ -88,18 +88,6 @@ public class TriggerFragment extends Fragment  {
         return relativeLayout;
     }
 
-    public void SetButtonsBool(boolean time, boolean aparture, boolean exposureAdj, boolean iso, boolean wb) {
-        this.time = time;
-        this.aparture = aparture;
-        this.exposureAdj = exposureAdj;
-        this.iso = iso;
-        this.wb = wb;
-    }
-
-    public void SetDriveMode(int driveMode) {
-        this.driveMode = driveMode;
-    }
-
     private void SetupButtons(RelativeLayout relativeLayout) {
         //LinearLayout linearLayout = ll_main;
         int padding = 40;
@@ -114,6 +102,18 @@ public class TriggerFragment extends Fragment  {
         relativeLayout.addView(left_LinearLayout);
         relativeLayout.addView(center_linearLayout);
         relativeLayout.addView(right_LinearLayout);
+    }
+
+    public void SetButtonsBool(boolean time, boolean aparture, boolean exposureAdj, boolean iso, boolean wb) {
+        this.time = time;
+        this.aparture = aparture;
+        this.exposureAdj = exposureAdj;
+        this.iso = iso;
+        this.wb = wb;
+    }
+
+    public void SetDriveMode(int driveMode) {
+        this.driveMode = driveMode;
     }
 
 
@@ -321,7 +321,7 @@ public class TriggerFragment extends Fragment  {
         this.camera = camera;
     }
 
-    public void SetExpTimeValue(String value){
+/*    public void SetExpTimeValue(String value){
         tv_expTime.setText(camera.getCameraPropertyValueTitle(value));
     }
 
@@ -335,6 +335,23 @@ public class TriggerFragment extends Fragment  {
 
     public void SetWBValue(String value){
         tv_wb.setText(camera.getCameraPropertyValueTitle(value));
+    }*/
+
+    public void SetSliderResult(String value,String property){
+        switch (property){
+            case "SHUTTER":
+                tv_expTime.setText(camera.getCameraPropertyValueTitle(value));
+                break;
+            case "APERTURE":
+                tv_fStop.setText(camera.getCameraPropertyValueTitle(value));
+                break;
+            case "ISO":
+                tv_iso.setText(camera.getCameraPropertyValueTitle(value));
+                break;
+            case "WB":
+                tv_wb.setText(camera.getCameraPropertyValueTitle(value));
+                break;
+        }
     }
 
 

@@ -33,6 +33,7 @@ public class CameraActivity extends FragmentActivity
         OLYCameraConnectionListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
 
+
     private static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
     private static final String CAMERA_PROPERTY_APERTURE_VALUE = "APERTURE";
@@ -41,6 +42,8 @@ public class CameraActivity extends FragmentActivity
     private static final String CAMERA_PROPERTY_ISO_SENSITIVITY = "ISO";
     private static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
     private static final String CAMERA_PROPERTY_BATTERY_LEVEL = "BATTERY_LEVEL";
+
+    List<String> takeModeStrings;
 
     //Boolean isActive = false;
     private Executor connectionExecutor = Executors.newFixedThreadPool(1);
@@ -56,10 +59,15 @@ public class CameraActivity extends FragmentActivity
     ExposureFragment exposureFragment;
     public static OLYCamera camera = null;
 
+
     @Override
-    public void onMainSettingsButtonPressed(int currDriveMode) {
+    public void onTakeModeButtonPressed(int currDriveMode) {
         try {
-            Log.d(TAG, "Works:  " + currDriveMode);
+            try {
+                camera.setCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE, takeModeStrings.get(currDriveMode));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             this.currDriveMode = currDriveMode;
             SetMainSettingsButtons(currDriveMode);
         } catch (Exception e) {
@@ -145,30 +153,32 @@ public class CameraActivity extends FragmentActivity
         int fragLayout;
         Log.d(TAG, "currdriveMode: " + currDriveMode);
         if (currDriveMode == 4 && settingsType <= 1) {
-            ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
-            AparturePressed(ft);
+            //ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
+            generalPressed(exposureFragment, CAMERA_PROPERTY_SHUTTER_SPEED,R.id.fl_FragCont_ExpApart2, ft);
+
+            generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE,R.id.fl_FragCont_ExpApart1, ft);
             //Log.d(TAG, "A_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
             ft.commit();
             //Log.d(TAG, "B_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
         } else {
             switch (settingsType) {
                 case 0:
-                    currExpApart1 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart1, 1);
-                    //currExpApart1 = generalPressed(exposureFragment,CAMERA_PROPERTY_SHUTTER_SPEED,ft);
+                    //currExpApart1 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart1, 1);
+                    currExpApart1 = generalPressed(exposureFragment,CAMERA_PROPERTY_SHUTTER_SPEED,R.id.fl_FragCont_ExpApart1,ft);
                     break;
                 case 1:
-                    AparturePressed(ft);
-                    //generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, ft);
+                    //AparturePressed(ft);
+                    generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE,R.id.fl_FragCont_ExpApart1, ft);
                     break;
                 case 2:
                     break;
                 case 3:
-                    IsoPressed(ft);
-                    //generalPressed(isoFragment,CAMERA_PROPERTY_ISO_SENSITIVITY,ft);
+                    //IsoPressed(ft);
+                    generalPressed(isoFragment,CAMERA_PROPERTY_ISO_SENSITIVITY,R.id.fl_FragCont_ExpApart1,ft);
                     break;
                 case 4:
-                    WbPressed(ft);
-                    //generalPressed(wbFragment,CAMERA_PROPERTY_WHITE_BALANCE,ft);
+                    //WbPressed(ft);
+                    generalPressed(wbFragment,CAMERA_PROPERTY_WHITE_BALANCE,R.id.fl_FragCont_ExpApart1,ft);
                     break;
             }
             //ft.addToBackStack("back");
@@ -277,12 +287,20 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "Connected to Cam");
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, "LiveView");
-        fragmentTransaction.commit();
+        //Todo: maybe only commit();
+        fragmentTransaction.commitAllowingStateLoss();
            /* LiveViewFragment fragment = new LiveViewFragment();
             fragment.setCamera(camera);
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment1, fragment);
             transaction.commitAllowingStateLoss();*/
+
+        try {
+            takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
 
     }
 
@@ -354,6 +372,67 @@ public class CameraActivity extends FragmentActivity
         ft.commit();
     }
 
+    //Todo: find out why no values appear
+    private String generalPressed(MasterSlidebarFragment myFragment, final String propertyName, int FrameLayoutToAppear, FragmentTransaction ft) {
+
+
+        //Fragment myFrag = myFragment;
+        //getting possible values
+        List<String> valueList;
+        try {
+            valueList = camera.getCameraPropertyValueList(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return null;
+        }
+        if (valueList == null || valueList.size() == 0) return null;
+        //::::::::::::::::::::::::::::::::
+        /*for(String value: valueList){
+            Log.d(TAG, "Value: "+ camera.getCameraPropertyValueTitle(value));
+        }*/
+
+
+        myFragment.setBarStringArr(valueList.toArray(new String[0]));
+
+        //get Value
+        String value;
+        try {
+            value = camera.getCameraPropertyValue(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return null;
+        }
+        if (value == null) return null;
+
+        if (currExpApart1 == propertyName) {
+            //Log.d(TAG, "SameFrag");
+            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+            ft.remove(getSupportFragmentManager().findFragmentByTag(propertyName));
+            currExpApart1 = "";
+        } else {
+
+            if ((getSupportFragmentManager().findFragmentByTag(propertyName)) != null) {
+                //Log.d(TAG, "Exists");
+                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+                ft.replace(FrameLayoutToAppear, myFragment, propertyName);
+                currExpApart1 = propertyName;
+            } else {
+                //Log.d(TAG, "New");
+
+                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+                myFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
+                    @Override
+                    public void onSlideValueBar(String value) {
+                        fTrigger.SetSliderResult(value,propertyName);
+                    }
+                });
+                ft.replace(FrameLayoutToAppear, myFragment, propertyName);
+                currExpApart1 = propertyName;
+            }
+        }
+        return propertyName;
+    }
+/*
     private String ExposurePressed(FragmentTransaction ft, int FrameLayout, int FrameLayoutId) {
         Fragment myFrag;
         String currTag;
@@ -403,7 +482,7 @@ public class CameraActivity extends FragmentActivity
         return myTag;
     }
 
-    private void AparturePressed(FragmentTransaction ft) {
+  private void AparturePressed(FragmentTransaction ft) {
         final String propertyName = CAMERA_PROPERTY_APERTURE_VALUE;
         String myTag;
         Fragment myFrag;
@@ -454,9 +533,36 @@ public class CameraActivity extends FragmentActivity
     }
 
     private void IsoPressed(FragmentTransaction ft) {
+        final String propertyName = CAMERA_PROPERTY_ISO_SENSITIVITY;
         String myTag;
         Fragment myFrag;
         myTag = "Iso";
+
+        //getting possible aparture values
+        final List<String> valueList;
+        try {
+            valueList = camera.getCameraPropertyValueList(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+        if (valueList == null || valueList.size() == 0) return;
+        //::::::::::::::::::::::::::::::::
+        for(String value: valueList){
+            Log.d(TAG, "Value: "+ camera.getCameraPropertyValueTitle(value));
+        }
+
+        isoFragment.SetContentString(valueList.toArray(new String[0]));
+        //get Aparture
+        String value;
+        try {
+            value = camera.getCameraPropertyValue(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+        if (value == null) return;
+
         if (currExpApart1 == myTag) {
             //Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
@@ -484,73 +590,30 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
-    //Todo: find out why no values appear
-    private String generalPressed(MasterSlidebarFragment myFragment, String propertyName, FragmentTransaction ft) {
-
+    private void WbPressed(FragmentTransaction ft) {
+        final String propertyName = CAMERA_PROPERTY_WHITE_BALANCE;
         String myTag;
-        Fragment myFrag = myFragment;
+        Fragment myFrag;
+        myTag = "Wb";
 
-        //getting possible values
+        //getting possible aparture values
         final List<String> valueList;
         try {
             valueList = camera.getCameraPropertyValueList(propertyName);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
-            return null;
+            return;
         }
-
-        //::::::::::::::::::::::::::::::::
-        /*for(String value: valueList){
-            Log.d(TAG, "Value: "+ camera.getCameraPropertyValueTitle(value));
-        }*/
-
-
-        myFragment.setBarStringArr(valueList.toArray(new String[0]));
-        ft.detach(myFragment);
-        ft.attach(myFragment);
-        //get Value
+        wbFragment.SetContentString(valueList.toArray(new String[0]));
+        //get Aparture
         String value;
         try {
             value = camera.getCameraPropertyValue(propertyName);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
-            return null;
+            return;
         }
-        if (value == null) return null;
-
-        if (currExpApart1 == propertyName) {
-            //Log.d(TAG, "SameFrag");
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-            ft.remove(getSupportFragmentManager().findFragmentByTag(propertyName));
-            currExpApart1 = "";
-        } else {
-
-            if ((myFrag = getSupportFragmentManager().findFragmentByTag(propertyName)) != null) {
-                //Log.d(TAG, "Exists");
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, propertyName);
-                currExpApart1 = propertyName;
-            } else {
-                //Log.d(TAG, "New");
-
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                myFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
-                    @Override
-                    public void onSlideValueBar(String value) {
-                        fTrigger.SetIsoValue(value);
-                    }
-                });
-                ft.replace(R.id.fl_FragCont_ExpApart1, isoFragment, propertyName);
-                currExpApart1 = propertyName;
-            }
-        }
-        return propertyName;
-    }
-
-    private void WbPressed(FragmentTransaction ft) {
-        String myTag;
-        Fragment myFrag;
-        myTag = "Wb";
+        if (value == null) return;
         if (currExpApart1 == myTag) {
             //Log.d(TAG, "SameFrag");
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
@@ -577,6 +640,7 @@ public class CameraActivity extends FragmentActivity
             }
         }
     }
+*/
 
 
 }
