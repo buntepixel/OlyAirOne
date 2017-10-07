@@ -11,29 +11,39 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import jp.co.olympus.camerakit.OLYCamera;
+
 /**
  * Created by mail on 13/10/2016.
  */
 
-public class MasterSlidebarFragment extends Fragment {
+public abstract class MasterSlidebarFragment extends Fragment {
     private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
+    OLYCamera camera;
+    private String[] myString;
+    int newScrollVal;
+
+    private sliderValue sliderValueListener;
 
     public MasterSlidebarFragment() {
     }
 
-    private sliderValue sliderValueListener;
+
+    public void SetOLYCam(OLYCamera camera) {
+        this.camera = camera;
+    }
 
     public interface sliderValue {
+
         void onSlideValueBar(String value);
+
     }
 
     public void setSliderValueListener(sliderValue listener) {
         this.sliderValueListener = listener;
     }
 
-    private  String[] myString;
-    int newScrollVal;
-    public void setBarStringArr(String[] inStringArr){
+    public void setBarStringArr(String[] inStringArr) {
         this.myString = inStringArr;
     }
 
@@ -99,19 +109,34 @@ public class MasterSlidebarFragment extends Fragment {
 
     private void AddTextViewContent(String[] stringArr, LinearLayout linearLayout) {
         //Adding Textview
-        for (String i : stringArr) {
-            TextView textView = new TextView(getActivity());
-            textView.setId(View.generateViewId());
-            //Log.d(TAG, "textView " + i + " id: " + textView.getId());
-            //Log.d(TAG, "mystring:  " + i);
-            textView.setText(i);
-            //textView.setTextSize(40);
-            textView.setBackgroundColor(Color.GREEN);
-            textView.setPaddingRelative(25, 0, 25, 0);
-            textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-            linearLayout.addView(textView);
+        try {
+            for (String i : stringArr) {
+                TextView textView = new TextView(getActivity());
+                textView.setId(View.generateViewId());
+                //Log.d(TAG, "textView " + i + " id: " + textView.getId());
+                //Log.d(TAG, "mystring:  " + i);
+                if (camera != null){
+                    Log.d(TAG, "CurrentValue::::::"+camera.getCameraPropertyValueTitle(i) );
+                    textView.setText(camera.getCameraPropertyValueTitle(i));
+                }
+                else {
+                    Log.d(TAG, "Cam Seems to be null");
+                    textView.setText(i);
+                }
+
+                //textView.setTextSize(40);
+                textView.setBackgroundColor(Color.GREEN);
+                textView.setPaddingRelative(25, 0, 25, 0);
+                textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                linearLayout.addView(textView);
+            }
+        } catch (Error e) {
+            String stackTrace = Log.getStackTraceString(e);
+            System.err.println(TAG + e.getMessage());
+            Log.d(TAG, stackTrace);
         }
+
     }
 
 //    private void CreateImageViewContent(int itemCount) {

@@ -12,16 +12,19 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import jp.co.olympus.camerakit.OLYCamera;
+
 /**
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends Fragment {
+public class TriggerFragment extends Fragment  {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
     private int driveMode;
+    OLYCamera camera;
 
 
     private TextView tv_expTime;
@@ -31,26 +34,12 @@ public class TriggerFragment extends Fragment {
     private TextView tv_expOffset;
 
 
-    private OnTriggerFragmInteractionListener mListener;
+    private OnTriggerFragmInteractionListener triggerFragmListener;
+
+
 
     public interface OnTriggerFragmInteractionListener {
         void onTriggerFragmInteraction(int settingsType);
-    }
-
-    public void SetExpTimeValue(String value){
-        tv_expTime.setText(value);
-    }
-
-    public void SetFstopValue(String value) {
-        tv_fStop.setText(value);
-    }
-
-    public void SetIsoValue(String value) {
-        tv_iso.setText(value);
-    }
-
-    public void SetWBValue(String value){
-        tv_wb.setText(value);
     }
 
     @Override
@@ -60,7 +49,6 @@ public class TriggerFragment extends Fragment {
         if (savedInstanceState != null)
             return;
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
@@ -90,6 +78,7 @@ public class TriggerFragment extends Fragment {
         return view;
     }
 
+
     private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
         RelativeLayout relativeLayout = (RelativeLayout) rootView.findViewById(R.id.rl_settings);
         //Log.d(TAG, "notDead B");
@@ -111,7 +100,6 @@ public class TriggerFragment extends Fragment {
         this.driveMode = driveMode;
     }
 
-
     private void SetupButtons(RelativeLayout relativeLayout) {
         //LinearLayout linearLayout = ll_main;
         int padding = 40;
@@ -127,6 +115,7 @@ public class TriggerFragment extends Fragment {
         relativeLayout.addView(center_linearLayout);
         relativeLayout.addView(right_LinearLayout);
     }
+
 
     private LinearLayout CreateExpTFstop(int colEnable, int colDisable, int padding, LinearLayout alignLayout) {
         LinearLayout root_linearLayout = new LinearLayout(getContext());
@@ -154,7 +143,7 @@ public class TriggerFragment extends Fragment {
             ll_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
-                    mListener.onTriggerFragmInteraction(0);
+                    triggerFragmListener.onTriggerFragmInteraction(0);
                 }
             });
         } else {
@@ -182,7 +171,7 @@ public class TriggerFragment extends Fragment {
             ll_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
-                    mListener.onTriggerFragmInteraction(1);
+                    triggerFragmListener.onTriggerFragmInteraction(1);
                 }
             });
         } else {
@@ -215,7 +204,7 @@ public class TriggerFragment extends Fragment {
             tv_expOffset.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
-                    mListener.onTriggerFragmInteraction(2);
+                    triggerFragmListener.onTriggerFragmInteraction(2);
                 }
             });
         } else
@@ -286,7 +275,7 @@ public class TriggerFragment extends Fragment {
             ll_iso.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
-                    mListener.onTriggerFragmInteraction(3);
+                    triggerFragmListener.onTriggerFragmInteraction(3);
                 }
             });
         } else {
@@ -315,7 +304,7 @@ public class TriggerFragment extends Fragment {
             ll_linLayoutWb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
-                    mListener.onTriggerFragmInteraction(4);
+                    triggerFragmListener.onTriggerFragmInteraction(4);
                 }
             });
         } else {
@@ -328,12 +317,33 @@ public class TriggerFragment extends Fragment {
         return root_linearLayout;
     }
 
+    public void SetOLYCam(OLYCamera camera) {
+        this.camera = camera;
+    }
+
+    public void SetExpTimeValue(String value){
+        tv_expTime.setText(camera.getCameraPropertyValueTitle(value));
+    }
+
+    public void SetFstopValue(String value) {
+        tv_fStop.setText(camera.getCameraPropertyValueTitle(value));
+    }
+
+    public void SetIsoValue(String value) {
+        tv_iso.setText(camera.getCameraPropertyValueTitle(value));
+    }
+
+    public void SetWBValue(String value){
+        tv_wb.setText(camera.getCameraPropertyValueTitle(value));
+    }
+
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnTriggerFragmInteractionListener) context;
+            triggerFragmListener = (OnTriggerFragmInteractionListener) context;
+
 
            /* mCallback = (OnShutterReleasePressed) context;
             mPressed = (OnDrivemodePressed) context;*/
@@ -345,7 +355,7 @@ public class TriggerFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        triggerFragmListener = null;
     }
 }
 
