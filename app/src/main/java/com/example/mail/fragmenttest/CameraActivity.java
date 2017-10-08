@@ -78,13 +78,6 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
-    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
-        Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
-        finish();
-    }
-
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
@@ -96,10 +89,12 @@ public class CameraActivity extends FragmentActivity
         if (savedInstanceState != null) {
             return;
         }
+        Log.d(TAG, "onCreate__" + "Creating Camera Object");
         camera = new OLYCamera();
         camera.setContext(getApplicationContext());
         camera.setConnectionListener(this);
         //add Trigger,LiveView Fragment
+        Log.d(TAG, "onCreate__" + "Creating Fragments,setting olycam to fragments");
         fTrigger = new TriggerFragment();
         fTrigger.SetOLYCam(camera);
         fLiveView = new LiveViewFragment();
@@ -115,6 +110,7 @@ public class CameraActivity extends FragmentActivity
         fm = getSupportFragmentManager();
     }
 
+
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         View myView = super.onCreateView(parent, name, context, attrs);
@@ -124,10 +120,12 @@ public class CameraActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume__" + "starting to connect to Camera");
         startConnectingCamera();
+
+        Log.d(TAG, "onResume__" + "Adding trigger fragment to View");
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
-
         fragmentTransaction.commit();
     }
 
@@ -182,7 +180,7 @@ public class CameraActivity extends FragmentActivity
                     break;
             }
 
-            if (!currExpApart2.equals("")){
+            if (!currExpApart2.equals("")) {
                 ft.remove(getSupportFragmentManager().findFragmentByTag(currExpApart2));
                 currExpApart2 = "";
             }
@@ -191,11 +189,16 @@ public class CameraActivity extends FragmentActivity
     }
 
     private void startConnectingCamera() {
+        Log.d(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
         connectionExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CameraActivity.this);
-
+                Log.d(TAG, "startConnectingCamera__" + "OLYCamera.ConnectionType.WiFi");
+                Boolean canConnect= false;
+                while (!canConnect){
+                     canConnect=  camera.canConnect(OLYCamera.ConnectionType.WiFi,0);
+                }
                 try {
                     camera.connect(OLYCamera.ConnectionType.WiFi);
                 } catch (OLYCameraKitException e) {
@@ -209,13 +212,14 @@ public class CameraActivity extends FragmentActivity
                     alertConnectingFailed(e);
                     return;
                 }*/
+                Log.d(TAG, "startConnectingCamera__" + "OLYCamera.RunMode.Recording");
                 try {
                     camera.changeRunMode(OLYCamera.RunMode.Recording);
                 } catch (OLYCameraKitException e) {
                     alertConnectingFailed(e);
                     return;
                 }
-
+                Log.d(TAG, "startConnectingCamera__" + "Restores my settings");
                 // Restores my settings.
                 if (camera.isConnected()) {
                     Map<String, String> values = new HashMap<String, String>();
@@ -264,7 +268,6 @@ public class CameraActivity extends FragmentActivity
         });
     }
 
-
     private void alertConnectingFailed(Exception e) {
         final Intent myIntent = new Intent(this, ConnectToCamActivity.class);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -305,6 +308,12 @@ public class CameraActivity extends FragmentActivity
             return;
         }
 
+    }
+
+    @Override
+    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
+        Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     void SetMainSettingsButtons(int mode) {
@@ -375,7 +384,6 @@ public class CameraActivity extends FragmentActivity
         ft.commit();
     }
 
-    //Todo: find out why no values appear
     private String generalPressed(MasterSlidebarFragment myFragment, final String propertyName, int frameLayoutToAppear, FragmentTransaction ft, int frameLayoutId) {
 
         //getting possible values
@@ -438,216 +446,6 @@ public class CameraActivity extends FragmentActivity
             currExpApart1 = currFlName;
         return propertyName;
     }
-/*
-    private String ExposurePressed(FragmentTransaction ft, int FrameLayout, int FrameLayoutId) {
-        Fragment myFrag;
-        String currTag;
-        if (FrameLayoutId == 1)
-            currTag = currExpApart1;
-        else
-            currTag = currExpApart2;
-        String myTag = "Expo";
-        if (currTag == myTag) {
-            //Log.d(TAG, "SameFrag");
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-            ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
-            if (FrameLayoutId == 1) {
-                currExpApart1 = "";
-                //Log.d(TAG, "currExpoApart 1");
-            } else {
-                currExpApart2 = "";
-                //Log.d(TAG, "currExpoApart 2:  " + currExpApart2);
-            }
-
-        } else {
-            if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                //Log.d(TAG, "Exists");
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(FrameLayout, myFrag, myTag);
-                if (FrameLayoutId == 1)
-                    currExpApart1 = myTag;
-                else
-                    currExpApart2 = myTag;
-            } else {
-                //Log.d(TAG, "New");
-
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                exposureFragment.setSliderValueListener(new ApartureFragment.sliderValue() {
-                    @Override
-                    public void onSlideValueBar(String value) {
-                        fTrigger.SetExpTimeValue(value);
-                    }
-                });
-                ft.replace(FrameLayout, exposureFragment, myTag);
-                if (FrameLayoutId == 1)
-                    currExpApart1 = myTag;
-                else
-                    currExpApart2 = myTag;
-            }
-        }
-        return myTag;
-    }
-
-  private void AparturePressed(FragmentTransaction ft) {
-        final String propertyName = CAMERA_PROPERTY_APERTURE_VALUE;
-        String myTag;
-        Fragment myFrag;
-        myTag = "Apart";
-        //getting possible aparture values
-        final List<String> valueList;
-        try {
-            valueList = camera.getCameraPropertyValueList(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-        apartureFragment.SetContentString(valueList.toArray(new String[0]));
-        //get Aparture
-        String value;
-        try {
-            value = camera.getCameraPropertyValue(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-        if (value == null) return;
-
-        if (currExpApart1 == myTag) {
-            ///Log.d(TAG, "SameFrag");
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-            ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
-            currExpApart1 = "";
-        } else {
-            if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                //Log.d(TAG, "Exists");
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
-                currExpApart1 = myTag;
-            } else {
-                //Log.d(TAG, "New");
-                apartureFragment.setSliderValueListener(new ApartureFragment.sliderValue() {
-                    @Override
-                    public void onSlideValueBar(String value) {
-                        fTrigger.SetFstopValue(value);
-                    }
-                });
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(R.id.fl_FragCont_ExpApart1, apartureFragment, myTag);
-                currExpApart1 = myTag;
-            }
-        }
-    }
-
-    private void IsoPressed(FragmentTransaction ft) {
-        final String propertyName = CAMERA_PROPERTY_ISO_SENSITIVITY;
-        String myTag;
-        Fragment myFrag;
-        myTag = "Iso";
-
-        //getting possible aparture values
-        final List<String> valueList;
-        try {
-            valueList = camera.getCameraPropertyValueList(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-        if (valueList == null || valueList.size() == 0) return;
-        //::::::::::::::::::::::::::::::::
-        for(String value: valueList){
-            Log.d(TAG, "Value: "+ camera.getCameraPropertyValueTitle(value));
-        }
-
-        isoFragment.SetContentString(valueList.toArray(new String[0]));
-        //get Aparture
-        String value;
-        try {
-            value = camera.getCameraPropertyValue(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-        if (value == null) return;
-
-        if (currExpApart1 == myTag) {
-            //Log.d(TAG, "SameFrag");
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-            ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
-            currExpApart1 = "";
-        } else {
-            if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                //Log.d(TAG, "Exists");
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
-                currExpApart1 = myTag;
-            } else {
-                //Log.d(TAG, "New");
-
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                isoFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
-                    @Override
-                    public void onSlideValueBar(String value) {
-                        fTrigger.SetIsoValue(value);
-                    }
-                });
-                ft.replace(R.id.fl_FragCont_ExpApart1, isoFragment, myTag);
-                currExpApart1 = myTag;
-            }
-        }
-    }
-
-    private void WbPressed(FragmentTransaction ft) {
-        final String propertyName = CAMERA_PROPERTY_WHITE_BALANCE;
-        String myTag;
-        Fragment myFrag;
-        myTag = "Wb";
-
-        //getting possible aparture values
-        final List<String> valueList;
-        try {
-            valueList = camera.getCameraPropertyValueList(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-        wbFragment.SetContentString(valueList.toArray(new String[0]));
-        //get Aparture
-        String value;
-        try {
-            value = camera.getCameraPropertyValue(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-        if (value == null) return;
-        if (currExpApart1 == myTag) {
-            //Log.d(TAG, "SameFrag");
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-            ft.remove(getSupportFragmentManager().findFragmentByTag(myTag));
-            currExpApart1 = "";
-        } else {
-            if ((myFrag = getSupportFragmentManager().findFragmentByTag(myTag)) != null) {
-                // Log.d(TAG, "Exists");
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                ft.replace(R.id.fl_FragCont_ExpApart1, myFrag, myTag);
-                currExpApart1 = myTag;
-            } else {
-                //Log.d(TAG, "New");
-
-                ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-                wbFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
-                    @Override
-                    public void onSlideValueBar(String value) {
-                        fTrigger.SetWBValue(value);
-                    }
-                });
-                ft.replace(R.id.fl_FragCont_ExpApart1, wbFragment, myTag);
-                currExpApart1 = myTag;
-            }
-        }
-    }
-*/
-
 
 }
 

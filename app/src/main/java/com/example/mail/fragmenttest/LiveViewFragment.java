@@ -26,7 +26,7 @@ import static com.example.mail.fragmenttest.CameraActivity.camera;
  * A simple {@link Fragment} subclass.
  */
 public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener {
-    private static final String TAG = ConnectToCamActivity.class.getSimpleName();
+    private static final String TAG = LiveViewFragment.class.getSimpleName();
     int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
             R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
 
