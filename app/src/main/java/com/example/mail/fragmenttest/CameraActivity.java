@@ -46,7 +46,7 @@ public class CameraActivity extends FragmentActivity
     List<String> takeModeStrings;
 
     //Boolean isActive = false;
-    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    Executor connectionExecutor = Executors.newFixedThreadPool(1);
     int currDriveMode = 0;
     String currExpApart1;
     String currExpApart2;
@@ -58,6 +58,9 @@ public class CameraActivity extends FragmentActivity
     WbFragment wbFragment;
     ExposureFragment exposureFragment;
     public static OLYCamera camera = null;
+
+
+
 
 
     @Override
@@ -113,8 +116,11 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        View myView = super.onCreateView(parent, name, context, attrs);
-        return myView;
+        View view = super.onCreateView(parent, name, context, attrs);
+
+
+
+        return view;
     }
 
     @Override
@@ -139,6 +145,8 @@ public class CameraActivity extends FragmentActivity
         super.onBackPressed();
         startActivity(new Intent(this, MainActivity.class));
     }
+
+
 
     @Override
     public void onTriggerFragmInteraction(int settingsType) {
@@ -180,7 +188,7 @@ public class CameraActivity extends FragmentActivity
                     break;
             }
 
-            if (!currExpApart2.equals("")) {
+            if (currExpApart2 != null && !currExpApart2.equals("")) {
                 ft.remove(getSupportFragmentManager().findFragmentByTag(currExpApart2));
                 currExpApart2 = "";
             }
@@ -194,11 +202,11 @@ public class CameraActivity extends FragmentActivity
             @Override
             public void run() {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CameraActivity.this);
-                Log.d(TAG, "startConnectingCamera__" + "OLYCamera.ConnectionType.WiFi");
-                Boolean canConnect= false;
-                while (!canConnect){
-                     canConnect=  camera.canConnect(OLYCamera.ConnectionType.WiFi,0);
+                Boolean canConnect = false;
+                while (!canConnect) {
+                    canConnect = camera.canConnect(OLYCamera.ConnectionType.WiFi, 0);
                 }
+                Log.d(TAG, "startConnectingCamera__" + "OLYCamera.ConnectionType.WiFi");
                 try {
                     camera.connect(OLYCamera.ConnectionType.WiFi);
                 } catch (OLYCameraKitException e) {
@@ -446,6 +454,8 @@ public class CameraActivity extends FragmentActivity
             currExpApart1 = currFlName;
         return propertyName;
     }
+
+
 
 }
 

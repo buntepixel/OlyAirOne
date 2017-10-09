@@ -6,13 +6,13 @@
                 tools:context="com.example.mail.fragmenttest.LiveViewFragment">
 
     <view
-        class="com.example.mail.fragmenttest.CameraLiveImageView"
         android:id="@+id/cameraLiveImageView"
+        class="com.example.mail.fragmenttest.CameraLiveImageView"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_weight="1"
 
-        android:gravity="center" />
+        android:gravity="center"/>
 
     <ImageButton
         android:id="@+id/ib_RecordMode"
@@ -37,7 +37,8 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="S-AF"
-            android:textColor="@color/colorText"/>
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/Icon_discription_txt"/>
 
         <ImageView
             android:id="@+id/iv_sdCardIcon"
@@ -55,8 +56,21 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="2345"
-            android:textColor="@color/colorText"/>
+            android:text="0002"
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/Icon_discription_txt"/>
     </LinearLayout>
+
+        <ImageView
+            android:id="@+id/batteryLevelImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:scaleX="0.75"
+            android:scaleY="0.75"
+            android:src="@drawable/tt_icn_battery_charge"
+            />
 
 </RelativeLayout>

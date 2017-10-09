@@ -14,10 +14,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraLiveViewListener;
+import jp.co.olympus.camerakit.OLYCameraPropertyListener;
+import jp.co.olympus.camerakit.OLYCameraStatusListener;
 
 import static com.example.mail.fragmenttest.CameraActivity.camera;
 
@@ -25,14 +30,11 @@ import static com.example.mail.fragmenttest.CameraActivity.camera;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener {
+public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener,
+        OLYCameraStatusListener, OLYCameraPropertyListener {
     private static final String TAG = LiveViewFragment.class.getSimpleName();
     int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
             R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
-
-
-
-
 
 
     private static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
@@ -63,31 +65,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     private Boolean enabledFocusLock;
     private CameraLiveImageView imageView;
 
+
     private OnLiveViewInteractionListener mOnLiveViewInteractionListener;
-
-
-
-    public interface OnLiveViewInteractionListener {
-        void onTakeModeButtonPressed(int currDriveMode);
-    }
-
-    public LiveViewFragment() {
-        // Required empty public constructor
-    }
-
-  /*  private OLYCamera camera;
-
-    public void setCamera(OLYCamera camera) {
-        this.camera = camera;
-    }
-
-    @SuppressWarnings("serial")
-    private static final Map<String, Integer> drivemodeIconList = new HashMap<String, Integer>() {
-        {
-            put("<TAKE_DRIVE/DRIVE_NORMAL>", R.drawable.icn_drive_setting_single);
-            put("<TAKE_DRIVE/DRIVE_CONTINUE>", R.drawable.icn_drive_setting_seq_l);
-        }
-    };
 
     @SuppressWarnings("serial")
     private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
@@ -118,7 +97,50 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             put("<BATTERY_LEVEL/SUPPLY_FULL>", R.drawable.tt_icn_battery_supply_full);
         }
     };
-*/
+
+    @SuppressWarnings("serial")
+    private static final Map<String, Integer> drivemodeIconList = new HashMap<String, Integer>() {
+        {
+            put("<TAKE_DRIVE/DRIVE_NORMAL>", R.drawable.icn_drive_setting_single);
+            put("<TAKE_DRIVE/DRIVE_CONTINUE>", R.drawable.icn_drive_setting_seq_l);
+        }
+    };
+
+    @Override
+    public void onUpdateCameraProperty(OLYCamera camera, final String name) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (name.equals(CAMERA_PROPERTY_TAKE_MODE)) {
+                    Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_TAKE_MODE updated:::::::::::::::");
+                    //updateTakemodeTextView();
+                } else if (name.equals(CAMERA_PROPERTY_DRIVE_MODE)) {
+                    Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_DRIVE_MODE updated:::::::::::::::");
+                    //updateDrivemodeImageView();
+                } else if (name.equals(CAMERA_PROPERTY_WHITE_BALANCE)) {
+                    Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_WHITE_BALANCE:::::::::::::::");
+                    //updateWhiteBalanceImageView();
+                } else if (name.equals(CAMERA_PROPERTY_BATTERY_LEVEL)) {
+                    updateBatteryLevelImageView();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onUpdateStatus(OLYCamera olyCamera, String s) {
+
+    }
+
+    public interface OnLiveViewInteractionListener {
+        void onTakeModeButtonPressed(int currDriveMode);
+    }
+
+    public LiveViewFragment() {
+        // Required empty public constructor
+    }
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,10 +155,23 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         view.setId(View.generateViewId());
         imageView = (CameraLiveImageView) view.findViewById(R.id.cameraLiveImageView);
 
+        batteryLevelImageView = (ImageView) view.findViewById(R.id.batteryLevelImageView);
+        remainingRecordableImagesTextView = (TextView) view.findViewById(R.id.tv_SdCardSpaceRemain);
+//        drivemodeImageView = (ImageView)view.findViewById(R.id.drivemodeImageView);
+//        takemodeTextView = (TextView)view.findViewById(R.id.takemodeTextView);
+//        shutterSpeedTextView = (TextView)view.findViewById(R.id.shutterSpeedTextView);
+//        apertureValueTextView = (TextView)view.findViewById(R.id.apertureValueTextView);
+//        exposureCompensationTextView = (TextView)view.findViewById(R.id.exposureCompensationTextView);
+//        isoSensitivityTextView = (TextView)view.findViewById(R.id.isoSensitivityTextView);
+//        whiteBalanceImageView = (ImageView)view.findViewById(R.id.whiteBalaneImageView);
+//        shutterImageView = (ImageView)view.findViewById(R.id.shutterImageView);
+//        settingImageView = (ImageView)view.findViewById(R.id.settingImageView);
+//        unlockImageView = (ImageView)view.findViewById(R.id.unlockImageView);
         //recordMode
         final ImageButton ib_RecordMode = (ImageButton) view.findViewById(R.id.ib_RecordMode);
         ib_RecordMode.setOnClickListener(new View.OnClickListener() {
             int counter = 0;
+
             @Override
             public void onClick(View v) {
                 counter++;
@@ -166,22 +201,22 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         camera.setRecordingListener(this);
         camera.setRecordingSupportsListener(this);*/
 
-/*        updateDrivemodeImageView();
-        updateTakemodeTextView();
-        updateShutterSpeedTextView();
-        updateApertureValueTextView();
-        updateExposureCompensationTextView();
-        updateIsoSensitivityTextView();
-        updateWhiteBalanceImageView();
+        // updateDrivemodeImageView();
+//        updateTakemodeTextView();
+//        updateShutterSpeedTextView();
+//        updateApertureValueTextView();
+//        updateExposureCompensationTextView();
+//        updateIsoSensitivityTextView();
+        //updateWhiteBalanceImageView();
         updateBatteryLevelImageView();
         updateRemainingRecordableImagesTextView();
 
-        try {
-            camera.clearAutoFocusPoint();
-            camera.unlockAutoFocus();
-        } catch (OLYCameraKitException ee) {
-        }
-        enabledFocusLock = false;*/
+//        try {
+//            camera.clearAutoFocusPoint();
+//            camera.unlockAutoFocus();
+//        } catch (OLYCameraKitException ee) {
+//        }
+//        enabledFocusLock = false;
     }
 
     @Override
@@ -193,7 +228,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             camera = camera;
 
             mOnLiveViewInteractionListener = (OnLiveViewInteractionListener) context;
-            Log.d(TAG,"finished onAttatch");
+            Log.d(TAG, "finished onAttatch");
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnTriggerFragmInteractionListener");
         }
@@ -204,17 +239,91 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         super.onDetach();
     }
 
+    @Override
+    public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
+        try {
+            imageView.setImageData(bytes, map);
+        } catch (Error e) {
+            Log.e(TAG, "exception: " + e.getMessage());
+            Log.e(TAG, "exception: " + Log.getStackTraceString(e));
+        }
+    }
 
 
-   @Override
-   public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
-       try {
-           imageView.setImageData(bytes, map);
-       }
-       catch (Error e){
-           Log.e(TAG, "exception: " + e.getMessage());
-           Log.e(TAG, "exception: " + Log.getStackTraceString(e));
-       }
-   }
+    //update Methods
+    private void updateBatteryLevelImageView() {
+        String value = null;
+        try {
+            value = camera.getCameraPropertyValue(CAMERA_PROPERTY_BATTERY_LEVEL);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+        }
+
+        if (batteryIconList.containsKey(value)) {
+            int resId = batteryIconList.get(value);
+            if (resId != 0) {
+                batteryLevelImageView.setImageResource(resId);
+            } else {
+                batteryLevelImageView.setImageDrawable(null);
+            }
+        } else {
+            batteryLevelImageView.setImageDrawable(null);
+        }
+    }
+
+/*    private void updateDrivemodeImageView() {
+        drivemodeImageView.setEnabled(camera.canSetCameraProperty(CAMERA_PROPERTY_DRIVE_MODE));
+
+        String drivemode;
+        try {
+            drivemode = camera.getCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (drivemode == null) {
+            return;
+        }
+
+        if (drivemodeIconList.containsKey(drivemode)) {
+            int resId = drivemodeIconList.get(drivemode);
+            drivemodeImageView.setImageResource(resId);
+        } else {
+            drivemodeImageView.setImageDrawable(null);
+        }
+    }*/
+
+    /*private void updateWhiteBalanceImageView() {
+        whiteBalanceImageView.setEnabled(camera.canSetCameraProperty(CAMERA_PROPERTY_WHITE_BALANCE));
+
+        String value = null;
+        try {
+            value = camera.getCameraPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+        }
+
+        if (whiteBalanceIconList.containsKey(value)) {
+            int resId = whiteBalanceIconList.get(value);
+            whiteBalanceImageView.setImageResource(resId);
+        } else {
+            whiteBalanceImageView.setImageDrawable(null);
+        }
+    }*/
+
+    private void updateRemainingRecordableImagesTextView() {
+        final String text;
+        if (camera.isConnected() || camera.getRunMode() == OLYCamera.RunMode.Recording) {
+            if (camera.isMediaBusy()) {
+                text = "BUSY";
+            } else {
+                text = String.format(Locale.getDefault(), "%d", camera.getRemainingImageCapacity());
+            }
+        } else {
+            text = "???";
+        }
+        remainingRecordableImagesTextView.setText(text);
+    }
 
 }
