@@ -45,7 +45,7 @@
             android:layout_toEndOf="@id/ib_shutterrelease"
             android:background="@null"
             android:contentDescription="ActionMode"
-            android:src="?attr/actionModeSelectAllDrawable"/>
+            android:src="@drawable/ic_pinpoint"/>
 
     </RelativeLayout>
     <RelativeLayout

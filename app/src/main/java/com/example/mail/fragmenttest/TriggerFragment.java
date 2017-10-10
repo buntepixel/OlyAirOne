@@ -8,23 +8,32 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCameraKitException;
 
 /**
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends Fragment  {
+public class TriggerFragment extends Fragment {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
-    private int driveMode;
+    private int takeMode;
     OLYCamera camera;
+
+    private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
 
 
     private TextView tv_expTime;
@@ -32,20 +41,37 @@ public class TriggerFragment extends Fragment  {
     private TextView tv_iso;
     private TextView tv_wb;
     private TextView tv_expOffset;
-
+    private ImageView drivemodeImageView;
+    private ImageView meteringImageView;
 
     private OnTriggerFragmInteractionListener triggerFragmListener;
 
+    @SuppressWarnings("serial")
+    private static final Map<String, Integer> drivemodeIconList = new HashMap<String, Integer>() {
+        {
+            put("<TAKE_DRIVE/DRIVE_NORMAL>", R.drawable.icn_drive_setting_single);
+            put("<TAKE_DRIVE/DRIVE_CONTINUE>", R.drawable.icn_drive_setting_seq_l);
+        }
+    };
+
+    @SuppressWarnings("serial")
+    private static final Map<String, Integer> meteringIconList = new HashMap<String, Integer>() {
+        {
+            put("<AE/AE_CENTER>", R.drawable.icn_metering_center);
+            put("<AE/AE_AE_ESP>", R.drawable.icn_metering_esp);
+            put("<AE/AE_PINPOINT>", R.drawable.icn_metereing_pinpoint);
+        }
+    };
 
 
     public interface OnTriggerFragmInteractionListener {
-        void onTriggerFragmInteraction(int settingsType);
+        void onShootingModeInteraction(int settingsType);
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (savedInstanceState != null)
             return;
     }
@@ -57,6 +83,10 @@ public class TriggerFragment extends Fragment  {
         //Log.d(TAG, "notdead A");
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
         view.setId(View.generateViewId());
+
+        drivemodeImageView = (ImageView) view.findViewById(R.id.ib_drivemode);
+        meteringImageView = (ImageView) view.findViewById(R.id.ib_metering);
+
         CreateSettings(settingsArr, view);
 //        //shutter release pressed
 //        ImageButton ib_shutterRelease = (ImageButton) view.findViewById(R.id.ib_shutterrelease);
@@ -69,15 +99,25 @@ public class TriggerFragment extends Fragment  {
 //            }
 //        });
 
-//        ImageButton ib_driveMode = (ImageButton) view.findViewById(R.id.ib_drivemode);
-//        ib_driveMode.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                mPressed.onDrivemodePressed();
-//            }
-//        });
+        ImageButton ib_driveMode = (ImageButton) view.findViewById(R.id.ib_drivemode);
+        ib_driveMode.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                drivemodeImageViewDidTap();
+                //updateDrivemodeImageView();
+            }
+        });
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 
     private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
         RelativeLayout relativeLayout = (RelativeLayout) rootView.findViewById(R.id.rl_settings);
@@ -112,8 +152,82 @@ public class TriggerFragment extends Fragment  {
         this.wb = wb;
     }
 
-    public void SetDriveMode(int driveMode) {
-        this.driveMode = driveMode;
+    public void SetTakeMode(int takeMode) {
+        this.takeMode = takeMode;
+    }
+
+    public void SetDriveMode(String driveMode) {
+
+    }
+
+    private void updateDrivemodeImageView() {
+        drivemodeImageView.setEnabled(camera.canSetCameraProperty(CAMERA_PROPERTY_DRIVE_MODE));
+
+        String drivemode;
+        try {
+            drivemode = camera.getCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (drivemode == null) {
+            return;
+        }
+
+        if (drivemodeIconList.containsKey(drivemode)) {
+            int resId = drivemodeIconList.get(drivemode);
+            drivemodeImageView.setImageResource(resId);
+        } else {
+            drivemodeImageView.setImageDrawable(null);
+        }
+    }
+
+    private void drivemodeImageViewDidTap() {
+        final View view = drivemodeImageView;
+        final String propertyName = CAMERA_PROPERTY_DRIVE_MODE;
+
+        final List<String> valueList;
+        try {
+            valueList = camera.getCameraPropertyValueList(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+        if (valueList == null || valueList.size() == 0) return;
+
+        String value;
+        try {
+            value = camera.getCameraPropertyValue(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+        if (value == null) return;
+        view.setSelected(true);
+
+        try {
+            if (valueList.get(0) == value)
+                camera.setCameraPropertyValue(propertyName, valueList.get(1));
+            else
+                camera.setCameraPropertyValue(propertyName, valueList.get(0));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateDrivemodeImageView();
+            }
+        });
+
+    }
+
+    private  void updateMeteringImageView(){
+
+    }
+    private void meteringImageViewDidTap(){
+
     }
 
 
@@ -143,7 +257,7 @@ public class TriggerFragment extends Fragment  {
             ll_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onTriggerFragmInteraction(0);
+                    triggerFragmListener.onShootingModeInteraction(0);
                 }
             });
         } else {
@@ -171,7 +285,7 @@ public class TriggerFragment extends Fragment  {
             ll_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onTriggerFragmInteraction(1);
+                    triggerFragmListener.onShootingModeInteraction(1);
                 }
             });
         } else {
@@ -204,7 +318,7 @@ public class TriggerFragment extends Fragment  {
             tv_expOffset.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onTriggerFragmInteraction(2);
+                    triggerFragmListener.onShootingModeInteraction(2);
                 }
             });
         } else
@@ -212,7 +326,7 @@ public class TriggerFragment extends Fragment  {
 
         rootLinearLayout.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
-        if (driveMode == 4) {
+        if (takeMode == 4) {
             LinearLayout containerLLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             containerLLayout.setLayoutParams(linParams);
@@ -275,7 +389,7 @@ public class TriggerFragment extends Fragment  {
             ll_iso.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onTriggerFragmInteraction(3);
+                    triggerFragmListener.onShootingModeInteraction(3);
                 }
             });
         } else {
@@ -304,7 +418,7 @@ public class TriggerFragment extends Fragment  {
             ll_linLayoutWb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onTriggerFragmInteraction(4);
+                    triggerFragmListener.onShootingModeInteraction(4);
                 }
             });
         } else {
@@ -321,24 +435,8 @@ public class TriggerFragment extends Fragment  {
         this.camera = camera;
     }
 
-/*    public void SetExpTimeValue(String value){
-        tv_expTime.setText(camera.getCameraPropertyValueTitle(value));
-    }
-
-    public void SetFstopValue(String value) {
-        tv_fStop.setText(camera.getCameraPropertyValueTitle(value));
-    }
-
-    public void SetIsoValue(String value) {
-        tv_iso.setText(camera.getCameraPropertyValueTitle(value));
-    }
-
-    public void SetWBValue(String value){
-        tv_wb.setText(camera.getCameraPropertyValueTitle(value));
-    }*/
-
-    public void SetSliderResult(String value,String property){
-        switch (property){
+    public void SetSliderResult(String value, String property) {
+        switch (property) {
             case "SHUTTER":
                 tv_expTime.setText(camera.getCameraPropertyValueTitle(value));
                 break;
@@ -360,8 +458,6 @@ public class TriggerFragment extends Fragment  {
         super.onAttach(context);
         try {
             triggerFragmListener = (OnTriggerFragmInteractionListener) context;
-
-
            /* mCallback = (OnShutterReleasePressed) context;
             mPressed = (OnDrivemodePressed) context;*/
         } catch (ClassCastException e) {
@@ -372,7 +468,8 @@ public class TriggerFragment extends Fragment  {
     @Override
     public void onDetach() {
         super.onDetach();
-        triggerFragmListener = null;
+        if (triggerFragmListener != null)
+            triggerFragmListener = null;
     }
 }
 

@@ -39,16 +39,13 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
-    private static final String CAMERA_PROPERTY_APERTURE_VALUE = "APERTURE";
-    private static final String CAMERA_PROPERTY_SHUTTER_SPEED = "SHUTTER";
-    private static final String CAMERA_PROPERTY_EXPOSURE_COMPENSATION = "EXPREV";
-    private static final String CAMERA_PROPERTY_ISO_SENSITIVITY = "ISO";
+
     private static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
     private static final String CAMERA_PROPERTY_BATTERY_LEVEL = "BATTERY_LEVEL";
 
     private ImageView batteryLevelImageView;
     private TextView remainingRecordableImagesTextView;
-    private ImageView drivemodeImageView;
+    //private TextView drivemodeImageView;
     private TextView takemodeTextView;
     private TextView shutterSpeedTextView;
     private TextView apertureValueTextView;
@@ -98,13 +95,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     };
 
-    @SuppressWarnings("serial")
-    private static final Map<String, Integer> drivemodeIconList = new HashMap<String, Integer>() {
-        {
-            put("<TAKE_DRIVE/DRIVE_NORMAL>", R.drawable.icn_drive_setting_single);
-            put("<TAKE_DRIVE/DRIVE_CONTINUE>", R.drawable.icn_drive_setting_seq_l);
-        }
-    };
 
     @Override
     public void onUpdateCameraProperty(OLYCamera camera, final String name) {
@@ -157,7 +147,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
         batteryLevelImageView = (ImageView) view.findViewById(R.id.batteryLevelImageView);
         remainingRecordableImagesTextView = (TextView) view.findViewById(R.id.tv_SdCardSpaceRemain);
-//        drivemodeImageView = (ImageView)view.findViewById(R.id.drivemodeImageView);
+        // drivemodeImageView = (TextView)view.findViewById(R.id.tv_driveMode);
 //        takemodeTextView = (TextView)view.findViewById(R.id.takemodeTextView);
 //        shutterSpeedTextView = (TextView)view.findViewById(R.id.shutterSpeedTextView);
 //        apertureValueTextView = (TextView)view.findViewById(R.id.apertureValueTextView);
@@ -271,28 +261,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-/*    private void updateDrivemodeImageView() {
-        drivemodeImageView.setEnabled(camera.canSetCameraProperty(CAMERA_PROPERTY_DRIVE_MODE));
 
-        String drivemode;
-        try {
-            drivemode = camera.getCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        if (drivemode == null) {
-            return;
-        }
-
-        if (drivemodeIconList.containsKey(drivemode)) {
-            int resId = drivemodeIconList.get(drivemode);
-            drivemodeImageView.setImageResource(resId);
-        } else {
-            drivemodeImageView.setImageDrawable(null);
-        }
-    }*/
 
     /*private void updateWhiteBalanceImageView() {
         whiteBalanceImageView.setEnabled(camera.canSetCameraProperty(CAMERA_PROPERTY_WHITE_BALANCE));

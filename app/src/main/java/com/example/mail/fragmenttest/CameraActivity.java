@@ -35,7 +35,7 @@ public class CameraActivity extends FragmentActivity
 
 
     private static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
-    private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
+
     private static final String CAMERA_PROPERTY_APERTURE_VALUE = "APERTURE";
     private static final String CAMERA_PROPERTY_SHUTTER_SPEED = "SHUTTER";
     private static final String CAMERA_PROPERTY_EXPOSURE_COMPENSATION = "EXPREV";
@@ -113,7 +113,6 @@ public class CameraActivity extends FragmentActivity
         fm = getSupportFragmentManager();
     }
 
-
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         View view = super.onCreateView(parent, name, context, attrs);
@@ -146,10 +145,8 @@ public class CameraActivity extends FragmentActivity
         startActivity(new Intent(this, MainActivity.class));
     }
 
-
-
     @Override
-    public void onTriggerFragmInteraction(int settingsType) {
+    public void onShootingModeInteraction(int settingsType) {
         // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
         Log.d(TAG, "settingsType: " + settingsType);
         FragmentManager fm = getSupportFragmentManager();
@@ -311,6 +308,12 @@ public class CameraActivity extends FragmentActivity
 
         try {
             takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
+
+           /* Set<String> myset = camera.getCameraPropertyNames();
+            for(String name: myset){
+                Log.d(TAG,"Name: "+ name);
+
+            }*/
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;
@@ -332,34 +335,34 @@ public class CameraActivity extends FragmentActivity
             switch (mode) {
                 case 0://iAuto
                     fTrigger.SetButtonsBool(false, false, false, false, false);
-                    fTrigger.SetDriveMode(mode);
+                    fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Iauto");
                     break;
                 case 1://Programm
                     fTrigger.SetButtonsBool(false, false, true, true, true);
-                    fTrigger.SetDriveMode(mode);
+                    fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Programm");
                     break;
                 case 2://Aparture
                     fTrigger.SetButtonsBool(false, true, true, true, true);
-                    fTrigger.SetDriveMode(mode);
+                    fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Aparture");
                     break;
                 case 3://Speed
                     fTrigger.SetButtonsBool(true, false, true, true, true);
-                    fTrigger.SetDriveMode(mode);
+                    fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Speed");
                     break;
                 case 4://Manual
                     fTrigger.SetButtonsBool(true, true, false, true, true);
-                    fTrigger.SetDriveMode(mode);
+                    fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Manual");
                     break;
                 case 5:
                     break;
                 case 6://Movie
                     fTrigger.SetButtonsBool(false, false, true, false, true);
-                    fTrigger.SetDriveMode(mode);
+                    fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Movie");
                     break;
                 case 7:
