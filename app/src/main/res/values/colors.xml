@@ -3,8 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorText">#e0e0e0</color>
-    <color name="ColorTest1">#4a5639</color>
+    <color name="colorTextWhite">#e0e0e0</color>
+    <color name="colorTextDark">#363636</color>
     <color name="ColorTest2">#2c997a</color>
     <color name="ColorBarTextDisabled">#bf1010</color>
     <color name="ColorBarTextEnabled">#2aba25</color>

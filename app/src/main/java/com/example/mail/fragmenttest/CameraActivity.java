@@ -26,11 +26,12 @@ import java.util.concurrent.Executors;
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCameraConnectionListener;
 import jp.co.olympus.camerakit.OLYCameraKitException;
+import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
 
 public class CameraActivity extends FragmentActivity
         implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
-        OLYCameraConnectionListener {
+        OLYCameraConnectionListener,OLYCameraPropertyListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
 
 
@@ -143,6 +144,11 @@ public class CameraActivity extends FragmentActivity
     public void onBackPressed() {
         super.onBackPressed();
         startActivity(new Intent(this, MainActivity.class));
+    }
+
+    @Override
+    public void onDriveModeChange( String propValue) {
+        fLiveView.updateDriveModeImage(propValue);
     }
 
     @Override
@@ -459,7 +465,10 @@ public class CameraActivity extends FragmentActivity
     }
 
 
+    @Override
+    public void onUpdateCameraProperty(OLYCamera olyCamera, String s) {
 
+    }
 }
 
 

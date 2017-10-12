@@ -4,6 +4,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimaryDark"
                 android:gravity="bottom">
+
     <RelativeLayout
         android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
@@ -45,9 +46,13 @@
             android:layout_toEndOf="@id/ib_shutterrelease"
             android:background="@null"
             android:contentDescription="ActionMode"
-            android:src="@drawable/ic_pinpoint"/>
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:src="@drawable/ic_pinpoint"
+            />
 
     </RelativeLayout>
+
     <RelativeLayout
         android:id="@+id/rl_settings"
         android:layout_width="match_parent"
@@ -60,7 +65,6 @@
 
 
         <!--fstop-->
-
 
 
     </RelativeLayout>

@@ -4,11 +4,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -34,7 +34,7 @@ public class TriggerFragment extends Fragment {
     OLYCamera camera;
 
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
-
+    private static final String CAMERA_PROPERTY_METERING_MODE = "AE";
 
     private TextView tv_expTime;
     private TextView tv_fStop;
@@ -57,8 +57,8 @@ public class TriggerFragment extends Fragment {
     @SuppressWarnings("serial")
     private static final Map<String, Integer> meteringIconList = new HashMap<String, Integer>() {
         {
+            put("<AE/AE_ESP>", R.drawable.icn_metering_esp);
             put("<AE/AE_CENTER>", R.drawable.icn_metering_center);
-            put("<AE/AE_AE_ESP>", R.drawable.icn_metering_esp);
             put("<AE/AE_PINPOINT>", R.drawable.icn_metereing_pinpoint);
         }
     };
@@ -66,6 +66,7 @@ public class TriggerFragment extends Fragment {
 
     public interface OnTriggerFragmInteractionListener {
         void onShootingModeInteraction(int settingsType);
+        void onDriveModeChange( String propValue);
     }
 
 
@@ -87,6 +88,7 @@ public class TriggerFragment extends Fragment {
         drivemodeImageView = (ImageView) view.findViewById(R.id.ib_drivemode);
         meteringImageView = (ImageView) view.findViewById(R.id.ib_metering);
 
+
         CreateSettings(settingsArr, view);
 //        //shutter release pressed
 //        ImageButton ib_shutterRelease = (ImageButton) view.findViewById(R.id.ib_shutterrelease);
@@ -99,11 +101,17 @@ public class TriggerFragment extends Fragment {
 //            }
 //        });
 
-        ImageButton ib_driveMode = (ImageButton) view.findViewById(R.id.ib_drivemode);
-        ib_driveMode.setOnClickListener(new View.OnClickListener() {
+        //ImageButton ib_driveMode = (ImageButton) view.findViewById(R.id.ib_drivemode);
+        drivemodeImageView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 drivemodeImageViewDidTap();
-                //updateDrivemodeImageView();
+
+            }
+        });
+        meteringImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                meteringImageViewDidTap();
             }
         });
         return view;
@@ -112,6 +120,9 @@ public class TriggerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if (takeMode < 1 || takeMode > 5)
+            meteringImageView.setVisibility(View.INVISIBLE);
+        updateMeteringImageView();
     }
 
     @Override
@@ -156,40 +167,75 @@ public class TriggerFragment extends Fragment {
         this.takeMode = takeMode;
     }
 
-    public void SetDriveMode(String driveMode) {
-
-    }
 
     private void updateDrivemodeImageView() {
-        drivemodeImageView.setEnabled(camera.canSetCameraProperty(CAMERA_PROPERTY_DRIVE_MODE));
-
-        String drivemode;
-        try {
-            drivemode = camera.getCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        if (drivemode == null) {
-            return;
-        }
-
-        if (drivemodeIconList.containsKey(drivemode)) {
-            int resId = drivemodeIconList.get(drivemode);
-            drivemodeImageView.setImageResource(resId);
-        } else {
-            drivemodeImageView.setImageDrawable(null);
-        }
+        updatePropertyImageView(drivemodeImageView, drivemodeIconList, CAMERA_PROPERTY_DRIVE_MODE);
     }
 
     private void drivemodeImageViewDidTap() {
         final View view = drivemodeImageView;
         final String propertyName = CAMERA_PROPERTY_DRIVE_MODE;
+        cameraPropertyDidTab(view, propertyName);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateDrivemodeImageView();
+            }
+        });
+    }
+
+    private void updateMeteringImageView() {
+        updatePropertyImageView(meteringImageView, meteringIconList, CAMERA_PROPERTY_METERING_MODE);
+    }
+
+    private void meteringImageViewDidTap() {
+        Log.d(TAG, "Click");
+        final View view = meteringImageView;
+        final String propertyName = CAMERA_PROPERTY_METERING_MODE;
+
+        if (takeMode < 1 || takeMode > 5)
+            view.setVisibility(View.INVISIBLE);
+        else
+            cameraPropertyDidTab(view, propertyName);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateMeteringImageView();
+            }
+        });
+    }
+
+    private void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
+        imageView.setEnabled(camera.canSetCameraProperty(propertyName));
+        Log.d(TAG, "Update: " + propertyName);
+        String propValue;
+        try {
+            propValue = camera.getCameraPropertyValue(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (propValue == null) {
+            return;
+        }
+        if (iconList.containsKey(propValue)) {
+            int resId = iconList.get(propValue);
+            imageView.setImageResource(resId);
+            triggerFragmListener.onDriveModeChange(propValue);
+        } else {
+
+            imageView.setImageDrawable(null);
+        }
+    }
+
+    private void cameraPropertyDidTab(View inView, String inPropertyName) {
 
         final List<String> valueList;
         try {
-            valueList = camera.getCameraPropertyValueList(propertyName);
+            valueList = camera.getCameraPropertyValueList(inPropertyName);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;
@@ -198,36 +244,26 @@ public class TriggerFragment extends Fragment {
 
         String value;
         try {
-            value = camera.getCameraPropertyValue(propertyName);
+            value = camera.getCameraPropertyValue(inPropertyName);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;
         }
         if (value == null) return;
-        view.setSelected(true);
+        inView.setSelected(true);
 
         try {
-            if (valueList.get(0) == value)
-                camera.setCameraPropertyValue(propertyName, valueList.get(1));
-            else
-                camera.setCameraPropertyValue(propertyName, valueList.get(0));
+            int index = valueList.indexOf(value) + 1;
+            //Log.d(TAG, "Index: " + index);
+            int listSize = valueList.size();
+            //Log.d(TAG, "listSize: " + listSize);
+            int moduloIndex = index % listSize;
+            //Log.d(TAG, "ModuloIndex: " + moduloIndex);
+            camera.setCameraPropertyValue(inPropertyName, valueList.get(moduloIndex));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateDrivemodeImageView();
-            }
-        });
-
-    }
-
-    private  void updateMeteringImageView(){
-
-    }
-    private void meteringImageViewDidTap(){
-
     }
 
 
@@ -340,7 +376,7 @@ public class TriggerFragment extends Fragment {
             leftText.setMinWidth(10);
 
             leftText.setText("-  ");
-            leftText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorText));
+            leftText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
             leftText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             containerLLayout.addView(leftText);
 
@@ -355,7 +391,7 @@ public class TriggerFragment extends Fragment {
             rightText.setGravity(Gravity.CENTER_VERTICAL);
             rightText.setMinWidth(10);
             rightText.setText(" +");
-            rightText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorText));
+            rightText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
             rightText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             containerLLayout.addView(rightText);
         }

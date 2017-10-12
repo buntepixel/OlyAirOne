@@ -39,13 +39,14 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
+    private static final String CAMERA_PROPERTY_FOCUS_STILL ="FOCUS_STILL";
 
     private static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
     private static final String CAMERA_PROPERTY_BATTERY_LEVEL = "BATTERY_LEVEL";
 
     private ImageView batteryLevelImageView;
     private TextView remainingRecordableImagesTextView;
-    //private TextView drivemodeImageView;
+    private TextView drivemodeTextView;
     private TextView takemodeTextView;
     private TextView shutterSpeedTextView;
     private TextView apertureValueTextView;
@@ -101,7 +102,15 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (name.equals(CAMERA_PROPERTY_TAKE_MODE)) {
+                switch (name){
+                    case CAMERA_PROPERTY_BATTERY_LEVEL:
+                        updateBatteryLevelImageView();
+                        break;
+                    case CAMERA_PROPERTY_FOCUS_STILL:
+                        updateDriveModeImage();
+                }
+
+               /* if (name.equals(CAMERA_PROPERTY_TAKE_MODE)) {
                     Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_TAKE_MODE updated:::::::::::::::");
                     //updateTakemodeTextView();
                 } else if (name.equals(CAMERA_PROPERTY_DRIVE_MODE)) {
@@ -111,15 +120,19 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_WHITE_BALANCE:::::::::::::::");
                     //updateWhiteBalanceImageView();
                 } else if (name.equals(CAMERA_PROPERTY_BATTERY_LEVEL)) {
-                    updateBatteryLevelImageView();
-                }
+
+                }*/
             }
         });
     }
 
     @Override
     public void onUpdateStatus(OLYCamera olyCamera, String s) {
-
+        switch (s) {
+            case "RemainingRecordableImages":
+                updateRemainingRecordableImagesTextView();
+                break;
+        }
     }
 
     public interface OnLiveViewInteractionListener {
@@ -147,7 +160,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
         batteryLevelImageView = (ImageView) view.findViewById(R.id.batteryLevelImageView);
         remainingRecordableImagesTextView = (TextView) view.findViewById(R.id.tv_SdCardSpaceRemain);
-        // drivemodeImageView = (TextView)view.findViewById(R.id.tv_driveMode);
+        drivemodeTextView = (TextView) view.findViewById(R.id.tv_driveMode);
 //        takemodeTextView = (TextView)view.findViewById(R.id.takemodeTextView);
 //        shutterSpeedTextView = (TextView)view.findViewById(R.id.shutterSpeedTextView);
 //        apertureValueTextView = (TextView)view.findViewById(R.id.apertureValueTextView);
@@ -293,6 +306,15 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             text = "???";
         }
         remainingRecordableImagesTextView.setText(text);
+    }
+
+
+    public void updateDriveModeImage(String propValue) {
+        Log.d(TAG, "PropVal: " + propValue);
+        if (propValue.equals("FOCUS_MF"))
+            drivemodeTextView.setText("MF");
+        else if (propValue.equals("FOCUS_SAF"))
+            drivemodeTextView.setText("S-AF");
     }
 
 }

@@ -36,8 +36,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:layout_marginTop="@dimen/LiveViewTopMarg"
             android:text="S-AF"
-            android:textColor="@color/colorText"
+            android:textColor="@color/colorTextDark"
             android:textSize="@dimen/Icon_discription_txt"/>
 
         <ImageView
@@ -45,6 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@null"
+            android:layout_marginTop="@dimen/LiveViewTopMarg"
             android:scaleType="center"
             android:scaleX="0.5"
             android:scaleY="0.5"
@@ -56,20 +58,21 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:layout_marginTop="@dimen/LiveViewTopMarg"
             android:text="0002"
-            android:textColor="@color/colorText"
+            android:textColor="@color/colorTextDark"
             android:textSize="@dimen/Icon_discription_txt"/>
     </LinearLayout>
 
         <ImageView
             android:id="@+id/batteryLevelImageView"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/LiveViewTopMarg"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:scaleX="0.75"
-            android:scaleY="0.75"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
             android:src="@drawable/tt_icn_battery_charge"
             />
 
