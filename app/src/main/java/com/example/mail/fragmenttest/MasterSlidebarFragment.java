@@ -34,9 +34,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
     }
 
     public interface sliderValue {
-
         void onSlideValueBar(String value);
-
     }
 
     public void setSliderValueListener(sliderValue listener) {

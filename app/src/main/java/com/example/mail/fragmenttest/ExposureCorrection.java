@@ -12,8 +12,10 @@ import android.view.View;
  */
 
 public class ExposureCorrection extends View {
-    private int mNbStrokes = 19;
-    private int mStrokeGap = 15;
+    private int mNbStrokes = 31;
+    private int mStrokeGap = 10;
+    private int mLineCenter = 15;
+    private int mhighlightIdx = 5;
 
     private static final String TAG = ExposureCorrection.class.getSimpleName();
 
@@ -35,7 +37,6 @@ public class ExposureCorrection extends View {
         //Animation called when attaching to the window, i.e to your screen
         //startAnimation();
     }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -69,31 +70,42 @@ public class ExposureCorrection extends View {
     private void createLine(Canvas canvas, Paint paint) {
         int width = getWidth();
         int height = getHeight();
-        int  startLine, endLine;
+        Log.d(TAG,"ExpCorrHeight: " +height);
+        int startLine, endLine;
         //strokes next to each other
         for (int i = 0; i < mNbStrokes; i++) {
             startLine = height / 3;
-            endLine = startLine*2;
-            paint.setARGB(255, 90, 90, 90);
+            endLine = startLine * 2;
+            if ((i < mLineCenter && i >= mhighlightIdx) || (i > mLineCenter && i <= mhighlightIdx))
+                paint.setColor(getResources().getColor(R.color.ExpCorr_HighliteLine));
+            else
+                paint.setColor(getResources().getColor(R.color.ExpCorr_subLine));
             if (i == mNbStrokes / 2) {
-                paint.setARGB(255, 255, 255, 255);
-                startLine = height ;
+                paint.setColor(getResources().getColor(R.color.ExpCorr_HighliteLine));
+                startLine = height;
                 endLine = 0;
                 Log.d(TAG, String.format("i: %d myNbstrokes: %d", i, mNbStrokes));
             } else if (i % 3 == 0) {
-                paint.setARGB(255, 160, 160, 160);
-                startLine = height /4;
-                endLine = startLine*3;
-
+                if ((i < mLineCenter && i >= mhighlightIdx) || (i > mLineCenter && i <= mhighlightIdx))
+                    paint.setColor(getResources().getColor(R.color.ExpCorr_HighliteLine));
+                else
+                    paint.setColor(getResources().getColor(R.color.ExpCorr_Line));
+                startLine = height / 4;
+                endLine = startLine * 3;
             }
 
 
             //Log.d(TAG, String.format("width: %d height: %d i: %d ", width, height, i));
             //canvas.drawLine((i * (width / mNbStrokes)), 0, (i * (width / mNbStrokes)), height , paint);
-            canvas.drawLine((i * (mStrokeGap)), startLine, (i * (mStrokeGap)), endLine , paint);
+            canvas.drawLine((i * (mStrokeGap)), startLine, (i * (mStrokeGap)), endLine, paint);
 
 
         }
+    }
+
+    public void SetLineParams(int endIndex) {
+        mhighlightIdx = endIndex;
+        //invalidate();
     }
 
     private void createExposureContrVis(Canvas canvas, Paint paint, Integer inputVal) {

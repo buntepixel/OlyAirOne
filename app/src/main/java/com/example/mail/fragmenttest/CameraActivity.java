@@ -58,6 +58,8 @@ public class CameraActivity extends FragmentActivity
     IsoFragment isoFragment;
     WbFragment wbFragment;
     ExposureFragment exposureFragment;
+    ExposureCorrFragment exposureCorrFragment;
+
     public static OLYCamera camera = null;
 
 
@@ -107,6 +109,8 @@ public class CameraActivity extends FragmentActivity
         apartureFragment.SetOLYCam(camera);
         exposureFragment = new ExposureFragment();
         exposureFragment.SetOLYCam(camera);
+        exposureCorrFragment =  new ExposureCorrFragment();
+        exposureCorrFragment.SetOLYCam(camera);
         isoFragment = new IsoFragment();
         isoFragment.SetOLYCam(camera);
         wbFragment = new WbFragment();
@@ -180,6 +184,7 @@ public class CameraActivity extends FragmentActivity
                     generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
                 case 2:
+                    generalPressed(exposureCorrFragment,CAMERA_PROPERTY_EXPOSURE_COMPENSATION,R.id.fl_FragCont_ExpApart1,ft,0);
                     break;
                 case 3:
                     //IsoPressed(ft);

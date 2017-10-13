@@ -35,12 +35,16 @@ public class TriggerFragment extends Fragment {
 
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
     private static final String CAMERA_PROPERTY_METERING_MODE = "AE";
+    private static final String CAMERA_PROPERTY_EXPOSURECOMPENSATION_MODE = "EXPREV";
 
     private TextView tv_expTime;
     private TextView tv_fStop;
     private TextView tv_iso;
     private TextView tv_wb;
     private TextView tv_expOffset;
+
+    private ExposureCorrection expCorr;
+    private List<String> possibleExpCorrValues;
     private ImageView drivemodeImageView;
     private ImageView meteringImageView;
 
@@ -66,7 +70,8 @@ public class TriggerFragment extends Fragment {
 
     public interface OnTriggerFragmInteractionListener {
         void onShootingModeInteraction(int settingsType);
-        void onDriveModeChange( String propValue);
+
+        void onDriveModeChange(String propValue);
     }
 
 
@@ -340,6 +345,7 @@ public class TriggerFragment extends Fragment {
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         rootLinearLayout.setMinimumWidth(130);
+
         rootLinearLayout.setOrientation(LinearLayout.VERTICAL);
         rootLinearLayout.setLayoutParams(relParams);
 
@@ -354,6 +360,7 @@ public class TriggerFragment extends Fragment {
             tv_expOffset.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "exposureCorr clicked");
                     triggerFragmListener.onShootingModeInteraction(2);
                 }
             });
@@ -362,7 +369,7 @@ public class TriggerFragment extends Fragment {
 
         rootLinearLayout.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
-        if (takeMode == 4) {
+        if (takeMode > 0 && takeMode < 4) {
             LinearLayout containerLLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             containerLLayout.setLayoutParams(linParams);
@@ -377,11 +384,11 @@ public class TriggerFragment extends Fragment {
 
             leftText.setText("-  ");
             leftText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
-            leftText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            leftText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             containerLLayout.addView(leftText);
 
 
-            ExposureCorrection expCorr = new ExposureCorrection(getContext());
+            expCorr = new ExposureCorrection(getContext());
             linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             expCorr.setLayoutParams(linParams);
 
@@ -392,7 +399,7 @@ public class TriggerFragment extends Fragment {
             rightText.setMinWidth(10);
             rightText.setText(" +");
             rightText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
-            rightText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            rightText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             containerLLayout.addView(rightText);
         }
         return rootLinearLayout;
@@ -469,6 +476,11 @@ public class TriggerFragment extends Fragment {
 
     public void SetOLYCam(OLYCamera camera) {
         this.camera = camera;
+        try {
+            possibleExpCorrValues = this.camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURECOMPENSATION_MODE);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+        }
     }
 
     public void SetSliderResult(String value, String property) {
@@ -484,6 +496,12 @@ public class TriggerFragment extends Fragment {
                 break;
             case "WB":
                 tv_wb.setText(camera.getCameraPropertyValueTitle(value));
+                break;
+            case "EXPREV":
+                String myVal = camera.getCameraPropertyValueTitle(value);
+                tv_expOffset.setText(myVal);
+                int myIndex = possibleExpCorrValues.indexOf(myVal);
+                expCorr.SetLineParams(myIndex);
                 break;
         }
     }

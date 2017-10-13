@@ -107,7 +107,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                         updateBatteryLevelImageView();
                         break;
                     case CAMERA_PROPERTY_FOCUS_STILL:
-                        updateDriveModeImage();
+                        updateDriveModeImage(name);
+                        break;
                 }
 
                /* if (name.equals(CAMERA_PROPERTY_TAKE_MODE)) {
