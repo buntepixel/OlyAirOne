@@ -5,7 +5,7 @@
     android:id="@+id/rl_MainFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#9c4141"
+    android:background="#000000"
     android:gravity="top"
     >
 
@@ -24,28 +24,22 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary"
+        android:background="@color/BgPrim_HalfTransp_Grey"
         />
 
     <FrameLayout
         android:id="@+id/fl_FragCont_ExpApart1"
         android:layout_width="match_parent"
-        android:layout_height="25dp"
+        android:layout_height="35dp"
         android:layout_above= "@+id/fl_FragCont_Trigger"
-
         />
 
     <FrameLayout
         android:id="@+id/fl_FragCont_ExpApart2"
         android:layout_width="match_parent"
-        android:layout_height="25dp"
+        android:layout_height="35dp"
         android:layout_above="@id/fl_FragCont_ExpApart1"
         />
-
-
-
-
-
 
 </RelativeLayout>
 

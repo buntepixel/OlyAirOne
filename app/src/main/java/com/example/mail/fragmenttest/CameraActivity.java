@@ -120,8 +120,6 @@ public class CameraActivity extends FragmentActivity
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         View view = super.onCreateView(parent, name, context, attrs);
-
-
         return view;
     }
 
@@ -219,7 +217,7 @@ public class CameraActivity extends FragmentActivity
                     alertConnectingFailed(e);
                     return;
                 }
-              /*  try {
+                /*try {
                     camera.changeLiveViewSize(toLiveViewSize(preferences.getString("live_view_quality", "QVGA")));
                 } catch (OLYCameraKitException e) {
                     Log.w(TAG, "You had better uninstall this application and install it again.");
@@ -282,6 +280,18 @@ public class CameraActivity extends FragmentActivity
         });
     }
 
+    private OLYCamera.LiveViewSize toLiveViewSize(String quality) {
+        if (quality.equalsIgnoreCase("QVGA")) {
+            return OLYCamera.LiveViewSize.QVGA;
+        } else if (quality.equalsIgnoreCase("VGA")) {
+            return OLYCamera.LiveViewSize.VGA;
+        } else if (quality.equalsIgnoreCase("SVGA")) {
+            return OLYCamera.LiveViewSize.SVGA;
+        } else if (quality.equalsIgnoreCase("XGA")) {
+            return OLYCamera.LiveViewSize.XGA;
+        }
+        return OLYCamera.LiveViewSize.QVGA;
+    }
     private void alertConnectingFailed(Exception e) {
         final Intent myIntent = new Intent(this, ConnectToCamActivity.class);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)

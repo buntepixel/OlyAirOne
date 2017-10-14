@@ -11,6 +11,7 @@
     <color name="ExpCorr_subLine">#5a5a5a</color>
     <color name="ExpCorr_Line">#a0a0a0</color>
     <color name="ExpCorr_HighliteLine">#ffffff</color>
+    <color name="BgPrim_HalfTransp_Grey">#453b3b3b</color>
 
 
 
