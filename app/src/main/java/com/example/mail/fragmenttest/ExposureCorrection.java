@@ -15,7 +15,7 @@ public class ExposureCorrection extends View {
     private int mNbStrokes = 31;
     private int mStrokeGap = 10;
     private int mLineCenter = 15;
-    private int mhighlightIdx = 5;
+    private int mhighlightIdx = 15;
 
     private static final String TAG = ExposureCorrection.class.getSimpleName();
 
@@ -70,7 +70,6 @@ public class ExposureCorrection extends View {
     private void createLine(Canvas canvas, Paint paint) {
         int width = getWidth();
         int height = getHeight();
-        Log.d(TAG,"ExpCorrHeight: " +height);
         int startLine, endLine;
         //strokes next to each other
         for (int i = 0; i < mNbStrokes; i++) {
@@ -84,7 +83,7 @@ public class ExposureCorrection extends View {
                 paint.setColor(getResources().getColor(R.color.ExpCorr_HighliteLine));
                 startLine = height;
                 endLine = 0;
-                Log.d(TAG, String.format("i: %d myNbstrokes: %d", i, mNbStrokes));
+                //Log.d(TAG, String.format("i: %d myNbstrokes: %d", i, mNbStrokes));
             } else if (i % 3 == 0) {
                 if ((i < mLineCenter && i >= mhighlightIdx) || (i > mLineCenter && i <= mhighlightIdx))
                     paint.setColor(getResources().getColor(R.color.ExpCorr_HighliteLine));
@@ -104,8 +103,9 @@ public class ExposureCorrection extends View {
     }
 
     public void SetLineParams(int endIndex) {
+        Log.d(TAG, "seting Param to: "+ endIndex);
         mhighlightIdx = endIndex;
-        //invalidate();
+        invalidate();
     }
 
     private void createExposureContrVis(Canvas canvas, Paint paint, Integer inputVal) {

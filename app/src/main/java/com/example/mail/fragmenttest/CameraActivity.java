@@ -31,7 +31,7 @@ import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
 public class CameraActivity extends FragmentActivity
         implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
-        OLYCameraConnectionListener,OLYCameraPropertyListener {
+        OLYCameraConnectionListener, OLYCameraPropertyListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
 
 
@@ -43,6 +43,8 @@ public class CameraActivity extends FragmentActivity
     private static final String CAMERA_PROPERTY_ISO_SENSITIVITY = "ISO";
     private static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
     private static final String CAMERA_PROPERTY_BATTERY_LEVEL = "BATTERY_LEVEL";
+
+
 
     List<String> takeModeStrings;
 
@@ -61,9 +63,6 @@ public class CameraActivity extends FragmentActivity
     ExposureCorrFragment exposureCorrFragment;
 
     public static OLYCamera camera = null;
-
-
-
 
 
     @Override
@@ -109,7 +108,7 @@ public class CameraActivity extends FragmentActivity
         apartureFragment.SetOLYCam(camera);
         exposureFragment = new ExposureFragment();
         exposureFragment.SetOLYCam(camera);
-        exposureCorrFragment =  new ExposureCorrFragment();
+        exposureCorrFragment = new ExposureCorrFragment();
         exposureCorrFragment.SetOLYCam(camera);
         isoFragment = new IsoFragment();
         isoFragment.SetOLYCam(camera);
@@ -121,7 +120,6 @@ public class CameraActivity extends FragmentActivity
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         View view = super.onCreateView(parent, name, context, attrs);
-
 
 
         return view;
@@ -151,7 +149,7 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
-    public void onDriveModeChange( String propValue) {
+    public void onDriveModeChange(String propValue) {
         fLiveView.updateDriveModeImage(propValue);
     }
 
@@ -184,7 +182,7 @@ public class CameraActivity extends FragmentActivity
                     generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
                 case 2:
-                    generalPressed(exposureCorrFragment,CAMERA_PROPERTY_EXPOSURE_COMPENSATION,R.id.fl_FragCont_ExpApart1,ft,0);
+                    generalPressed(exposureCorrFragment, CAMERA_PROPERTY_EXPOSURE_COMPENSATION, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
                 case 3:
                     //IsoPressed(ft);
@@ -203,7 +201,7 @@ public class CameraActivity extends FragmentActivity
             ft.commit();
         }
     }
-
+//connectin Camera
     private void startConnectingCamera() {
         Log.d(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
         connectionExecutor.execute(new Runnable() {
@@ -319,23 +317,15 @@ public class CameraActivity extends FragmentActivity
 
         try {
             takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
-
-           /* Set<String> myset = camera.getCameraPropertyNames();
-            for(String name: myset){
-                Log.d(TAG,"Name: "+ name);
-
-            }*/
+            //Todo: find out why returning empty list
+            List<String> valueList = camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+            fTrigger.SetExposureCorrValues(valueList);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;
         }
 
-    }
 
-    @Override
-    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
-        Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
-        finish();
     }
 
     void SetMainSettingsButtons(int mode) {
@@ -412,6 +402,8 @@ public class CameraActivity extends FragmentActivity
         List<String> valueList;
         try {
             valueList = camera.getCameraPropertyValueList(propertyName);
+            //Todo: this is ugly find other way
+            fTrigger.SetExposureCorrValues(valueList);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return null;
@@ -467,6 +459,12 @@ public class CameraActivity extends FragmentActivity
         else
             currExpApart1 = currFlName;
         return propertyName;
+    }
+
+    @Override
+    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
+        Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
 

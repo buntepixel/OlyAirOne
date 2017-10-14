@@ -35,7 +35,8 @@ public class TriggerFragment extends Fragment {
 
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
     private static final String CAMERA_PROPERTY_METERING_MODE = "AE";
-    private static final String CAMERA_PROPERTY_EXPOSURECOMPENSATION_MODE = "EXPREV";
+    private static final String CAMERA_PROPERTY_EXPOSURE_COMPENSATION = "EXPREV";
+
 
     private TextView tv_expTime;
     private TextView tv_fStop;
@@ -66,6 +67,21 @@ public class TriggerFragment extends Fragment {
             put("<AE/AE_PINPOINT>", R.drawable.icn_metereing_pinpoint);
         }
     };
+
+    @SuppressWarnings("serial")
+    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
+        {
+            put("<WB/WB_AUTO>"          , R.drawable.icn_wb_setting_wbauto);
+            put("<WB/MWB_SHADE>"        , R.drawable.icn_wb_setting_16);
+            put("<WB/MWB_CLOUD>"        , R.drawable.icn_wb_setting_17);
+            put("<WB/MWB_FINE>"         , R.drawable.icn_wb_setting_18);
+            put("<WB/MWB_LAMP>"         , R.drawable.icn_wb_setting_20);
+            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
+            put("<WB/MWB_WATER_1>"      , R.drawable.icn_wb_setting_64);
+            put("<WB/WB_CUSTOM1>"       , R.drawable.icn_wb_setting_512);
+        }
+    };
+
 
 
     public interface OnTriggerFragmInteractionListener {
@@ -127,7 +143,8 @@ public class TriggerFragment extends Fragment {
         super.onResume();
         if (takeMode < 1 || takeMode > 5)
             meteringImageView.setVisibility(View.INVISIBLE);
-        updateMeteringImageView();
+        else
+            updateMeteringImageView();
     }
 
     @Override
@@ -170,6 +187,10 @@ public class TriggerFragment extends Fragment {
 
     public void SetTakeMode(int takeMode) {
         this.takeMode = takeMode;
+    }
+
+    public void SetExposureCorrValues(List<String> values) {
+        possibleExpCorrValues = values;
     }
 
 
@@ -279,7 +300,6 @@ public class TriggerFragment extends Fragment {
         relParams.addRule(RelativeLayout.START_OF, alignLayout.getId());
         relParams.addRule(RelativeLayout.CENTER_VERTICAL);
         root_linearLayout.setLayoutParams(relParams);
-        //Log.d(TAG, time + " " + aparture + " " + exposureAdj + " " + iso + " " + wb);
 
         // exposure Time
         LinearLayout ll_expTime = new LinearLayout(getContext());
@@ -357,7 +377,7 @@ public class TriggerFragment extends Fragment {
         tv_expOffset.setText(expOffsetTxt);
         if (exposureAdj) {
             tv_expOffset.setTextColor(colEnable);
-            tv_expOffset.setOnClickListener(new View.OnClickListener() {
+            rootLinearLayout.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "exposureCorr clicked");
@@ -476,14 +496,16 @@ public class TriggerFragment extends Fragment {
 
     public void SetOLYCam(OLYCamera camera) {
         this.camera = camera;
-        try {
-            possibleExpCorrValues = this.camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURECOMPENSATION_MODE);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-        }
+
     }
 
     public void SetSliderResult(String value, String property) {
+        try {
+            camera.setCameraPropertyValue(property, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //Set appropriate text to value
         switch (property) {
             case "SHUTTER":
                 tv_expTime.setText(camera.getCameraPropertyValueTitle(value));
@@ -500,7 +522,7 @@ public class TriggerFragment extends Fragment {
             case "EXPREV":
                 String myVal = camera.getCameraPropertyValueTitle(value);
                 tv_expOffset.setText(myVal);
-                int myIndex = possibleExpCorrValues.indexOf(myVal);
+                int myIndex = possibleExpCorrValues.indexOf(value);
                 expCorr.SetLineParams(myIndex);
                 break;
         }
