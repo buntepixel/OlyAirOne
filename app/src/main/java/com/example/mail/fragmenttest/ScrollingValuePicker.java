@@ -29,6 +29,11 @@ public class ScrollingValuePicker extends FrameLayout {
                 float scrollValue = (float) l;// visScrollBarWidth;
                 mScrollingValueListener.onScrollChanged(view,scrollValue,visScrollBarWidth);
             }
+
+            @Override
+            public void onTouchUpAction(ObservableHorizontalScrollView view,int l,int scrollBarWidth) {
+                Log.d(TAG,"Gettouchup___Value Picker");
+            }
         });
     }
 
@@ -78,12 +83,13 @@ public class ScrollingValuePicker extends FrameLayout {
             mRightSpacer.setLayoutParams(rightParams);
         }
     }
+//Scrolling listener
+    private ScrollingValueListener mScrollingValueListener;
 
     public interface ScrollingValueListener {
-        public void onScrollChanged(ObservableHorizontalScrollView view,float scrollValue, int visibleScrollBarVal);
+         void onScrollChanged(ObservableHorizontalScrollView view,float scrollValue, int visibleScrollBarVal);
+        void onTouchActionUp()
     }
-
-    private ScrollingValueListener mScrollingValueListener;
 
     public void setScrollingValueListener(ScrollingValueListener listener) {
         this.mScrollingValueListener = listener;

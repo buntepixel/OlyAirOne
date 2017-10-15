@@ -2,6 +2,8 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
 /**
@@ -17,6 +19,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
 {
     private static final String TAG = ObservableHorizontalScrollView.class.getSimpleName();
 
+    int scrollPos;
 
     /**
      * Interface definition for a callback to be invoked with the scroll
@@ -32,6 +35,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
          * @param t Current vertical scroll origin.
          */
         void onScrollChanged(ObservableHorizontalScrollView view,int l, int t,int scrollBarWidth);
+        void onTouchUpAction(ObservableHorizontalScrollView view,int l,int scrollBarWidth);
     }
     private OnScrollChangedListener mOnScrollChangedListener;
 
@@ -43,13 +47,30 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
         mOnScrollChangedListener = listener;
     }
 
- 
+    void setScrollingValues(){
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        Boolean myBool= super.onTouchEvent(ev);
+        if(ev.getAction()==MotionEvent.ACTION_UP){
+            Log.d(TAG,"Gettouchup");
+            if (mOnScrollChangedListener != null) {
+                int scrollBarWidth = this.computeHorizontalScrollRange();
+
+                mOnScrollChangedListener.onTouchUpAction(this,scrollPos,scrollBarWidth);
+            }
+        }
+        return myBool;
+    }
+
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
-        if (mOnScrollChangedListener != null) {
-            int scrollBarWidth = this.computeHorizontalScrollRange();
+        scrollPos = l;
+        /*if (mOnScrollChangedListener != null) {
             mOnScrollChangedListener.onScrollChanged(this, l, t, scrollBarWidth);
-        }
+        }*/
     }
 }
