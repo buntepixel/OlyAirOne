@@ -2,7 +2,6 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
@@ -55,7 +54,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
     public boolean onTouchEvent(MotionEvent ev) {
         Boolean myBool= super.onTouchEvent(ev);
         if(ev.getAction()==MotionEvent.ACTION_UP){
-            Log.d(TAG,"Gettouchup");
+
             if (mOnScrollChangedListener != null) {
                 int scrollBarWidth = this.computeHorizontalScrollRange();
 

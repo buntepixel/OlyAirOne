@@ -26,7 +26,6 @@ public abstract class MasterSlidebarFragment extends Fragment {
     public MasterSlidebarFragment() {
     }
 
-
     public void SetOLYCam(OLYCamera camera) {
         this.camera = camera;
     }
@@ -65,38 +64,22 @@ public abstract class MasterSlidebarFragment extends Fragment {
 
             ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
-          /*  mScrollingValuePicker.setScrollingValueListener(new ScrollingValuePicker.ScrollingValueListener() {
+            mScrollingValuePicker.SetScrollingValueInteractionListener(new ScrollingValuePicker.ScrollingValueInteraction() {
                 @Override
-                public void onScrollChanged(ObservableHorizontalScrollView view, float scrollValue, int visibleScrollBarVal) {
-                    try {
-                        Log.d(TAG, "scrollVal: " + scrollValue + " visScrollVal: " + visibleScrollBarVal);
-
-                        int barSegment = visibleScrollBarVal / myString.length;
-                        // scrollvalue from 0-0,99999999
-                        float decScrollVal = scrollValue / (visibleScrollBarVal + 1);//add 1 so it never gets 1 and breaks the index
-                        int currIndex = (int) Math.floor((decScrollVal * myString.length));
-                        //make sure index doesn't get out of range on overscroll
-                        currIndex= Math.max(0,currIndex);
-                        currIndex= Math.min(myString.length-1,currIndex);
-
-                        newScrollVal = (int) Math.round((barSegment * currIndex));//- (barSegment / 2));
-                        Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex);
-                        //view.scrollTo(newScrollVal, 0);
-                        if (sliderValueListener != null)
-                            sliderValueListener.onSlideValueBar(myString[currIndex]);
-                        //Log.d(TAG,"index: "+currIndex+" value: "+myString[currIndex]);
-                    }catch ( Exception ex){
-                        String stackTrace = Log.getStackTraceString(ex);
-                        Log.d(TAG, stackTrace);
-                    }
+                public void onScrollEnd(int currIndex) {
+                    Log.d(TAG,"onScroll End ___ Masterslidebar");
+                    if (sliderValueListener != null)
+                        sliderValueListener.onSlideValueBar(myString[currIndex]);
                 }
-            });*/
+            });
+
+
 //
             //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
 
             //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
             //mScrollingValuePicker.setupValuePicker(myString);
-            mScrollingValuePicker.intValuePicker(getContext(), mContentLinLayout,myString);
+            mScrollingValuePicker.intValuePicker(getContext(), mContentLinLayout, myString);
 
             return rootView;
         } catch (Exception e) {
@@ -105,9 +88,6 @@ public abstract class MasterSlidebarFragment extends Fragment {
         }
         return null;
     }
-
-
-
 
 //    private void CreateImageViewContent(int itemCount) {
 //        //Adding ImageView
@@ -133,9 +113,21 @@ public abstract class MasterSlidebarFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        try {
+            sliderValueListener = (sliderValue) context;
+
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement sliderValueListener ");
+        }
     }
 
-
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if(sliderValueListener !=null){
+            sliderValueListener = null;
+        }
+    }
 }
 
 

@@ -30,7 +30,7 @@ import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
 
 public class CameraActivity extends FragmentActivity
-        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
+        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener, MasterSlidebarFragment.sliderValue,
         OLYCameraConnectionListener, OLYCameraPropertyListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
 
@@ -43,7 +43,6 @@ public class CameraActivity extends FragmentActivity
     private static final String CAMERA_PROPERTY_ISO_SENSITIVITY = "ISO";
     private static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
     private static final String CAMERA_PROPERTY_BATTERY_LEVEL = "BATTERY_LEVEL";
-
 
 
     List<String> takeModeStrings;
@@ -199,7 +198,8 @@ public class CameraActivity extends FragmentActivity
             ft.commit();
         }
     }
-//connectin Camera
+
+    //connectin Camera
     private void startConnectingCamera() {
         Log.d(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
         connectionExecutor.execute(new Runnable() {
@@ -292,6 +292,7 @@ public class CameraActivity extends FragmentActivity
         }
         return OLYCamera.LiveViewSize.QVGA;
     }
+
     private void alertConnectingFailed(Exception e) {
         final Intent myIntent = new Intent(this, ConnectToCamActivity.class);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -481,6 +482,19 @@ public class CameraActivity extends FragmentActivity
     @Override
     public void onUpdateCameraProperty(OLYCamera olyCamera, String s) {
 
+    }
+
+    @Override
+    public void onSlideValueBar(String value) {
+        try {
+            String propValue = camera.getCameraPropertyValueTitle(value);
+            String property = camera.getCameraPropertyValue(value);
+            Log.d(TAG, "onSlideValueBar_CamActivity" + propValue + "  " + property);
+            fTrigger.SetSliderResult(property, propValue);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
     }
 }
 

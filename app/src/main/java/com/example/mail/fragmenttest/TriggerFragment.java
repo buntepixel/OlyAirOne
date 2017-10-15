@@ -499,7 +499,7 @@ public class TriggerFragment extends Fragment {
 
     }
 
-    public void SetSliderResult(String value, String property) {
+    public void SetSliderResult( String property,String value) {
         try {
             camera.setCameraPropertyValue(property, value);
         } catch (Exception e) {

@@ -23,12 +23,19 @@ public class ScrollingValuePicker extends FrameLayout {
     private View mCenterContainer;
     private int mCenterContainerWidth;
     private int newScrollVal;
+    private int currContentIndex;
     private ObservableHorizontalScrollView obsScrollView;
     private String[] content;
 
     public int getCurrValueIndex() {
-
-        return 0;
+        return currContentIndex;
+    }
+    public ScrollingValueInteraction mValueInteractionListener;
+    public interface ScrollingValueInteraction{
+        void onScrollEnd(int currentIndex);
+    }
+    public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener){
+        mValueInteractionListener = listener;
     }
 
     public ScrollingValuePicker(final Context context, AttributeSet attrs) {
@@ -54,15 +61,18 @@ public class ScrollingValuePicker extends FrameLayout {
                     int barSegment = mCenterContainerWidth / content.length;
 
                     // scrollvalue from 0-0,99999999
-                    float decScrollVal = scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
+                    float decScrollVal = (float) scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
                     int currIndex = (int) Math.floor((decScrollVal * content.length));
+                    Log.d(TAG, "containerWidth: " + mCenterContainerWidth + "  ScrollValue" + scrollValue + " decScrollValue: " + decScrollVal);
                     //make sure index doesn't get out of range on overscroll
                     currIndex = Math.max(0, currIndex);
                     currIndex = Math.min(content.length - 1, currIndex);
+                    currContentIndex = currIndex;
+                    newScrollVal = Math.round((barSegment * currIndex));
 
-                    newScrollVal = Math.round((barSegment * currIndex));//- (barSegment / 2));
-                    obsScrollView.scrollTo(newScrollVal, 0);
-                    Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex + "barSegment: " + barSegment);
+                    mValueInteractionListener.onScrollEnd(currIndex);
+                    //obsScrollView.scrollTo(newScrollVal, 0);
+                    Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex + "  barSegment: " + barSegment);
                     Log.d(TAG, "index: " + currIndex + " value: " + content[currIndex]);
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
@@ -71,7 +81,6 @@ public class ScrollingValuePicker extends FrameLayout {
             }
         });
     }
-
 
     public void intValuePicker(Context context, LinearLayout linearLayout, String[] myStringBarValues) {
         try {
@@ -115,7 +124,7 @@ public class ScrollingValuePicker extends FrameLayout {
             final ViewGroup.LayoutParams rightParams = mRightSpacer.getLayoutParams();
             rightParams.width = width / 2;
             mRightSpacer.setLayoutParams(rightParams);
-            mCenterContainerWidth = obsScrollView.getWidth();
+            mCenterContainerWidth = mCenterContainer.getWidth();
         }
     }
 //Scrolling listener
@@ -130,7 +139,7 @@ public class ScrollingValuePicker extends FrameLayout {
                 //Log.d(TAG, "textView " + i + " id: " + textView.getId());
                 //Log.d(TAG, "mystring:  " + i);
                 if (camera != null) {
-                    Log.d(TAG, "CurrentValue::::::" + camera.getCameraPropertyValueTitle(i));
+                    //Log.d(TAG, "CurrentValue::::::" + camera.getCameraPropertyValueTitle(i));
                     textView.setText(camera.getCameraPropertyValueTitle(i));
                 } else {
                     Log.d(TAG, "Cam Seems to be null");
