@@ -1,7 +1,6 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import jp.co.olympus.camerakit.OLYCamera;
 
@@ -21,7 +19,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
     private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
     OLYCamera camera;
     private String[] myString;
-    int newScrollVal;
+
 
     private sliderValue sliderValueListener;
 
@@ -60,11 +58,6 @@ public abstract class MasterSlidebarFragment extends Fragment {
             // mContentLinLayout.setBackgroundColor(Color.RED);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-            //create text View for LinLayout
-            this.AddTextViewContent(myString, mContentLinLayout);
-
-            //Log.d(TAG, "Aparture Fragment:: " + mContentLinLayout.toString());
-
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             rootView.setId(View.generateViewId());
             // Log.d(TAG, "RootView id: " + rootView.getId());
@@ -72,7 +65,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
 
             ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
-            mScrollingValuePicker.setScrollingValueListener(new ScrollingValuePicker.ScrollingValueListener() {
+          /*  mScrollingValuePicker.setScrollingValueListener(new ScrollingValuePicker.ScrollingValueListener() {
                 @Override
                 public void onScrollChanged(ObservableHorizontalScrollView view, float scrollValue, int visibleScrollBarVal) {
                     try {
@@ -97,13 +90,13 @@ public abstract class MasterSlidebarFragment extends Fragment {
                         Log.d(TAG, stackTrace);
                     }
                 }
-            });
+            });*/
 //
             //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
 
             //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
-
-            mScrollingValuePicker.execute(getContext(), mContentLinLayout);
+            //mScrollingValuePicker.setupValuePicker(myString);
+            mScrollingValuePicker.intValuePicker(getContext(), mContentLinLayout,myString);
 
             return rootView;
         } catch (Exception e) {
@@ -114,37 +107,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
     }
 
 
-    private void AddTextViewContent(String[] stringArr, LinearLayout linearLayout) {
-        //Adding Textview
-        try {
-            for (String i : stringArr) {
-                TextView textView = new TextView(getActivity());
-                textView.setId(View.generateViewId());
-                //Log.d(TAG, "textView " + i + " id: " + textView.getId());
-                //Log.d(TAG, "mystring:  " + i);
-                if (camera != null){
-                    Log.d(TAG, "CurrentValue::::::"+camera.getCameraPropertyValueTitle(i) );
-                    textView.setText(camera.getCameraPropertyValueTitle(i));
-                }
-                else {
-                    Log.d(TAG, "Cam Seems to be null");
-                    textView.setText(i);
-                }
 
-                //textView.setTextSize(40);
-                textView.setBackgroundColor(Color.GREEN);
-                textView.setPaddingRelative(25, 0, 25, 0);
-                textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                linearLayout.addView(textView);
-            }
-        } catch (Error e) {
-            String stackTrace = Log.getStackTraceString(e);
-            System.err.println(TAG + e.getMessage());
-            Log.d(TAG, stackTrace);
-        }
-
-    }
 
 //    private void CreateImageViewContent(int itemCount) {
 //        //Adding ImageView

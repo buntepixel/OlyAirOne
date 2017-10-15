@@ -35,7 +35,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
          * @param t Current vertical scroll origin.
          */
         void onScrollChanged(ObservableHorizontalScrollView view,int l, int t,int scrollBarWidth);
-        void onTouchUpAction(ObservableHorizontalScrollView view,int l,int scrollBarWidth);
+        void onTouchUpAction(ObservableHorizontalScrollView view,int scrollValue,int scrollBarWidth);
     }
     private OnScrollChangedListener mOnScrollChangedListener;
 
