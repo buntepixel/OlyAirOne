@@ -501,6 +501,7 @@ public class TriggerFragment extends Fragment {
 
     public void SetSliderResult( String property,String value) {
         try {
+            Log.d(TAG, "onSlideValueBar_TriggerFragment: " + property + " value " + value);
             camera.setCameraPropertyValue(property, value);
         } catch (Exception e) {
             e.printStackTrace();

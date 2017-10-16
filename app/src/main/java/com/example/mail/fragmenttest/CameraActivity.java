@@ -457,6 +457,7 @@ public class CameraActivity extends FragmentActivity
                 myFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
                     @Override
                     public void onSlideValueBar(String value) {
+
                         fTrigger.SetSliderResult(value, propertyName);
                     }
                 });
@@ -486,15 +487,18 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onSlideValueBar(String value) {
-        try {
-            String propValue = camera.getCameraPropertyValueTitle(value);
-            String property = camera.getCameraPropertyValue(value);
-            Log.d(TAG, "onSlideValueBar_CamActivity" + propValue + "  " + property);
-            fTrigger.SetSliderResult(property, propValue);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
+        String propValue = value;
+        String property = extractProperty(value);
+        Log.d(TAG, "onSlideValueBar_CamActivity Prop: " + property + " Value:  " + propValue);
+        fTrigger.SetSliderResult(property, propValue);
+
+    }
+    private String extractProperty(String value){
+        String[] myStringArr=  value.split("/");
+        Log.d(TAG,"split: "+ myStringArr[0]);
+        String extractedString = myStringArr[0].substring(1);
+        Log.d(TAG,"extractes: "+ extractedString);
+        return extractedString;
     }
 }
 

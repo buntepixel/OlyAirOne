@@ -26,12 +26,12 @@ public abstract class MasterSlidebarFragment extends Fragment {
     public MasterSlidebarFragment() {
     }
 
-    public void SetOLYCam(OLYCamera camera) {
-        this.camera = camera;
-    }
-
     public interface sliderValue {
         void onSlideValueBar(String value);
+    }
+
+    public void SetOLYCam(OLYCamera camera) {
+        this.camera = camera;
     }
 
     public void setSliderValueListener(sliderValue listener) {
@@ -67,13 +67,14 @@ public abstract class MasterSlidebarFragment extends Fragment {
             mScrollingValuePicker.SetScrollingValueInteractionListener(new ScrollingValuePicker.ScrollingValueInteraction() {
                 @Override
                 public void onScrollEnd(int currIndex) {
-                    Log.d(TAG,"onScroll End ___ Masterslidebar");
-                    if (sliderValueListener != null)
+                    Log.d(TAG, "onScroll End ___ Masterslidebar");
+                    if (sliderValueListener != null) {
+                        Log.d(TAG, "CurrSTring: " + myString[currIndex]);
                         sliderValueListener.onSlideValueBar(myString[currIndex]);
+                    }
+
                 }
             });
-
-
 //
             //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
 
@@ -124,7 +125,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        if(sliderValueListener !=null){
+        if (sliderValueListener != null) {
             sliderValueListener = null;
         }
     }
