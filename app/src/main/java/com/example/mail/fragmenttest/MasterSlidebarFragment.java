@@ -72,7 +72,6 @@ public abstract class MasterSlidebarFragment extends Fragment {
                         Log.d(TAG, "CurrSTring: " + myString[currIndex]);
                         sliderValueListener.onSlideValueBar(myString[currIndex]);
                     }
-
                 }
             });
 //

@@ -68,19 +68,7 @@ public class TriggerFragment extends Fragment {
         }
     };
 
-    @SuppressWarnings("serial")
-    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
-        {
-            put("<WB/WB_AUTO>"          , R.drawable.icn_wb_setting_wbauto);
-            put("<WB/MWB_SHADE>"        , R.drawable.icn_wb_setting_16);
-            put("<WB/MWB_CLOUD>"        , R.drawable.icn_wb_setting_17);
-            put("<WB/MWB_FINE>"         , R.drawable.icn_wb_setting_18);
-            put("<WB/MWB_LAMP>"         , R.drawable.icn_wb_setting_20);
-            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
-            put("<WB/MWB_WATER_1>"      , R.drawable.icn_wb_setting_64);
-            put("<WB/WB_CUSTOM1>"       , R.drawable.icn_wb_setting_512);
-        }
-    };
+
 
 
 
@@ -369,7 +357,7 @@ public class TriggerFragment extends Fragment {
         rootLinearLayout.setOrientation(LinearLayout.VERTICAL);
         rootLinearLayout.setLayoutParams(relParams);
 
-        String expOffsetTxt = "+ 0.3 ";
+        String expOffsetTxt = " 0.0 ";
 
         tv_expOffset = new TextView(getActivity());
         tv_expOffset.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -399,12 +387,13 @@ public class TriggerFragment extends Fragment {
             rootLinearLayout.addView(containerLLayout);
 
             TextView leftText = new TextView(getContext());
-            leftText.setGravity(Gravity.CENTER_HORIZONTAL);
+            leftText.setGravity(Gravity.CENTER);
             leftText.setMinWidth(10);
 
-            leftText.setText("-  ");
+            leftText.setText("-");
+            leftText.setWidth(30);
             leftText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
-            leftText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+            leftText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             containerLLayout.addView(leftText);
 
 
@@ -415,9 +404,9 @@ public class TriggerFragment extends Fragment {
             containerLLayout.addView(expCorr);
 
             TextView rightText = new TextView(getContext());
-            rightText.setGravity(Gravity.CENTER_VERTICAL);
-            rightText.setMinWidth(10);
-            rightText.setText(" +");
+            rightText.setGravity(Gravity.CENTER);
+            rightText.setWidth(30);
+            rightText.setText("+");
             rightText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
             rightText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             containerLLayout.addView(rightText);

@@ -41,7 +41,7 @@ public class ExposureCorrection extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int height = 20;
+        int height = 40;
         //calculate the view width
         int calculatedWidth = (mNbStrokes * mStrokeGap);
 
@@ -57,7 +57,7 @@ public class ExposureCorrection extends View {
         //set the color for the dot that you want to draw
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(mStrokeGap / 4);
+        paint.setStrokeWidth(mStrokeGap / 3);
         paint.setStrokeCap(Paint.Cap.SQUARE);
         paint.setStrokeJoin(Paint.Join.ROUND);
 

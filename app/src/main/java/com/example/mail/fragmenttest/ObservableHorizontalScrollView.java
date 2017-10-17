@@ -2,6 +2,7 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
@@ -20,6 +21,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
 
     int scrollPos;
 
+
     /**
      * Interface definition for a callback to be invoked with the scroll
      * position changes.
@@ -30,10 +32,10 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
          * Called when the scroll position of <code>view</code> changes.
          *
          * @param view The view whose scroll position changed.
-         * @param l Current horizontal scroll origin.
+         * @param scrollValue Current horizontal scroll origin.
          * @param t Current vertical scroll origin.
          */
-        void onScrollChanged(ObservableHorizontalScrollView view,int l, int t,int scrollBarWidth);
+        void onScrollChanged(ObservableHorizontalScrollView view,int scrollValue, int t,int scrollBarWidth);
         void onTouchUpAction(ObservableHorizontalScrollView view,int scrollValue,int scrollBarWidth);
     }
     private OnScrollChangedListener mOnScrollChangedListener;
@@ -46,10 +48,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
         mOnScrollChangedListener = listener;
     }
 
-    void setScrollingValues(){
-
-    }
-
+  //todo: remove override
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         Boolean myBool= super.onTouchEvent(ev);
@@ -65,11 +64,17 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView
     }
 
     @Override
-    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        super.onScrollChanged(l, t, oldl, oldt);
-        scrollPos = l;
-        /*if (mOnScrollChangedListener != null) {
-            mOnScrollChangedListener.onScrollChanged(this, l, t, scrollBarWidth);
-        }*/
+    protected void onScrollChanged(int scrollValue, int t, int oldl, int oldt) {
+        super.onScrollChanged(scrollValue, t, oldl, oldt);
+
+
+        if(Math.abs(oldl - scrollValue)<=1){
+            Log.d(TAG, "scrollVal: "+ scrollValue);
+            if (mOnScrollChangedListener != null) {
+                int scrollBarWidth = this.computeHorizontalScrollRange();
+                mOnScrollChangedListener.onScrollChanged(this, scrollValue, t, scrollBarWidth);
+            }
+            scrollPos = scrollValue;
+        }
     }
 }

@@ -7,8 +7,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.example.mail.fragmenttest.CameraActivity.camera;
 
@@ -20,22 +27,50 @@ public class ScrollingValuePicker extends FrameLayout {
     private static final String TAG = ScrollingValuePicker.class.getSimpleName();
     private View mLeftSpacer;
     private View mRightSpacer;
-    private View mCenterContainer;
+    private LinearLayout mCenterContainer;
     private int mCenterContainerWidth;
     private int newScrollVal;
     private int currContentIndex;
     private ObservableHorizontalScrollView obsScrollView;
     private String[] content;
+    private int txtPadding = 25;
+    private List<Integer> contentWidthList = new ArrayList<Integer>();
+
+    @SuppressWarnings("serial")
+    private static final Map<String, Integer> whiteBalanceIconList = new LinkedHashMap<String, Integer>() {
+        {
+            put("<WB/WB_AUTO>", R.drawable.icn_wb_setting_wbauto);
+            put("<WB/MWB_SHADE>", R.drawable.icn_wb_setting_16);
+            put("<WB/MWB_CLOUD>", R.drawable.icn_wb_setting_17);
+            put("<WB/MWB_FINE>", R.drawable.icn_wb_setting_18);
+            put("<WB/MWB_LAMP>", R.drawable.icn_wb_setting_20);
+            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
+            put("<WB/MWB_WATER_1>", R.drawable.icn_wb_setting_64);
+            put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
+        }
+    };
 
     public int getCurrValueIndex() {
         return currContentIndex;
     }
+
     public ScrollingValueInteraction mValueInteractionListener;
-    public interface ScrollingValueInteraction{
+
+    public interface ScrollingValueInteraction {
         void onScrollEnd(int currentIndex);
     }
-    public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener){
+
+    public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener) {
         mValueInteractionListener = listener;
+    }
+
+    int getScrollPos(int index) {
+        List<Integer> subList = contentWidthList.subList(0, index);
+        int sum = 0;
+        for (int i = 0; i < subList.size(); i++) {
+            sum = sum + subList.get(i);
+        }
+        return sum;
     }
 
     public ScrollingValuePicker(final Context context, AttributeSet attrs) {
@@ -47,15 +82,38 @@ public class ScrollingValuePicker extends FrameLayout {
         addView(obsScrollView);
         obsScrollView.setOnScrollChangedListener(new ObservableHorizontalScrollView.OnScrollChangedListener() {
             @Override
-            public void onScrollChanged(ObservableHorizontalScrollView view, int l, int t, int scrollBarWidth) {
-                int visScrollBarWidth = scrollBarWidth - getWidth();
-                float scrollValue = (float) l;// visScrollBarWidth;
-                //mScrollingValueListener.onScrollChanged(view, scrollValue, visScrollBarWidth);
+            public void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue, int t, int scrollBarWidth) {
+                try {
+
+                    Log.d(TAG, "::::::::::onScrollChanged:::::::::::::::::" + content.length);
+                    int barSegment = mCenterContainerWidth / (content.length);
+
+                    // scrollvalue from 0-0,99999999
+                    float decScrollVal = (float) scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
+                    int currIndex = (int) Math.floor((decScrollVal * content.length));
+                    Log.d(TAG, "containerWidth: " + mCenterContainerWidth + "  ScrollValue" + scrollValue + " decScrollValue: " + decScrollVal);
+                    //make sure index doesn't get out of range on overscroll
+                    currIndex = Math.max(0, currIndex);
+                    currIndex = Math.min(content.length - 1, currIndex);
+                    currContentIndex = currIndex;
+
+                    newScrollVal = (barSegment * currIndex) - (barSegment / 2);
+                    newScrollVal = getScrollPos(currIndex);
+                    mValueInteractionListener.onScrollEnd(currIndex);
+
+                    obsScrollView.smoothScrollTo(newScrollVal + (barSegment / 2), 0);
+
+                    Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex + "  barSegment: " + barSegment);
+                    Log.d(TAG, "index: " + currIndex + " value: " + content[currIndex]);
+                } catch (Exception ex) {
+                    String stackTrace = Log.getStackTraceString(ex);
+                    Log.d(TAG, stackTrace);
+                }
             }
 
             @Override
             public void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth) {
-                try {
+               /* try {
 
                     Log.d(TAG, "Gettouchup___Value Picker");
                     int barSegment = mCenterContainerWidth / content.length;
@@ -68,16 +126,18 @@ public class ScrollingValuePicker extends FrameLayout {
                     currIndex = Math.max(0, currIndex);
                     currIndex = Math.min(content.length - 1, currIndex);
                     currContentIndex = currIndex;
-                    newScrollVal = Math.round((barSegment * currIndex));
+                    newScrollVal = Math.round((barSegment * currIndex) + (barSegment / 2));
 
                     mValueInteractionListener.onScrollEnd(currIndex);
+
                     //obsScrollView.scrollTo(newScrollVal, 0);
+
                     Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex + "  barSegment: " + barSegment);
                     Log.d(TAG, "index: " + currIndex + " value: " + content[currIndex]);
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
                     Log.d(TAG, stackTrace);
-                }
+                }*/
             }
         });
     }
@@ -94,7 +154,12 @@ public class ScrollingValuePicker extends FrameLayout {
             mCenterContainer = ll_contentContainer;
 
             //the actual context gets Injected
-            AddTextViewContent(context, myStringBarValues, ll_contentContainer);
+            Log.d(TAG, "myStringBarValues: " + myStringBarValues[0]);
+            if (whiteBalanceIconList.containsKey(myStringBarValues[0]))
+                AddImageViewContent(context, myStringBarValues, ll_contentContainer);
+            else
+                AddTextViewContent(context, myStringBarValues, ll_contentContainer);
+
             ll_contentContainer.addView(linearLayout);
 
             // Create the left and right spacers, don't worry about their dimensions, yet
@@ -125,6 +190,18 @@ public class ScrollingValuePicker extends FrameLayout {
             rightParams.width = width / 2;
             mRightSpacer.setLayoutParams(rightParams);
             mCenterContainerWidth = mCenterContainer.getWidth();
+            LinearLayout ll = mCenterContainer;
+            final int childCount = ll.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View v = ll.getChildAt(i);
+                int myWidth = v.getWidth();
+                if (myWidth != 0)
+                    contentWidthList.add(myWidth);
+
+                Log.d(TAG, "Array: " + v.getWidth());
+                // Do something with v.
+                // …
+            }
         }
     }
 //Scrolling listener
@@ -148,10 +225,38 @@ public class ScrollingValuePicker extends FrameLayout {
 
                 //textView.setTextSize(40);
                 textView.setBackgroundColor(Color.GREEN);
-                textView.setPaddingRelative(25, 0, 25, 0);
+                textView.setPaddingRelative(txtPadding, 0, txtPadding, 0);
                 textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
                 linearLayout.addView(textView);
+            }
+        } catch (Error e) {
+            String stackTrace = Log.getStackTraceString(e);
+            System.err.println(TAG + e.getMessage());
+            Log.d(TAG, stackTrace);
+        }
+    }
+
+    private void AddImageViewContent(Context context, String[] stringArr, LinearLayout linearLayout) {
+        try {
+            //Adding ImageView
+            Collection<Integer> myValues = whiteBalanceIconList.values();
+            for (int i = 0; i < stringArr.length; i++) {
+                ImageView imageView = new ImageView(getContext());
+                int viewId = whiteBalanceIconList.get(stringArr[i]);
+                imageView.setImageResource(viewId);
+                //imageView.setScaleX( (float) 0.5);
+                //imageView.setScaleType(ImageView.ScaleType.FIT_END);
+      /*      if ((i + 1) % 5 != 0) {
+                imageView.setScaleY((float) 0.5);
+                imageView.setScaleX((float) 0.5);
+                imageView.setScaleType(ImageView.ScaleType.FIT_START);
+                //imageView.setAdjustViewBounds(true);
+            }*/
+                imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                linearLayout.addView(imageView);
             }
         } catch (Error e) {
             String stackTrace = Log.getStackTraceString(e);

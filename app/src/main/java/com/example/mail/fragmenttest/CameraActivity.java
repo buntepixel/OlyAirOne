@@ -489,15 +489,12 @@ public class CameraActivity extends FragmentActivity
     public void onSlideValueBar(String value) {
         String propValue = value;
         String property = extractProperty(value);
-        Log.d(TAG, "onSlideValueBar_CamActivity Prop: " + property + " Value:  " + propValue);
         fTrigger.SetSliderResult(property, propValue);
 
     }
     private String extractProperty(String value){
         String[] myStringArr=  value.split("/");
-        Log.d(TAG,"split: "+ myStringArr[0]);
         String extractedString = myStringArr[0].substring(1);
-        Log.d(TAG,"extractes: "+ extractedString);
         return extractedString;
     }
 }
