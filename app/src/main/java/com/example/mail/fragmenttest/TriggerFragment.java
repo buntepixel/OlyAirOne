@@ -41,7 +41,7 @@ public class TriggerFragment extends Fragment {
     private TextView tv_expTime;
     private TextView tv_fStop;
     private TextView tv_iso;
-    private TextView tv_wb;
+    private ImageView iv_Wb;
     private TextView tv_expOffset;
 
     private ExposureCorrection expCorr;
@@ -68,7 +68,19 @@ public class TriggerFragment extends Fragment {
         }
     };
 
-
+    @SuppressWarnings("serial")
+    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
+        {
+            put("<WB/WB_AUTO>", R.drawable.icn_wb_setting_wbauto);
+            put("<WB/MWB_SHADE>", R.drawable.icn_wb_setting_16);
+            put("<WB/MWB_CLOUD>", R.drawable.icn_wb_setting_17);
+            put("<WB/MWB_FINE>", R.drawable.icn_wb_setting_18);
+            put("<WB/MWB_LAMP>", R.drawable.icn_wb_setting_20);
+            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
+            put("<WB/MWB_WATER_1>", R.drawable.icn_wb_setting_64);
+            put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
+        }
+    };
 
 
 
@@ -457,16 +469,12 @@ public class TriggerFragment extends Fragment {
         ll_linLayoutWb.setOrientation(LinearLayout.VERTICAL);
         ll_linLayoutWb.setId(View.generateViewId());
 
-        TextView tv_wbText = new TextView(getContext());
-        tv_wbText.setText("WB");
-        tv_wbText.setGravity(Gravity.CENTER_HORIZONTAL);
-        tv_wb = new TextView(getActivity());
-        tv_wb.setText(settingsArr[4]);
-        tv_wb.setGravity(Gravity.CENTER);
-        tv_wb.setPaddingRelative(padding, 0, padding, 0);
+
+        iv_Wb = new ImageView(getActivity());
+        iv_Wb.setImageResource(R.drawable.rm_icn_wb_setting_wbauto);
+        iv_Wb.setPaddingRelative(padding, 0, padding, 0);
         if (wb) {
-            tv_wb.setTextColor(colEnable);
-            tv_wbText.setTextColor(colEnable);
+            iv_Wb.setImageResource(R.drawable.rm_icn_wb_setting_wbauto_selected);
             ll_linLayoutWb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
@@ -474,11 +482,9 @@ public class TriggerFragment extends Fragment {
                 }
             });
         } else {
-            tv_wb.setTextColor(colDisable);
-            tv_wbText.setTextColor(colDisable);
+            iv_Wb.setImageResource(R.drawable.rm_icn_wb_setting_wbauto_disable);
         }
-        ll_linLayoutWb.addView(tv_wbText);
-        ll_linLayoutWb.addView(tv_wb);
+        ll_linLayoutWb.addView(iv_Wb);
         root_linearLayout.addView(ll_linLayoutWb);
         return root_linearLayout;
     }
@@ -507,7 +513,8 @@ public class TriggerFragment extends Fragment {
                 tv_iso.setText(camera.getCameraPropertyValueTitle(value));
                 break;
             case "WB":
-                tv_wb.setText(camera.getCameraPropertyValueTitle(value));
+                Log.d(TAG, "CameraValue: "+ camera.getCameraPropertyValueTitle(value));
+                iv_Wb.setImageResource(whiteBalanceIconList.get(value));
                 break;
             case "EXPREV":
                 String myVal = camera.getCameraPropertyValueTitle(value);

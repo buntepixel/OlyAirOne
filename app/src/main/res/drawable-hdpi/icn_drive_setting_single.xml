@@ -4,7 +4,7 @@
 
     <item
         android:state_selected="true"
-        android:drawable="@drawable/rm_icn_drive_setting_single_pushed" />
+        android:drawable="@drawable/rm_icn_drive_setting_single" />
     <item
         android:state_pressed="true"
         android:drawable="@drawable/rm_icn_drive_setting_single_pushed" />

@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +37,7 @@ public class ScrollingValuePicker extends FrameLayout {
     private List<Integer> contentWidthList = new ArrayList<Integer>();
 
     @SuppressWarnings("serial")
-    private static final Map<String, Integer> whiteBalanceIconList = new LinkedHashMap<String, Integer>() {
+    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
         {
             put("<WB/WB_AUTO>", R.drawable.icn_wb_setting_wbauto);
             put("<WB/MWB_SHADE>", R.drawable.icn_wb_setting_16);
@@ -64,11 +64,14 @@ public class ScrollingValuePicker extends FrameLayout {
         mValueInteractionListener = listener;
     }
 
-    int getScrollPos(int index) {
+    private int getScrollPos(int index) {
         List<Integer> subList = contentWidthList.subList(0, index);
         int sum = 0;
         for (int i = 0; i < subList.size(); i++) {
             sum = sum + subList.get(i);
+            if(i ==(subList.size()-1)){
+                sum = sum +(subList.get(i)/2);
+            }
         }
         return sum;
     }
@@ -97,11 +100,11 @@ public class ScrollingValuePicker extends FrameLayout {
                     currIndex = Math.min(content.length - 1, currIndex);
                     currContentIndex = currIndex;
 
-                    newScrollVal = (barSegment * currIndex) - (barSegment / 2);
+
                     newScrollVal = getScrollPos(currIndex);
                     mValueInteractionListener.onScrollEnd(currIndex);
 
-                    obsScrollView.smoothScrollTo(newScrollVal + (barSegment / 2), 0);
+                    obsScrollView.smoothScrollTo(newScrollVal , 0);
 
                     Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex + "  barSegment: " + barSegment);
                     Log.d(TAG, "index: " + currIndex + " value: " + content[currIndex]);
@@ -155,9 +158,12 @@ public class ScrollingValuePicker extends FrameLayout {
 
             //the actual context gets Injected
             Log.d(TAG, "myStringBarValues: " + myStringBarValues[0]);
-            if (whiteBalanceIconList.containsKey(myStringBarValues[0]))
+            if (whiteBalanceIconList.containsKey(myStringBarValues[0])) {
+                for (String i : myStringBarValues)
+                    Log.d(TAG, "WbValues: " + i);
                 AddImageViewContent(context, myStringBarValues, ll_contentContainer);
-            else
+
+            } else
                 AddTextViewContent(context, myStringBarValues, ll_contentContainer);
 
             ll_contentContainer.addView(linearLayout);
@@ -241,10 +247,13 @@ public class ScrollingValuePicker extends FrameLayout {
         try {
             //Adding ImageView
             Collection<Integer> myValues = whiteBalanceIconList.values();
+            Log.d(TAG, "StringArrLength: " + stringArr.length + " ");
+
             for (int i = 0; i < stringArr.length; i++) {
                 ImageView imageView = new ImageView(getContext());
                 int viewId = whiteBalanceIconList.get(stringArr[i]);
                 imageView.setImageResource(viewId);
+
                 //imageView.setScaleX( (float) 0.5);
                 //imageView.setScaleType(ImageView.ScaleType.FIT_END);
       /*      if ((i + 1) % 5 != 0) {
