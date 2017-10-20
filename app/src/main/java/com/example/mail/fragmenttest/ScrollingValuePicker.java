@@ -64,17 +64,6 @@ public class ScrollingValuePicker extends FrameLayout {
         mValueInteractionListener = listener;
     }
 
-    private int getScrollPos(int index) {
-        List<Integer> subList = contentWidthList.subList(0, index);
-        int sum = 0;
-        for (int i = 0; i < subList.size(); i++) {
-            sum = sum + subList.get(i);
-            if(i ==(subList.size()-1)){
-                sum = sum +(subList.get(i)/2);
-            }
-        }
-        return sum;
-    }
 
     public ScrollingValuePicker(final Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -85,67 +74,75 @@ public class ScrollingValuePicker extends FrameLayout {
         addView(obsScrollView);
         obsScrollView.setOnScrollChangedListener(new ObservableHorizontalScrollView.OnScrollChangedListener() {
             @Override
-            public void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue, int t, int scrollBarWidth) {
+            public void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue, int scrollvalueOld, int scrollBarWidth) {
                 try {
 
                     Log.d(TAG, "::::::::::onScrollChanged:::::::::::::::::" + content.length);
-                    int barSegment = mCenterContainerWidth / (content.length);
+                    currContentIndex = getCurrIndex(scrollValue);
 
-                    // scrollvalue from 0-0,99999999
-                    float decScrollVal = (float) scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
-                    int currIndex = (int) Math.floor((decScrollVal * content.length));
-                    Log.d(TAG, "containerWidth: " + mCenterContainerWidth + "  ScrollValue" + scrollValue + " decScrollValue: " + decScrollVal);
-                    //make sure index doesn't get out of range on overscroll
-                    currIndex = Math.max(0, currIndex);
-                    currIndex = Math.min(content.length - 1, currIndex);
-                    currContentIndex = currIndex;
+                    newScrollVal = getScrollPos(currContentIndex, scrollValue);
 
+                    obsScrollView.smoothScrollBy(newScrollVal, 0);
+                    mValueInteractionListener.onScrollEnd(currContentIndex);
+                    Log.d(TAG, "scrollValue: " + scrollValue+ "index: "+ currContentIndex );
 
-                    newScrollVal = getScrollPos(currIndex);
-                    mValueInteractionListener.onScrollEnd(currIndex);
-
-                    obsScrollView.smoothScrollTo(newScrollVal , 0);
-
-                    Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex + "  barSegment: " + barSegment);
-                    Log.d(TAG, "index: " + currIndex + " value: " + content[currIndex]);
+                    //Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currContentIndex);
+                    //Log.d(TAG, "index: " + currContentIndex + " value: " + content[currContentIndex]);
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
                     Log.d(TAG, stackTrace);
                 }
             }
-
             @Override
-            public void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth) {
-               /* try {
+            public void onTouchUpAction(ObservableHorizontalScrollView view, float scrollValue, int scrollBarWidth) {
+                try {
 
-                    Log.d(TAG, "Gettouchup___Value Picker");
-                    int barSegment = mCenterContainerWidth / content.length;
+                    Log.d(TAG, "::::::::::::TOUCH  UP::::::::::::::");
 
-                    // scrollvalue from 0-0,99999999
-                    float decScrollVal = (float) scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
-                    int currIndex = (int) Math.floor((decScrollVal * content.length));
-                    Log.d(TAG, "containerWidth: " + mCenterContainerWidth + "  ScrollValue" + scrollValue + " decScrollValue: " + decScrollVal);
-                    //make sure index doesn't get out of range on overscroll
-                    currIndex = Math.max(0, currIndex);
-                    currIndex = Math.min(content.length - 1, currIndex);
-                    currContentIndex = currIndex;
-                    newScrollVal = Math.round((barSegment * currIndex) + (barSegment / 2));
 
-                    mValueInteractionListener.onScrollEnd(currIndex);
-
+                    currContentIndex = getCurrIndex((int) scrollValue);
+                    newScrollVal = getScrollPos(currContentIndex, (int)scrollValue);
+                    obsScrollView.smoothScrollBy(newScrollVal, 0);
+                    mValueInteractionListener.onScrollEnd(currContentIndex);
+                    Log.d(TAG, "scrollValue: " + scrollValue+ "index: "+ currContentIndex );
                     //obsScrollView.scrollTo(newScrollVal, 0);
-
-                    Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currIndex + "  barSegment: " + barSegment);
-                    Log.d(TAG, "index: " + currIndex + " value: " + content[currIndex]);
+                    //Log.d(TAG, "ScrollValue: " + newScrollVal + " index: " + currContentIndex );
+                    //Log.d(TAG, "index: " + currContentIndex + " value: " + content[currContentIndex]);
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
                     Log.d(TAG, stackTrace);
-                }*/
+                }
             }
         });
     }
 
-    public void intValuePicker(Context context, LinearLayout linearLayout, String[] myStringBarValues) {
+    private int getCurrIndex(int scrollValue) {
+        // scrollvalue from 0-0,99999999
+        float decScrollVal = (float) scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
+        int currIndex = (int) Math.floor((decScrollVal * content.length));
+        Log.d(TAG, "containerWidth: " + mCenterContainerWidth + "  ScrollValue" + scrollValue + " decScrollValue: " + decScrollVal);
+        //make sure index doesn't get out of range on overscroll
+        currIndex = Math.max(0, currIndex);
+        currIndex = Math.min(content.length - 1, currIndex);
+        return currIndex;
+    }
+
+    private int getScrollPos(int index, int currScrollValue) {
+        List<Integer> subList = contentWidthList.subList(0, index);
+        int sum = 0;
+        int scrollBy = 0;
+        for (int i = 0; i < subList.size(); i++) {
+            sum = sum + subList.get(i);
+            if (i == (subList.size() - 1)) {
+                scrollBy = sum - currScrollValue;
+                scrollBy += subList.get(i) / 2;
+                //sum = sum + (subList.get(i) / 2);
+            }
+        }
+        return scrollBy;
+    }
+
+    public void initValuePicker(Context context, LinearLayout linearLayout, String[] myStringBarValues) {
         try {
             // Create a horizontal (by default) LinearLayout as our child container
             content = myStringBarValues;
@@ -204,7 +201,8 @@ public class ScrollingValuePicker extends FrameLayout {
                 if (myWidth != 0)
                     contentWidthList.add(myWidth);
 
-                Log.d(TAG, "Array: " + v.getWidth());
+                //Log.d(TAG, "Array: " + v.getWidth());
+
                 // Do something with v.
                 // …
             }

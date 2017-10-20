@@ -79,7 +79,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
 
             //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
             //mScrollingValuePicker.setupValuePicker(myString);
-            mScrollingValuePicker.intValuePicker(getContext(), mContentLinLayout, myString);
+            mScrollingValuePicker.initValuePicker(getContext(), mContentLinLayout, myString);
 
             return rootView;
         } catch (Exception e) {
