@@ -1,6 +1,7 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -83,7 +84,6 @@ public class TriggerFragment extends Fragment {
     };
 
 
-
     public interface OnTriggerFragmInteractionListener {
         void onShootingModeInteraction(int settingsType);
 
@@ -126,7 +126,6 @@ public class TriggerFragment extends Fragment {
         drivemodeImageView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 drivemodeImageViewDidTap();
-
             }
         });
         meteringImageView.setOnClickListener(new View.OnClickListener() {
@@ -164,13 +163,11 @@ public class TriggerFragment extends Fragment {
     private void SetupButtons(RelativeLayout relativeLayout) {
         //LinearLayout linearLayout = ll_main;
         int padding = 40;
-        int cTxtDis = ContextCompat.getColor(getContext(), R.color.ColorBarTextDisabled);
-        int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
+
         //ExposureCorr
-        //Log.d(TAG, "notDead C");
-        LinearLayout center_linearLayout = CreateExposureCorr(cTxtEn, cTxtDis, padding);
-        LinearLayout left_LinearLayout = CreateExpTFstop(cTxtEn, cTxtDis, padding, center_linearLayout);
-        LinearLayout right_LinearLayout = CreateIsoWBBtn(cTxtEn, cTxtDis, padding, center_linearLayout);
+        LinearLayout center_linearLayout = CreateExposureCorr(getResources().getColorStateList(R.color.button_text_states), padding);
+        LinearLayout left_LinearLayout = CreateExpTFstop(getResources().getColorStateList(R.color.button_text_states), padding, center_linearLayout);
+        LinearLayout right_LinearLayout = CreateIsoWBBtn(getResources().getColorStateList(R.color.button_text_states), padding, center_linearLayout);
 
         relativeLayout.addView(left_LinearLayout);
         relativeLayout.addView(center_linearLayout);
@@ -216,7 +213,7 @@ public class TriggerFragment extends Fragment {
     }
 
     private void meteringImageViewDidTap() {
-        Log.d(TAG, "Click");
+        //Log.d(TAG, "Click");
         final View view = meteringImageView;
         final String propertyName = CAMERA_PROPERTY_METERING_MODE;
 
@@ -258,7 +255,6 @@ public class TriggerFragment extends Fragment {
     }
 
     private void cameraPropertyDidTab(View inView, String inPropertyName) {
-
         final List<String> valueList;
         try {
             valueList = camera.getCameraPropertyValueList(inPropertyName);
@@ -293,7 +289,7 @@ public class TriggerFragment extends Fragment {
     }
 
 
-    private LinearLayout CreateExpTFstop(int colEnable, int colDisable, int padding, LinearLayout alignLayout) {
+    private LinearLayout CreateExpTFstop(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
         LinearLayout root_linearLayout = new LinearLayout(getContext());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         root_linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -312,9 +308,11 @@ public class TriggerFragment extends Fragment {
         tv_expTime = new TextView(getActivity());
         tv_expTime.setText(settingsArr[0]);
         tv_expTime.setPaddingRelative(padding, 0, padding, 0);
+        tv_expTime.setTextColor(colorStateList);
+        tv_expTimeText.setTextColor(colorStateList);
         if (time) {
-            tv_expTime.setTextColor(colEnable);
-            tv_expTimeText.setTextColor(colEnable);
+            tv_expTimeText.setEnabled(true);
+            tv_expTime.setEnabled(true);
             ll_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
@@ -322,8 +320,8 @@ public class TriggerFragment extends Fragment {
                 }
             });
         } else {
-            tv_expTime.setTextColor(colDisable);
-            tv_expTimeText.setTextColor(colDisable);
+            tv_expTimeText.setEnabled(false);
+            tv_expTime.setEnabled(false);
         }
         ll_expTime.addView(tv_expTimeText);
         ll_expTime.addView(tv_expTime);
@@ -340,9 +338,11 @@ public class TriggerFragment extends Fragment {
         tv_fStop = new TextView(getActivity());
         tv_fStop.setText(settingsArr[1]);
         tv_fStop.setPaddingRelative(padding, 0, padding, 0);
+        tv_fStop.setTextColor(colorStateList);
+        tv_fStopText.setTextColor(colorStateList);
         if (aparture) {
-            tv_fStop.setTextColor(colEnable);
-            tv_fStopText.setTextColor(colEnable);
+            tv_fStopText.setEnabled(true);
+            tv_fStop.setEnabled(true);
             ll_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
@@ -350,8 +350,8 @@ public class TriggerFragment extends Fragment {
                 }
             });
         } else {
-            tv_fStop.setTextColor(colDisable);
-            tv_fStopText.setTextColor(colDisable);
+            tv_expTimeText.setEnabled(false);
+            tv_fStop.setEnabled(false);
         }
         ll_fStop.addView(tv_fStopText);
         ll_fStop.addView(tv_fStop);
@@ -359,7 +359,7 @@ public class TriggerFragment extends Fragment {
         return root_linearLayout;
     }
 
-    private LinearLayout CreateExposureCorr(int colEnable, int colDisable, int padding) {
+    private LinearLayout CreateExposureCorr(ColorStateList colorStateList, int padding) {
         LinearLayout rootLinearLayout = new LinearLayout(getContext());
         rootLinearLayout.setId(View.generateViewId());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -375,8 +375,9 @@ public class TriggerFragment extends Fragment {
         tv_expOffset.setGravity(Gravity.CENTER_HORIZONTAL);
         tv_expOffset.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         tv_expOffset.setText(expOffsetTxt);
+        tv_expOffset.setTextColor(colorStateList);
         if (exposureAdj) {
-            tv_expOffset.setTextColor(colEnable);
+            tv_expOffset.setEnabled(true);
             rootLinearLayout.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
@@ -385,7 +386,7 @@ public class TriggerFragment extends Fragment {
                 }
             });
         } else
-            tv_expOffset.setTextColor(colDisable);
+            tv_expOffset.setEnabled(false);
 
         rootLinearLayout.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
@@ -426,7 +427,7 @@ public class TriggerFragment extends Fragment {
         return rootLinearLayout;
     }
 
-    private LinearLayout CreateIsoWBBtn(int colEnable, int colDisable, int padding, LinearLayout alignLayout) {
+    private LinearLayout CreateIsoWBBtn(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
         LinearLayout root_linearLayout = new LinearLayout(getContext());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         //relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -447,9 +448,11 @@ public class TriggerFragment extends Fragment {
         tv_iso.setText(settingsArr[3]);
         tv_iso.setGravity(Gravity.CENTER);
         tv_iso.setPaddingRelative(padding, 0, padding, 0);
+        tv_iso.setTextColor(colorStateList);
+        tv_isoText.setTextColor(colorStateList);
         if (iso) {
-            tv_iso.setTextColor(colEnable);
-            tv_isoText.setTextColor(colEnable);
+            tv_isoText.setEnabled(true);
+            tv_iso.setEnabled(true);
             ll_iso.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
@@ -457,8 +460,8 @@ public class TriggerFragment extends Fragment {
                 }
             });
         } else {
-            tv_iso.setTextColor(colDisable);
-            tv_isoText.setTextColor(colDisable);
+            tv_isoText.setEnabled(false);
+            tv_iso.setEnabled(false);
         }
         ll_iso.addView(tv_isoText);
         ll_iso.addView(tv_iso);
@@ -471,10 +474,11 @@ public class TriggerFragment extends Fragment {
 
 
         iv_Wb = new ImageView(getActivity());
-        iv_Wb.setImageResource(R.drawable.rm_icn_wb_setting_wbauto);
+        //todo: make setter for prefs
+        iv_Wb.setImageResource(R.drawable.icn_wb_setting_16);
         iv_Wb.setPaddingRelative(padding, 0, padding, 0);
         if (wb) {
-            iv_Wb.setImageResource(R.drawable.rm_icn_wb_setting_wbauto_selected);
+            iv_Wb.setEnabled(true);
             ll_linLayoutWb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
@@ -482,7 +486,7 @@ public class TriggerFragment extends Fragment {
                 }
             });
         } else {
-            iv_Wb.setImageResource(R.drawable.rm_icn_wb_setting_wbauto_disable);
+            iv_Wb.setEnabled(false);
         }
         ll_linLayoutWb.addView(iv_Wb);
         root_linearLayout.addView(ll_linLayoutWb);
@@ -494,7 +498,7 @@ public class TriggerFragment extends Fragment {
 
     }
 
-    public void SetSliderResult( String property,String value) {
+    public void SetSliderResult(String property, String value) {
         try {
             Log.d(TAG, "onSlideValueBar_TriggerFragment: " + property + " value " + value);
             camera.setCameraPropertyValue(property, value);
@@ -513,7 +517,7 @@ public class TriggerFragment extends Fragment {
                 tv_iso.setText(camera.getCameraPropertyValueTitle(value));
                 break;
             case "WB":
-                Log.d(TAG, "CameraValue: "+ camera.getCameraPropertyValueTitle(value));
+                Log.d(TAG, "CameraValue: " + camera.getCameraPropertyValueTitle(value));
                 iv_Wb.setImageResource(whiteBalanceIconList.get(value));
                 break;
             case "EXPREV":

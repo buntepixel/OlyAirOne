@@ -30,6 +30,7 @@
         android:layout_toStartOf="@id/ib_RecordMode"
         android:orientation="horizontal">
 
+
         <TextView
             android:id="@+id/tv_driveMode"
             android:layout_width="wrap_content"
@@ -38,7 +39,7 @@
             android:layout_weight="1"
             android:layout_marginTop="@dimen/LiveViewTopMarg"
             android:text="S-AF"
-            android:textColor="@color/colorTextDark"
+            android:textColor="@color/button_text_states"
             android:textSize="@dimen/Icon_discription_txt"/>
 
         <ImageView
@@ -48,8 +49,8 @@
             android:contentDescription="@null"
             android:layout_marginTop="@dimen/LiveViewTopMarg"
             android:scaleType="center"
-            android:scaleX="0.5"
-            android:scaleY="0.5"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
             android:src="@drawable/ic_sdcard"/>
 
         <TextView
@@ -60,7 +61,7 @@
             android:layout_weight="1"
             android:layout_marginTop="@dimen/LiveViewTopMarg"
             android:text="0002"
-            android:textColor="@color/colorTextDark"
+            android:textColor="@color/button_text_states"
             android:textSize="@dimen/Icon_discription_txt"/>
     </LinearLayout>
 

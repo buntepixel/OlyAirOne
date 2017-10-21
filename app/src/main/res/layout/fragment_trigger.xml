@@ -49,7 +49,7 @@
             android:contentDescription="ActionMode"
             android:scaleX="0.7"
             android:scaleY="0.7"
-            android:src="@drawable/ic_pinpoint"
+            android:src="@drawable/icn_metereing_pinpoint"
             />
 
     </RelativeLayout>

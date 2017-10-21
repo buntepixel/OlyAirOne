@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -142,17 +141,18 @@ public class MainSettingsFragment extends Fragment {
     private void SetupButtons(LinearLayout linearLayout) {
         int padding = 45;
         //LinearLayout linearLayout = ll_main;
-        int cTxtDis = ContextCompat.getColor(getContext(), R.color.ColorBarTextDisabled);
-        int cTxtEn = ContextCompat.getColor(getContext(), R.color.ColorBarTextEnabled);
+
 
         Log.d(TAG, time+" "+aparture+" "+exposureAdj+" "+iso+" "+wb);
         // exposure Time
         TextView tv_expTime = new TextView(getActivity());
         tv_expTime.setText(settingsArr[0]);
+        tv_expTime.setTextColor(getResources().getColorStateList(R.color.button_text_states) );
         tv_expTime.setPaddingRelative(padding, 0, padding, 0);
         if (time) {
             //Log.d(TAG, "huuuuu");
-            tv_expTime.setTextColor(cTxtEn);
+            tv_expTime.setEnabled(true);
+
             tv_expTime.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                    // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
@@ -160,15 +160,16 @@ public class MainSettingsFragment extends Fragment {
                 }
             });
         } else
-            tv_expTime.setTextColor(cTxtDis);
+            tv_expTime.setEnabled(false);
         linearLayout.addView(tv_expTime);
 
         //Fstop
         TextView tv_fStop = new TextView(getActivity());
         tv_fStop.setText(settingsArr[1]);
+        tv_fStop.setTextColor(getResources().getColorStateList(R.color.button_text_states));
         tv_fStop.setPaddingRelative(padding, 0, padding, 0);
         if (aparture) {
-            tv_fStop.setTextColor(cTxtEn);
+            tv_fStop.setEnabled(true);
             tv_fStop.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
@@ -177,15 +178,16 @@ public class MainSettingsFragment extends Fragment {
             });
         } else
            // Log.d(TAG, "fuck");
-        tv_fStop.setTextColor(cTxtDis);
+        tv_fStop.setEnabled(false);
         linearLayout.addView(tv_fStop);
 
         //ExposureCorr
         TextView tv_expCorr = new TextView(getActivity());
         tv_expCorr.setText(settingsArr[2]);
+        tv_expCorr.setTextColor(getResources().getColorStateList(R.color.button_text_states));
         tv_expCorr.setPaddingRelative(padding, 0, padding, 0);
         if (exposureAdj) {
-            tv_expCorr.setTextColor(cTxtEn);
+            tv_expCorr.setEnabled(true);
             tv_expCorr.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                    // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
@@ -193,17 +195,18 @@ public class MainSettingsFragment extends Fragment {
                 }
             });
         } else
-            tv_expCorr.setTextColor(cTxtDis);
+            tv_expCorr.setEnabled(false);
 
         linearLayout.addView(tv_expCorr);
 
         //iso
         TextView tv_iso = new TextView(getActivity());
         tv_iso.setText(settingsArr[3]);
+        tv_iso.setTextColor(getResources().getColorStateList(R.color.button_text_states));
         tv_iso.setGravity(Gravity.CENTER);
         tv_iso.setPaddingRelative(padding, 0, padding, 0);
         if (iso) {
-            tv_iso.setTextColor(cTxtEn);
+            tv_iso.setEnabled(true);
             tv_iso.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                    // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
@@ -211,17 +214,18 @@ public class MainSettingsFragment extends Fragment {
                 }
             });
         } else
-            tv_iso.setTextColor(cTxtDis);
+            tv_iso.setEnabled(false);
 
         linearLayout.addView(tv_iso);
 
         //WhiteBalance
         TextView tv_wb = new TextView(getActivity());
         tv_wb.setText(settingsArr[4]);
+        tv_wb.setTextColor(getResources().getColorStateList(R.color.button_text_states));
         tv_wb.setGravity(Gravity.CENTER);
         tv_wb.setPaddingRelative(padding, 0, padding, 0);
         if (wb) {
-            tv_wb.setTextColor(cTxtEn);
+            tv_wb.setEnabled(true);
             tv_wb.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
@@ -229,16 +233,9 @@ public class MainSettingsFragment extends Fragment {
                 }
             });
         } else
-            tv_wb.setTextColor(cTxtDis);
+            tv_wb.setEnabled(false);
 
         linearLayout.addView(tv_wb);
 
     }
-    /*    private LinearLayout Create2LineTextView(String prefix, String text) {
-        LinearLayout linearLayout = new LinearLayout(getContext());
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        return linearLayout;
-    }*/
-
 }

@@ -6,12 +6,18 @@
     <color name="colorTextWhite">#e0e0e0</color>
     <color name="colorTextDark">#363636</color>
     <color name="ColorTest2">#2c997a</color>
-    <color name="ColorBarTextDisabled">#737373</color>
-    <color name="ColorBarTextEnabled">#2aba25</color>
+    <color name="BarText">#ffffff</color>
+    <color name="BarText_disabled">#737373</color>
+    <color name="BarText_focused">#53a6ff</color>
     <color name="ExpCorr_subLine">#5a5a5a</color>
     <color name="ExpCorr_Line">#a0a0a0</color>
     <color name="ExpCorr_HighliteLine">#ffffff</color>
-    <color name="BgPrim_HalfTransp_Grey">#453b3b3b</color>
+    <color name="SrlBar_Text">#ffffff</color>
+    <color name="SrlBar_Text_focused">#53a6ff</color>
+    <color name="SrlBar_Bg">#8c6e6e6e</color>
+
+
+    <color name="BgPrim_HalfTransp_Grey">#8c6e6e6e</color>
 
 
 

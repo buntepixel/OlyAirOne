@@ -48,13 +48,10 @@ public abstract class MasterSlidebarFragment extends Fragment {
             //create LinLayout to hold the text view
             LinearLayout mContentLinLayout = new LinearLayout(getContext());
 
-            //mContentLinLayout.setId(R.id.mContentLinLayout);
             mContentLinLayout.setId(View.generateViewId());
-            //Log.d(TAG, "mContnentLinLayout id: " + mContentLinLayout.getId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContentLinLayout.setLayoutParams(params);
-            // mContentLinLayout.setBackgroundColor(Color.RED);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
 
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
@@ -62,15 +59,18 @@ public abstract class MasterSlidebarFragment extends Fragment {
             // Log.d(TAG, "RootView id: " + rootView.getId());
 
 
-            ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
+            final ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
+            mScrollingValuePicker.addView(mContentLinLayout);
+            mScrollingValuePicker.initValuePicker(getContext(), mContentLinLayout, myString);
             mScrollingValuePicker.SetScrollingValueInteractionListener(new ScrollingValuePicker.ScrollingValueInteraction() {
                 @Override
                 public void onScrollEnd(int currIndex) {
-                    Log.d(TAG, "onScroll End ___ Masterslidebar");
+                    Log.d(TAG, "onScroll End ");
                     if (sliderValueListener != null) {
                         Log.d(TAG, "CurrSTring: " + myString[currIndex]);
                         sliderValueListener.onSlideValueBar(myString[currIndex]);
+                        mScrollingValuePicker.snapBarToValue(currIndex);
                     }
                 }
             });
@@ -79,7 +79,6 @@ public abstract class MasterSlidebarFragment extends Fragment {
 
             //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
             //mScrollingValuePicker.setupValuePicker(myString);
-            mScrollingValuePicker.initValuePicker(getContext(), mContentLinLayout, myString);
 
             return rootView;
         } catch (Exception e) {

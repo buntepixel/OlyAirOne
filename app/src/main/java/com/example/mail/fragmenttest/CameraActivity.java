@@ -102,6 +102,7 @@ public class CameraActivity extends FragmentActivity
         fTrigger = new TriggerFragment();
         fTrigger.SetOLYCam(camera);
         fLiveView = new LiveViewFragment();
+        fLiveView.SetOLYCam(camera);
         apartureFragment = new ApartureFragment();
         //Log.d(TAG, "Setting OlyCAMERA");
         apartureFragment.SetOLYCam(camera);
@@ -147,7 +148,7 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onDriveModeChange(String propValue) {
-        fLiveView.updateDriveModeImage(propValue);
+        fLiveView.updateFocusMode(propValue);
     }
 
     @Override

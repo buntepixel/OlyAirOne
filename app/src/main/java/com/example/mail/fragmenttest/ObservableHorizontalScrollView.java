@@ -20,7 +20,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
     private static final String TAG = ObservableHorizontalScrollView.class.getSimpleName();
 
     int scrollPos;
-    float scrollPosf;
+    int scrollBarWidth;
     boolean touch = false;
 
 
@@ -35,12 +35,11 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
          *
          * @param view           The view whose scroll position changed.
          * @param scrollValue    Current horizontal scroll origin.
-         * @param scrollValueOld Previous horizontal scroll origin.
          * @param scrollBarWidth width of scroll bar.
          */
-        void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue, int scrollValueOld, int scrollBarWidth);
+        void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue,  int scrollBarWidth);
 
-        void onTouchUpAction(ObservableHorizontalScrollView view, float scrollValue, int scrollBarWidth);
+        void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth);
     }
 
     private OnScrollChangedListener mOnScrollChangedListener;
@@ -56,18 +55,15 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
     //todo: remove override
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        Boolean myBool = super.onTouchEvent(ev);
-        Log.d(TAG, "MotionEvent: " + ev.getAction());
 
+        Boolean myBool = super.onTouchEvent(ev);
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             touch = true;
         } else if (ev.getAction() == MotionEvent.ACTION_UP) {
+            touch = false;
             if (mOnScrollChangedListener != null) {
-                scrollPosf = ev.getX();
-                Log.d(TAG, "ScrollPos: " + scrollPosf);
-                int scrollBarWidth = this.computeHorizontalScrollRange();
-                mOnScrollChangedListener.onTouchUpAction(this, scrollPosf, scrollBarWidth);
-                touch = false;
+                Log.d(TAG, "OnTouchUpAction: " + scrollPos);
+                mOnScrollChangedListener.onTouchUpAction(this, scrollPos, scrollBarWidth);
             }
         }
         return myBool;
@@ -76,13 +72,21 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
     @Override
     protected void onScrollChanged(int scrollValue, int t, int oldl, int oldt) {
         super.onScrollChanged(scrollValue, t, oldl, oldt);
+        Log.d(TAG, "ScrollChanged: " + scrollValue);
+        scrollPos = scrollValue;
         if (Math.abs(oldl - scrollValue) <= 1 && !touch) {
-            //Log.d(TAG, "scrollVal: " + scrollValue);
+            //  Log.d(TAG, "ScrollChanged = scrollVal: " + scrollValue);
             if (mOnScrollChangedListener != null) {
-                int scrollBarWidth = this.computeHorizontalScrollRange();
-                mOnScrollChangedListener.onScrollChanged(this, scrollValue, oldl, scrollBarWidth);
+                Log.d(TAG, "onScrollChanged: " + scrollValue);
+                mOnScrollChangedListener.onScrollChanged(this, scrollValue,  scrollBarWidth);
             }
             scrollPos = scrollValue;
         }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        scrollBarWidth = this.computeHorizontalScrollRange();
     }
 }
