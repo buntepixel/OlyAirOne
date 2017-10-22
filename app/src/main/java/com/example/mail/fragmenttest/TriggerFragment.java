@@ -350,7 +350,7 @@ public class TriggerFragment extends Fragment {
                 }
             });
         } else {
-            tv_expTimeText.setEnabled(false);
+            tv_fStopText.setEnabled(false);
             tv_fStop.setEnabled(false);
         }
         ll_fStop.addView(tv_fStopText);

@@ -65,7 +65,7 @@ public class CameraActivity extends FragmentActivity
 
 
     @Override
-    public void onTakeModeButtonPressed(int currDriveMode) {
+    public void onShootingModeButtonPressed(int currDriveMode) {
         try {
             try {
                 camera.setCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE, takeModeStrings.get(currDriveMode));
@@ -148,7 +148,7 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onDriveModeChange(String propValue) {
-        fLiveView.updateFocusMode(propValue);
+        //fLiveView.updateFocusMode(propValue);
     }
 
     @Override
@@ -478,6 +478,7 @@ public class CameraActivity extends FragmentActivity
     public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
         Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
         finish();
+        startActivity(new Intent(this, MainActivity.class));
     }
 
 
@@ -493,6 +494,7 @@ public class CameraActivity extends FragmentActivity
         fTrigger.SetSliderResult(property, propValue);
 
     }
+
     private String extractProperty(String value){
         String[] myStringArr=  value.split("/");
         String extractedString = myStringArr[0].substring(1);

@@ -14,10 +14,10 @@
     <color name="ExpCorr_HighliteLine">#ffffff</color>
     <color name="SrlBar_Text">#ffffff</color>
     <color name="SrlBar_Text_focused">#53a6ff</color>
-    <color name="SrlBar_Bg">#8c6e6e6e</color>
+    <color name="SrlBar_Bg">#6464646e</color>
 
 
-    <color name="BgPrim_HalfTransp_Grey">#8c6e6e6e</color>
+    <color name="BgPrim_HalfTransp_Grey">#64646464</color>
 
 
 
