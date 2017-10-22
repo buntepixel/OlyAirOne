@@ -26,7 +26,8 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends Fragment {
+public class TriggerFragment extends Fragment
+        implements View.OnClickListener {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
@@ -40,10 +41,15 @@ public class TriggerFragment extends Fragment {
 
 
     private TextView tv_expTime;
+    private LinearLayout ll_expTime;
     private TextView tv_fStop;
+    private LinearLayout ll_fStop;
     private TextView tv_iso;
+    private LinearLayout ll_iso;
     private ImageView iv_Wb;
+    private LinearLayout ll_Wb;
     private TextView tv_expOffset;
+    private LinearLayout ll_expOffset;
 
     private ExposureCorrection expCorr;
     private List<String> possibleExpCorrValues;
@@ -99,8 +105,7 @@ public class TriggerFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         //Log.d(TAG, "notdead A");
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
@@ -123,23 +128,38 @@ public class TriggerFragment extends Fragment {
 //        });
 
         //ImageButton ib_driveMode = (ImageButton) view.findViewById(R.id.ib_drivemode);
-        drivemodeImageView.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                drivemodeImageViewDidTap();
-            }
-        });
-        meteringImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                meteringImageViewDidTap();
-            }
-        });
+        drivemodeImageView.setOnClickListener(this);
+        meteringImageView.setOnClickListener(this);
+        ll_expTime.setOnClickListener(this);
+        ll_fStop.setOnClickListener(this);
+        ll_expOffset.setOnClickListener(this);
+        ll_iso.setOnClickListener(this);
+        ll_Wb.setOnClickListener(this);
         return view;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == drivemodeImageView)
+            drivemodeImageViewDidTap();
+        else if (v == meteringImageView)
+            meteringImageViewDidTap();
+        else if (v == ll_expTime)
+            triggerFragmListener.onShootingModeInteraction(0);
+        else if (v == ll_fStop)
+            triggerFragmListener.onShootingModeInteraction(1);
+        else if (v == ll_expOffset)
+            triggerFragmListener.onShootingModeInteraction(2);
+        else if (v == ll_iso)
+            triggerFragmListener.onShootingModeInteraction(3);
+        else if (v == ll_Wb)
+            triggerFragmListener.onShootingModeInteraction(4);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
         if (takeMode < 1 || takeMode > 5)
             meteringImageView.setVisibility(View.INVISIBLE);
         else
@@ -153,9 +173,7 @@ public class TriggerFragment extends Fragment {
 
     private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
         RelativeLayout relativeLayout = (RelativeLayout) rootView.findViewById(R.id.rl_settings);
-        //Log.d(TAG, "notDead B");
 
-        //linearLayout.setBackgroundColor(Color.YELLOW);
         SetupButtons(relativeLayout);
         return relativeLayout;
     }
@@ -298,7 +316,7 @@ public class TriggerFragment extends Fragment {
         root_linearLayout.setLayoutParams(relParams);
 
         // exposure Time
-        LinearLayout ll_expTime = new LinearLayout(getContext());
+        ll_expTime = new LinearLayout(getContext());
         ll_expTime.setOrientation(LinearLayout.VERTICAL);
         ll_expTime.setId(View.generateViewId());
 
@@ -313,12 +331,6 @@ public class TriggerFragment extends Fragment {
         if (time) {
             tv_expTimeText.setEnabled(true);
             tv_expTime.setEnabled(true);
-            ll_expTime.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    // Toast.makeText(getActivity(), settingsArr[0], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onShootingModeInteraction(0);
-                }
-            });
         } else {
             tv_expTimeText.setEnabled(false);
             tv_expTime.setEnabled(false);
@@ -328,7 +340,7 @@ public class TriggerFragment extends Fragment {
         root_linearLayout.addView(ll_expTime);
 
         //Fstop
-        LinearLayout ll_fStop = new LinearLayout(getContext());
+        ll_fStop = new LinearLayout(getContext());
         ll_fStop.setOrientation(LinearLayout.VERTICAL);
         ll_fStop.setId(View.generateViewId());
 
@@ -343,12 +355,6 @@ public class TriggerFragment extends Fragment {
         if (aparture) {
             tv_fStopText.setEnabled(true);
             tv_fStop.setEnabled(true);
-            ll_fStop.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    //Toast.makeText(getActivity(), settingsArr[1], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onShootingModeInteraction(1);
-                }
-            });
         } else {
             tv_fStopText.setEnabled(false);
             tv_fStop.setEnabled(false);
@@ -360,14 +366,14 @@ public class TriggerFragment extends Fragment {
     }
 
     private LinearLayout CreateExposureCorr(ColorStateList colorStateList, int padding) {
-        LinearLayout rootLinearLayout = new LinearLayout(getContext());
-        rootLinearLayout.setId(View.generateViewId());
+        ll_expOffset = new LinearLayout(getContext());
+        ll_expOffset.setId(View.generateViewId());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        rootLinearLayout.setMinimumWidth(130);
+        ll_expOffset.setMinimumWidth(130);
 
-        rootLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLinearLayout.setLayoutParams(relParams);
+        ll_expOffset.setOrientation(LinearLayout.VERTICAL);
+        ll_expOffset.setLayoutParams(relParams);
 
         String expOffsetTxt = " 0.0 ";
 
@@ -378,17 +384,10 @@ public class TriggerFragment extends Fragment {
         tv_expOffset.setTextColor(colorStateList);
         if (exposureAdj) {
             tv_expOffset.setEnabled(true);
-            rootLinearLayout.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    // Toast.makeText(getActivity(), settingsArr[2], Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "exposureCorr clicked");
-                    triggerFragmListener.onShootingModeInteraction(2);
-                }
-            });
         } else
             tv_expOffset.setEnabled(false);
 
-        rootLinearLayout.addView(tv_expOffset);
+        ll_expOffset.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
         if (takeMode > 0 && takeMode < 4) {
             LinearLayout containerLLayout = new LinearLayout(getContext());
@@ -397,7 +396,7 @@ public class TriggerFragment extends Fragment {
             containerLLayout.setGravity(Gravity.CENTER_VERTICAL);
             containerLLayout.setOrientation(LinearLayout.HORIZONTAL);
             containerLLayout.setWeightSum(8);
-            rootLinearLayout.addView(containerLLayout);
+            ll_expOffset.addView(containerLLayout);
 
             TextView leftText = new TextView(getContext());
             leftText.setGravity(Gravity.CENTER);
@@ -424,7 +423,7 @@ public class TriggerFragment extends Fragment {
             rightText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             containerLLayout.addView(rightText);
         }
-        return rootLinearLayout;
+        return ll_expOffset;
     }
 
     private LinearLayout CreateIsoWBBtn(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
@@ -435,9 +434,8 @@ public class TriggerFragment extends Fragment {
         root_linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         root_linearLayout.setLayoutParams(relParams);
 
-
         //iso
-        LinearLayout ll_iso = new LinearLayout(getContext());
+        ll_iso = new LinearLayout(getContext());
         ll_iso.setOrientation(LinearLayout.VERTICAL);
         ll_iso.setId(View.generateViewId());
 
@@ -453,12 +451,6 @@ public class TriggerFragment extends Fragment {
         if (iso) {
             tv_isoText.setEnabled(true);
             tv_iso.setEnabled(true);
-            ll_iso.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    // Toast.makeText(getActivity(), settingsArr[3], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onShootingModeInteraction(3);
-                }
-            });
         } else {
             tv_isoText.setEnabled(false);
             tv_iso.setEnabled(false);
@@ -468,9 +460,9 @@ public class TriggerFragment extends Fragment {
         root_linearLayout.addView(ll_iso);
 
         //WhiteBalance
-        LinearLayout ll_linLayoutWb = new LinearLayout(getContext());
-        ll_linLayoutWb.setOrientation(LinearLayout.VERTICAL);
-        ll_linLayoutWb.setId(View.generateViewId());
+        ll_Wb = new LinearLayout(getContext());
+        ll_Wb.setOrientation(LinearLayout.VERTICAL);
+        ll_Wb.setId(View.generateViewId());
 
 
         iv_Wb = new ImageView(getActivity());
@@ -479,17 +471,12 @@ public class TriggerFragment extends Fragment {
         iv_Wb.setPaddingRelative(padding, 0, padding, 0);
         if (wb) {
             iv_Wb.setEnabled(true);
-            ll_linLayoutWb.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    //Toast.makeText(getActivity(), settingsArr[4], Toast.LENGTH_SHORT).show();
-                    triggerFragmListener.onShootingModeInteraction(4);
-                }
-            });
+
         } else {
             iv_Wb.setEnabled(false);
         }
-        ll_linLayoutWb.addView(iv_Wb);
-        root_linearLayout.addView(ll_linLayoutWb);
+        ll_Wb.addView(iv_Wb);
+        root_linearLayout.addView(ll_Wb);
         return root_linearLayout;
     }
 

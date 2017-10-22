@@ -42,7 +42,6 @@ public class CameraActivity extends FragmentActivity
     private static final String CAMERA_PROPERTY_EXPOSURE_COMPENSATION = "EXPREV";
     private static final String CAMERA_PROPERTY_ISO_SENSITIVITY = "ISO";
     private static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
-    private static final String CAMERA_PROPERTY_BATTERY_LEVEL = "BATTERY_LEVEL";
 
 
     List<String> takeModeStrings;
@@ -371,10 +370,11 @@ public class CameraActivity extends FragmentActivity
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Manual");
                     break;
-                case 5:
+                case 5://Art
+                    fTrigger.SetButtonsBool(false,false,true,true,true);
                     break;
                 case 6://Movie
-                    fTrigger.SetButtonsBool(false, false, true, false, true);
+                    fTrigger.SetButtonsBool(false, true, true, false, true);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Movie");
                     break;
