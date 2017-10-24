@@ -54,6 +54,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
             mContentLinLayout.setLayoutParams(params);
             mContentLinLayout.setOrientation(LinearLayout.HORIZONTAL);
 
+
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             rootView.setId(View.generateViewId());
             // Log.d(TAG, "RootView id: " + rootView.getId());

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    android:gravity="top"
+
     >
 
 
@@ -22,22 +22,28 @@
     <FrameLayout
         android:id="@+id/fl_FragCont_Trigger"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:background="@color/BgPrim_HalfTransp_Grey"
         />
-
+    <FrameLayout
+        android:id="@+id/fl_FragCont_Settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fl_FragCont_Trigger"
+        android:background="@color/BgPrim_HalfTransp_Grey"
+        />
     <FrameLayout
         android:id="@+id/fl_FragCont_ExpApart1"
         android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:layout_above= "@+id/fl_FragCont_Trigger"
+        android:layout_height="30dp"
+        android:layout_above= "@+id/fl_FragCont_Settings"
         />
 
     <FrameLayout
         android:id="@+id/fl_FragCont_ExpApart2"
         android:layout_width="match_parent"
-        android:layout_height="35dp"
+        android:layout_height="30dp"
         android:layout_above="@id/fl_FragCont_ExpApart1"
         />
 

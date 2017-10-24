@@ -30,7 +30,8 @@ import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
 
 public class CameraActivity extends FragmentActivity
-        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener, MasterSlidebarFragment.sliderValue,
+        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
+        MasterSlidebarFragment.sliderValue, SettingsFragment.OnSettingsFragmInteractionListener,
         OLYCameraConnectionListener, OLYCameraPropertyListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
 
@@ -54,6 +55,7 @@ public class CameraActivity extends FragmentActivity
     FragmentManager fm;
     TriggerFragment fTrigger;
     LiveViewFragment fLiveView;
+    SettingsFragment fSettings;
     ApartureFragment apartureFragment;
     IsoFragment isoFragment;
     WbFragment wbFragment;
@@ -100,6 +102,8 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "onCreate__" + "Creating Fragments,setting olycam to fragments");
         fTrigger = new TriggerFragment();
         fTrigger.SetOLYCam(camera);
+        fSettings = new SettingsFragment();
+        fSettings.SetOLYCam(camera);
         fLiveView = new LiveViewFragment();
         fLiveView.SetOLYCam(camera);
         apartureFragment = new ApartureFragment();
@@ -131,6 +135,7 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "onResume__" + "Adding trigger fragment to View");
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
+        fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, "Settings");
         fragmentTransaction.commit();
     }
 
@@ -199,7 +204,7 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
-    //connectin Camera
+    //connecting Camera
     private void startConnectingCamera() {
         Log.d(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
         connectionExecutor.execute(new Runnable() {
@@ -328,9 +333,8 @@ public class CameraActivity extends FragmentActivity
 
         try {
             takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
-            //Todo: find out why returning empty list
             List<String> valueList = camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
-            fTrigger.SetExposureCorrValues(valueList);
+            fSettings.SetExposureCorrValues(valueList);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;
@@ -341,40 +345,41 @@ public class CameraActivity extends FragmentActivity
 
     void SetMainSettingsButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
-        fTrigger = (TriggerFragment) getSupportFragmentManager().findFragmentByTag("Trigger");
+        fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("Settings");
 
-        if (fTrigger != null) {
+        if (fSettings != null) {
             switch (mode) {
                 case 0://iAuto
-                    fTrigger.SetButtonsBool(false, false, false, false, false);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.SetButtonsBool(false, false, false, false, false);
+                    fSettings.SetTakeMode(mode);
                     Log.d(TAG, "Iauto");
                     break;
                 case 1://Programm
-                    fTrigger.SetButtonsBool(false, false, true, true, true);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.SetButtonsBool(false, false, true, true, true);
+                    fSettings.SetTakeMode(mode);
                     Log.d(TAG, "Programm");
                     break;
                 case 2://Aparture
-                    fTrigger.SetButtonsBool(false, true, true, true, true);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.SetButtonsBool(false, true, true, true, true);
+                    fSettings.SetTakeMode(mode);
                     Log.d(TAG, "Aparture");
                     break;
                 case 3://Speed
-                    fTrigger.SetButtonsBool(true, false, true, true, true);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.SetButtonsBool(true, false, true, true, true);
+                    fSettings.SetTakeMode(mode);
                     Log.d(TAG, "Speed");
                     break;
                 case 4://Manual
-                    fTrigger.SetButtonsBool(true, true, false, true, true);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.SetButtonsBool(true, true, false, true, true);
+                    fSettings.SetTakeMode(mode);
                     Log.d(TAG, "Manual");
                     break;
                 case 5://Art
-                    fTrigger.SetButtonsBool(false,false,true,true,true);
+                    fSettings.SetButtonsBool(false, false, true, true, true);
+                    Log.d(TAG, "Art");
                     break;
                 case 6://Movie
-                    fTrigger.SetButtonsBool(false, true, true, false, true);
+                    fSettings.SetButtonsBool(false, true, true, false, true);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Movie");
                     break;
@@ -386,8 +391,8 @@ public class CameraActivity extends FragmentActivity
         } else {
             Log.w(TAG, "couldn't find Fragment with tag: Trigger");
         }
-
-        Fragment frg = getSupportFragmentManager().findFragmentByTag("Trigger");
+        //refresh view
+        Fragment frg = getSupportFragmentManager().findFragmentByTag("Settings");
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.detach(frg).attach(frg).commit();
 
@@ -415,7 +420,7 @@ public class CameraActivity extends FragmentActivity
         try {
             valueList = camera.getCameraPropertyValueList(propertyName);
             //Todo: this is ugly find other way
-            fTrigger.SetExposureCorrValues(valueList);
+            fSettings.SetExposureCorrValues(valueList);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return null;
@@ -459,7 +464,7 @@ public class CameraActivity extends FragmentActivity
                     @Override
                     public void onSlideValueBar(String value) {
 
-                        fTrigger.SetSliderResult(value, propertyName);
+                        fSettings.SetSliderResult(value, propertyName);
                     }
                 });
                 ft.replace(frameLayoutToAppear, myFragment, propertyName);
@@ -491,12 +496,12 @@ public class CameraActivity extends FragmentActivity
     public void onSlideValueBar(String value) {
         String propValue = value;
         String property = extractProperty(value);
-        fTrigger.SetSliderResult(property, propValue);
+        fSettings.SetSliderResult(property, propValue);
 
     }
 
-    private String extractProperty(String value){
-        String[] myStringArr=  value.split("/");
+    private String extractProperty(String value) {
+        String[] myStringArr = value.split("/");
         String extractedString = myStringArr[0].substring(1);
         return extractedString;
     }
