@@ -89,7 +89,7 @@ public class ScrollingValuePicker extends FrameLayout {
             @Override
             public void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth) {
                 try {
-                    onScrollChanged(view, scrollValue, scrollBarWidth);
+                    //onScrollChanged(view, scrollValue, scrollBarWidth);
 
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
