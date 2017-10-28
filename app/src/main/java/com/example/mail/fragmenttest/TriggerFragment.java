@@ -1,7 +1,6 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
-import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCamera.TakingProgress;
+import jp.co.olympus.camerakit.OLYCamera.TakePictureCallback;
+
 import jp.co.olympus.camerakit.OLYCameraAutoFocusResult;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
@@ -42,6 +44,7 @@ public class TriggerFragment extends Fragment
     private ImageView iv_driveMode;
     private ImageView iv_meteringMode;
     private ImageView iv_shutter;
+    private LiveViewFragment fLiveView;
 
     private OnTriggerFragmInteractionListener triggerFragmListener;
 
@@ -108,9 +111,9 @@ public class TriggerFragment extends Fragment
     public boolean onTouch(View v, MotionEvent event) {
         if (v == iv_shutter) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                shutterImageViewDidTouchDown();
+                fLiveView.ShutterImageViewDidTouchDown();
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                shutterImageViewDidTouchUp();
+                fLiveView.ShutterImageViewDidTouchUp();
             }
         }
         return true;
@@ -124,6 +127,12 @@ public class TriggerFragment extends Fragment
             iv_meteringMode.setVisibility(View.INVISIBLE);
         else
             updateMeteringImageView();
+    }
+
+    public void SetLiveViewFragment(LiveViewFragment liveViewFragment){
+        if(liveViewFragment!=null){
+            fLiveView=liveViewFragment;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -142,30 +151,9 @@ public class TriggerFragment extends Fragment
 
     // UI events
 
-    private void shutterImageViewDidTouchDown() {
-        OLYCamera.ActionType actionType = camera.getActionType();
-        if (actionType == OLYCamera.ActionType.Single) {
-            takePicture();
-        } else if (actionType == OLYCamera.ActionType.Sequential) {
-            startTakingPicture();
-        } else if (actionType == OLYCamera.ActionType.Movie) {
-            if (camera.isRecordingVideo()) {
-                stopRecordingVideo();
-            } else {
-                startRecordingVideo();
-            }
-        }
-    }
-
-    private void shutterImageViewDidTouchUp() {
-        OLYCamera.ActionType actionType = camera.getActionType();
-        if (actionType == OLYCamera.ActionType.Sequential) {
-            stopTakingPicture();
-        }
-    }
 
     private void unlockImageViewDidTap() {
-        unlockAutoFocus();
+        fLiveView.UnlockAutoFocus();
     }
 
     // shutter control (still)
@@ -176,46 +164,46 @@ public class TriggerFragment extends Fragment
         }
 
         HashMap<String, Object> options = new HashMap<String, Object>();
-        camera.takePicture(options, new OLYCamera.TakePictureCallback() {
+        camera.takePicture(options, new TakePictureCallback() {
             @Override
             public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
                 if (progress == TakingProgress.EndFocusing) {
-                    if (!enabledFocusLock) {
+                    if (!fLiveView.GetEnabledFocusLock()) {
                         if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                             RectF postFocusFrameRect = autoFocusResult.getRect();
-                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                            fLiveView.GetLiveImageView().showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
                         } else if (autoFocusResult.getResult().equals("none")) {
-                            imageView.hideFocusFrame();
+                            fLiveView.GetLiveImageView().hideFocusFrame();
                         } else {
-                            imageView.hideFocusFrame();
+                            fLiveView.GetLiveImageView().hideFocusFrame();
                         }
                     }
                 } else if (progress == TakingProgress.BeginCapturing) {
-                    shutterSoundPlayer.start();
+                   fLiveView.GetShutterSoundPlayer().start();
                 }
             }
 
             @Override
             public void onCompleted() {
-                if (!enabledFocusLock) {
+                if (!fLiveView.GetEnabledFocusLock()) {
                     try {
                         camera.clearAutoFocusPoint();
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    fLiveView.GetLiveImageView().hideFocusFrame();
                 }
             }
 
             @Override
             public void onErrorOccurred(Exception e) {
-                if (!enabledFocusLock) {
+                if (!fLiveView.GetEnabledFocusLock()) {
                     try {
                         camera.clearAutoFocusPoint();
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    fLiveView.GetLiveImageView().hideFocusFrame();
                 }
 
                 final String message = e.getMessage();

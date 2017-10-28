@@ -2,6 +2,7 @@ package com.example.mail.fragmenttest;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -26,6 +27,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCamera.TakingProgress;
+
 import jp.co.olympus.camerakit.OLYCameraAutoFocusResult;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraLiveViewListener;
@@ -128,6 +131,19 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     public void SetOLYCam(OLYCamera camera) {
         this.camera = camera;
     }
+    public boolean GetEnabledFocusLock(){
+        return enabledFocusLock;
+    }
+    public MediaPlayer GetShutterSoundPlayer(){
+        return shutterSoundPlayer;
+    }
+    public MediaPlayer GetFocusedSoundPlayer(){
+        return focusedSoundPlayer;
+    }
+    public CameraLiveImageView GetLiveImageView(){
+        return imageView;
+    }
+
 
     //----------------------
     //   Functionality
@@ -246,7 +262,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
     @Override
     public void onReceiveCapturedImagePreview(OLYCamera camera, byte[] data, Map<String, Object> metadata) {
-        if (camera.getActionType() == ActionType.Single) {
+        if (camera.getActionType() == OLYCamera.ActionType.Single) {
             RecviewFragment fragment = new RecviewFragment();
             fragment.setCamera(camera);
             fragment.setImageData(data, metadata);
@@ -355,7 +371,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
 //        try {
 //            camera.clearAutoFocusPoint();
-//            camera.unlockAutoFocus();
+//            camera.UnlockAutoFocus();
 //        } catch (OLYCameraKitException ee) {
 //        }
 //        enabledFocusLock = false;
@@ -450,7 +466,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-    private void shutterImageViewDidTouchDown() {
+    public void ShutterImageViewDidTouchDown() {
         OLYCamera.ActionType actionType = camera.getActionType();
         if (actionType == OLYCamera.ActionType.Single) {
             takePicture();
@@ -465,7 +481,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-    private void shutterImageViewDidTouchUp() {
+    public void ShutterImageViewDidTouchUp() {
         OLYCamera.ActionType actionType = camera.getActionType();
         if (actionType == OLYCamera.ActionType.Sequential) {
             stopTakingPicture();
@@ -473,7 +489,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void unlockImageViewDidTap() {
-        unlockAutoFocus();
+        UnlockAutoFocus();
     }
 
     // focus control
@@ -521,7 +537,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         camera.lockAutoFocus(new OLYCamera.TakePictureCallback() {
             @Override
             public void onProgress(OLYCamera camera, OLYCamera.TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
-                if (progress == TakingProgress.EndFocusing) {
+                if (progress == OLYCamera.TakingProgress.EndFocusing) {
                     if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                         // Lock succeed.
                         enabledFocusLock = true;
@@ -581,7 +597,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         });
     }
 
-    private void unlockAutoFocus() {
+    public void UnlockAutoFocus() {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             return;
         }
@@ -1041,7 +1057,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
 
 
-
     // -------------------------------------------------------------------------
     // Updates
     // -------------------------------------------------------------------------
@@ -1100,6 +1115,14 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             return;
         }
         activity.runOnUiThread(action);
+    }
+    private void presentMessage(String title, String message) {
+        Context context = getActivity();
+        if (context == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title).setMessage(message);
+        builder.show();
     }
 
 }
