@@ -3,12 +3,16 @@ package com.example.mail.fragmenttest;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -22,9 +26,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCameraAutoFocusResult;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraLiveViewListener;
 import jp.co.olympus.camerakit.OLYCameraPropertyListener;
+import jp.co.olympus.camerakit.OLYCameraRecordingListener;
+import jp.co.olympus.camerakit.OLYCameraRecordingSupportsListener;
 import jp.co.olympus.camerakit.OLYCameraStatusListener;
 
 
@@ -32,7 +39,7 @@ import jp.co.olympus.camerakit.OLYCameraStatusListener;
  * A simple {@link Fragment} subclass.
  */
 public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener,
-        OLYCameraPropertyListener, OLYCameraStatusListener, View.OnClickListener {
+         OLYCameraStatusListener,OLYCameraPropertyListener,OLYCameraRecordingListener, OLYCameraRecordingSupportsListener,  View.OnClickListener,View.OnTouchListener {
     private static final String TAG = LiveViewFragment.class.getSimpleName();
 
     int[] shootingModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
@@ -211,6 +218,80 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     @Override
+    public void onChangeAutoFocusResult(OLYCamera camera, OLYCameraAutoFocusResult result) {
+    }
+
+    @Override
+    public void onStartRecordingVideo(OLYCamera camera) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                shutterImageView.setSelected(true);
+            }
+        });
+    }
+
+    @Override
+    public void onStopRecordingVideo(OLYCamera camera) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                shutterImageView.setSelected(false);
+            }
+        });
+    }
+
+    @Override
+    public void onReadyToReceiveCapturedImage(OLYCamera camera) {
+    }
+    @Override
+    public void onReceiveCapturedImagePreview(OLYCamera camera, byte[] data, Map<String, Object> metadata) {
+        if (camera.getActionType() == ActionType.Single) {
+            RecviewFragment fragment = new RecviewFragment();
+            fragment.setCamera(camera);
+            fragment.setImageData(data, metadata);
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(getId(), fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
+    }
+
+    @Override
+    public void onFailToReceiveCapturedImagePreview(OLYCamera camera, Exception e) {
+    }
+
+    @Override
+    public void onReadyToReceiveCapturedImagePreview(OLYCamera camera) {
+    }
+
+    @Override
+    public void onReceiveCapturedImage(OLYCamera camera, byte[] data, Map<String, Object> metadata) {
+    }
+
+    @Override
+    public void onFailToReceiveCapturedImage(OLYCamera camera, Exception e) {
+    }
+
+    @Override
+    public void onStopDrivingZoomLens(OLYCamera camera) {
+    }
+
+
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (v == imageView) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                imageViewDidTouchDown(event);
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                imageViewDidTouchUp();
+            }
+        }
+        return true;
+    }
+
+    @Override
     public void onClick(View v) {
         if (v == focusModeTextView) {
             focusModeTextViewDidTap();
@@ -247,7 +328,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         ib_shootingMode.setOnClickListener(this);
         return view;
     }
-
 
     @Override
     public void onResume() {
@@ -312,6 +392,608 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
 
+
+    // -------------------------------------------------------------------------
+    // Camera actions
+    // -------------------------------------------------------------------------
+
+    //
+    // Touch Shutter mode:
+    //   - Tap a subject to focus and automatically release the shutter.
+    //
+    // Touch AF mode:
+    //   - Tap to display a focus frame and focus on the subject in the selected area.
+    //   - You can use the image view to choose the position of the focus frame.
+    //   - Photographs can be taken by tapping the shutter button.
+    //
+
+    // UI events
+
+    private void imageViewDidTouchDown(MotionEvent event) {
+        OLYCamera.ActionType actionType = camera.getActionType();
+
+        // If the focus point is out of area, ignore the touch.
+        PointF point = imageView.getPointWithEvent(event);
+        if (!imageView.isContainsPoint(point)) {
+            return;
+        }
+
+        if (enabledTouchShutter) {
+            // Touch Shutter mode
+            if (actionType == OLYCamera.ActionType.Single) {
+                takePictureWithPoint(point);
+            } else if (actionType == OLYCamera.ActionType.Sequential) {
+                startTakingPictureWithPoint(point);
+            } else if (actionType == OLYCamera.ActionType.Movie) {
+                if (camera.isRecordingVideo()) {
+                    stopRecordingVideo();
+                } else {
+                    startRecordingVideo();
+                }
+            }
+        } else {
+            // Touch AF mode
+            if (actionType == OLYCamera.ActionType.Single ||
+                    actionType == OLYCamera.ActionType.Sequential) {
+                lockAutoFocus(point);
+            }
+        }
+    }
+
+    private void imageViewDidTouchUp() {
+        OLYCamera.ActionType actionType = camera.getActionType();
+        if (enabledTouchShutter) {
+            // Touch Shutter mode
+            if (actionType == OLYCamera.ActionType.Sequential) {
+                stopTakingPicture();
+            }
+        }
+    }
+
+    private void shutterImageViewDidTouchDown() {
+        OLYCamera.ActionType actionType = camera.getActionType();
+        if (actionType == OLYCamera.ActionType.Single) {
+            takePicture();
+        } else if (actionType == OLYCamera.ActionType.Sequential) {
+            startTakingPicture();
+        } else if (actionType == OLYCamera.ActionType.Movie) {
+            if (camera.isRecordingVideo()) {
+                stopRecordingVideo();
+            } else {
+                startRecordingVideo();
+            }
+        }
+    }
+
+    private void shutterImageViewDidTouchUp() {
+        OLYCamera.ActionType actionType = camera.getActionType();
+        if (actionType == OLYCamera.ActionType.Sequential) {
+            stopTakingPicture();
+        }
+    }
+
+    private void unlockImageViewDidTap() {
+        unlockAutoFocus();
+    }
+
+    // focus control
+
+    private void lockAutoFocus(PointF point) {
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            return;
+        }
+
+        // Display a provisional focus frame at the touched point.
+        final RectF preFocusFrameRect;
+        {
+            float focusWidth = 0.125f;  // 0.125 is rough estimate.
+            float focusHeight = 0.125f;
+            float imageWidth = imageView.getIntrinsicContentSizeWidth();
+            float imageHeight = imageView.getIntrinsicContentSizeHeight();
+            if (imageWidth > imageHeight) {
+                focusHeight *= (imageWidth / imageHeight);
+            } else {
+                focusHeight *= (imageHeight / imageWidth);
+            }
+            preFocusFrameRect = new RectF(point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
+                    point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f);
+        }
+        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
+
+        // Set auto-focus point.
+        try {
+            camera.setAutoFocusPoint(point);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            // Lock failed.
+            try {
+                camera.clearAutoFocusPoint();
+                camera.unlockAutoFocus();
+            } catch (OLYCameraKitException ee) {
+                ee.printStackTrace();
+            }
+            enabledFocusLock = false;
+            imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+            return;
+        }
+
+        // Lock auto-focus.
+        camera.lockAutoFocus(new OLYCamera.TakePictureCallback() {
+            @Override
+            public void onProgress(OLYCamera camera, OLYCamera.TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
+                if (progress == TakingProgress.EndFocusing) {
+                    if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
+                        // Lock succeed.
+                        enabledFocusLock = true;
+                        focusedSoundPlayer.start();
+                        RectF postFocusFrameRect = autoFocusResult.getRect();
+                        imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+
+                    } else if (autoFocusResult.getResult().equals("none")) {
+                        // Could not lock.
+                        try {
+                            camera.clearAutoFocusPoint();
+                            camera.unlockAutoFocus();
+                        } catch (OLYCameraKitException ee) {
+                            ee.printStackTrace();
+                        }
+                        enabledFocusLock = false;
+                        imageView.hideFocusFrame();
+                    } else {
+                        // Lock failed.
+                        try {
+                            camera.clearAutoFocusPoint();
+                            camera.unlockAutoFocus();
+                        } catch (OLYCameraKitException ee) {
+                            ee.printStackTrace();
+                        }
+                        enabledFocusLock = false;
+                        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+                    }
+                }
+            }
+
+            @Override
+            public void onCompleted() {
+                // No operation.
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e) {
+                // Lock failed.
+                try {
+                    camera.clearAutoFocusPoint();
+                    camera.unlockAutoFocus();
+                } catch (OLYCameraKitException ee) {
+                    ee.printStackTrace();
+                }
+                enabledFocusLock = false;
+                imageView.hideFocusFrame();
+
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("AF failed", message);
+                    }
+                });
+            }
+        });
+    }
+
+    private void unlockAutoFocus() {
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            return;
+        }
+
+        // Unlock auto-focus.
+        try {
+            camera.unlockAutoFocus();
+            camera.clearAutoFocusPoint();
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+        }
+
+        enabledFocusLock = false;
+        imageView.hideFocusFrame();
+    }
+
+
+    // shutter control (still)
+
+    private void takePicture() {
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            return;
+        }
+
+        HashMap<String, Object> options = new HashMap<String, Object>();
+        camera.takePicture(options, new OLYCamera.TakePictureCallback() {
+            @Override
+            public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
+                if (progress == TakingProgress.EndFocusing) {
+                    if (!enabledFocusLock) {
+                        if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
+                            RectF postFocusFrameRect = autoFocusResult.getRect();
+                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                        } else if (autoFocusResult.getResult().equals("none")) {
+                            imageView.hideFocusFrame();
+                        } else {
+                            imageView.hideFocusFrame();
+                        }
+                    }
+                } else if (progress == TakingProgress.BeginCapturing) {
+                    shutterSoundPlayer.start();
+                }
+            }
+
+            @Override
+            public void onCompleted() {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e) {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("Take failed", message);
+                    }
+                });
+            }
+        });
+    }
+
+    private void takePictureWithPoint(PointF point) {
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            return;
+        }
+
+        // Display a provisional focus frame at the touched point.
+        final RectF preFocusFrameRect;
+        {
+            float focusWidth = 0.125f;  // 0.125 is rough estimate.
+            float focusHeight = 0.125f;
+            float imageWidth = imageView.getIntrinsicContentSizeWidth();
+            float imageHeight = imageView.getIntrinsicContentSizeHeight();
+            if (imageWidth > imageHeight) {
+                focusHeight *= (imageWidth / imageHeight);
+            } else {
+                focusHeight *= (imageHeight / imageWidth);
+            }
+            preFocusFrameRect = new RectF(point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
+                    point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f);
+        }
+        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
+
+        // Set auto-focus point.
+        try {
+            camera.setAutoFocusPoint(point);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            // Lock failed.
+            try {
+                camera.unlockAutoFocus();
+            } catch (OLYCameraKitException ee) {
+                ee.printStackTrace();
+            }
+            enabledFocusLock = false;
+            imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+            return;
+        }
+
+        HashMap<String, Object> options = new HashMap<String, Object>();
+        camera.takePicture(options, new OLYCamera.TakePictureCallback() {
+            @Override
+            public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
+                if (progress == TakingProgress.EndFocusing) {
+                    if (!enabledFocusLock) {
+                        if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
+                            RectF postFocusFrameRect = autoFocusResult.getRect();
+                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                        } else if (autoFocusResult.getResult().equals("none")) {
+                            imageView.hideFocusFrame();
+                        } else {
+                            imageView.hideFocusFrame();
+                        }
+                    }
+                } else if (progress == TakingProgress.BeginCapturing) {
+                    shutterSoundPlayer.start();
+                }
+            }
+
+            @Override
+            public void onCompleted() {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e) {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("Take failed", message);
+                    }
+                });
+            }
+        });
+    }
+
+    private void startTakingPicture() {
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            return;
+        }
+
+        camera.startTakingPicture(null, new OLYCamera.TakePictureCallback() {
+            @Override
+            public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
+                if (progress == TakingProgress.EndFocusing) {
+                    if (!enabledFocusLock) {
+                        if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
+                            RectF postFocusFrameRect = autoFocusResult.getRect();
+                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                        } else if (autoFocusResult.getResult().equals("none")) {
+                            imageView.hideFocusFrame();
+                        } else {
+                            imageView.hideFocusFrame();
+                        }
+                    }
+                } else if (progress == TakingProgress.BeginCapturing) {
+                    shutterSoundPlayer.start();
+                }
+            }
+
+            @Override
+            public void onCompleted() {
+                // No operation.
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e) {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("Take failed", message);
+                    }
+                });
+            }
+        });
+    }
+
+    private void startTakingPictureWithPoint(PointF point) {
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            return;
+        }
+
+        // Display a provisional focus frame at the touched point.
+        final RectF preFocusFrameRect;
+        {
+            float focusWidth = 0.125f;  // 0.125 is rough estimate.
+            float focusHeight = 0.125f;
+            float imageWidth = imageView.getIntrinsicContentSizeWidth();
+            float imageHeight = imageView.getIntrinsicContentSizeHeight();
+            if (imageWidth > imageHeight) {
+                focusHeight *= (imageWidth / imageHeight);
+            } else {
+                focusHeight *= (imageHeight / imageWidth);
+            }
+            preFocusFrameRect = new RectF(point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
+                    point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f);
+        }
+        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
+
+        // Set auto-focus point.
+        try {
+            camera.setAutoFocusPoint(point);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            // Lock failed.
+            try {
+                camera.unlockAutoFocus();
+            } catch (OLYCameraKitException ee) {
+                ee.printStackTrace();
+            }
+            enabledFocusLock = false;
+            imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+            return;
+        }
+
+        camera.startTakingPicture(null, new OLYCamera.TakePictureCallback() {
+            @Override
+            public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
+                if (progress == TakingProgress.EndFocusing) {
+                    if (!enabledFocusLock) {
+                        if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
+                            RectF postFocusFrameRect = autoFocusResult.getRect();
+                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                        } else if (autoFocusResult.getResult().equals("none")) {
+                            imageView.hideFocusFrame();
+                        } else {
+                            imageView.hideFocusFrame();
+                        }
+                    }
+                } else if (progress == TakingProgress.BeginCapturing) {
+                    shutterSoundPlayer.start();
+                }
+            }
+
+            @Override
+            public void onCompleted() {
+                // No operation.
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e) {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("Take failed", message);
+                    }
+                });
+            }
+        });
+    }
+
+    private void stopTakingPicture() {
+        if (!camera.isTakingPicture()) {
+            return;
+        }
+
+        camera.stopTakingPicture(new OLYCamera.TakePictureCallback() {
+            @Override
+            public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
+                // No operation.
+            }
+
+            @Override
+            public void onCompleted() {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+            }
+
+            @Override
+            public void onErrorOccurred(Exception e) {
+                if (!enabledFocusLock) {
+                    try {
+                        camera.clearAutoFocusPoint();
+                    } catch (OLYCameraKitException ee) {
+                        ee.printStackTrace();
+                    }
+                    imageView.hideFocusFrame();
+                }
+
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("Take failed", message);
+                    }
+                });
+            }
+        });
+    }
+
+    // shutter control (movie)
+
+    private void startRecordingVideo() {
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            return;
+        }
+
+        HashMap<String, Object> options = new HashMap<String, Object>();
+        camera.startRecordingVideo(options, new OLYCamera.CompletedCallback() {
+            @Override
+            public void onCompleted() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        shutterImageView.setSelected(true);
+                    }
+                });
+            }
+
+            @Override
+            public void onErrorOccurred(OLYCameraKitException e) {
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("Record failed", message);
+                    }
+                });
+            }
+        });
+    }
+
+    private void stopRecordingVideo() {
+        if (!camera.isRecordingVideo()) {
+            return;
+        }
+
+        camera.stopRecordingVideo(new OLYCamera.CompletedCallback() {
+            @Override
+            public void onCompleted() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        shutterImageView.setSelected(false);
+                    }
+                });
+            }
+
+            @Override
+            public void onErrorOccurred(OLYCameraKitException e) {
+                shutterImageView.setSelected(false);
+                final String message = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        presentMessage("Record failed", message);
+                    }
+                });
+            }
+        });
+    }
+
     // -------------------------------------------------------------------------
     //  Tap Methods
     // -------------------------------------------------------------------------
@@ -356,6 +1038,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (mOnLiveViewInteractionListener != null)
             mOnLiveViewInteractionListener.onShootingModeButtonPressed(counterMode);
     }
+
+
+
 
     // -------------------------------------------------------------------------
     // Updates
