@@ -28,7 +28,6 @@ import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCamera.TakingProgress;
-
 import jp.co.olympus.camerakit.OLYCameraAutoFocusResult;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraLiveViewListener;
@@ -91,6 +90,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     public interface OnLiveViewInteractionListener {
         void onShootingModeButtonPressed(int currDriveMode);
+        void onEnabledFocusLock(Boolean focusLockState);
+        void onEnabledTouchShutter(Boolean touchShutterState);
+
     }
 
     @SuppressWarnings("serial")
@@ -130,18 +132,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     public void SetOLYCam(OLYCamera camera) {
         this.camera = camera;
-    }
-    public boolean GetEnabledFocusLock(){
-        return enabledFocusLock;
-    }
-    public MediaPlayer GetShutterSoundPlayer(){
-        return shutterSoundPlayer;
-    }
-    public MediaPlayer GetFocusedSoundPlayer(){
-        return focusedSoundPlayer;
-    }
-    public CameraLiveImageView GetLiveImageView(){
-        return imageView;
     }
 
 
@@ -293,10 +283,19 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     public void onStopDrivingZoomLens(OLYCamera camera) {
     }
 
+    public void onShutterTouched(MotionEvent event){
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            shutterImageViewDidTouchDown();
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            shutterImageViewDidTouchUp();
+        }
+    }
+
 
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        Log.d(TAG, "touch");
         if (v == imageView) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 imageViewDidTouchDown(event);
@@ -342,6 +341,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
         focusModeTextView.setOnClickListener(this);
         ib_shootingMode.setOnClickListener(this);
+        imageView.setOnTouchListener(this);
         return view;
     }
 
@@ -466,7 +466,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-    public void ShutterImageViewDidTouchDown() {
+    private void shutterImageViewDidTouchDown() {
         OLYCamera.ActionType actionType = camera.getActionType();
         if (actionType == OLYCamera.ActionType.Single) {
             takePicture();
@@ -481,7 +481,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-    public void ShutterImageViewDidTouchUp() {
+    private void shutterImageViewDidTouchUp() {
         OLYCamera.ActionType actionType = camera.getActionType();
         if (actionType == OLYCamera.ActionType.Sequential) {
             stopTakingPicture();
@@ -489,7 +489,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void unlockImageViewDidTap() {
-        UnlockAutoFocus();
+        unlockAutoFocus();
     }
 
     // focus control
@@ -529,6 +529,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 ee.printStackTrace();
             }
             enabledFocusLock = false;
+            mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
             imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
@@ -541,6 +542,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                         // Lock succeed.
                         enabledFocusLock = true;
+                        mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
+
                         focusedSoundPlayer.start();
                         RectF postFocusFrameRect = autoFocusResult.getRect();
                         imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
@@ -554,6 +557,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                             ee.printStackTrace();
                         }
                         enabledFocusLock = false;
+                        mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
+
                         imageView.hideFocusFrame();
                     } else {
                         // Lock failed.
@@ -564,6 +569,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                             ee.printStackTrace();
                         }
                         enabledFocusLock = false;
+                        mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
+
                         imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
                     }
                 }
@@ -584,6 +591,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     ee.printStackTrace();
                 }
                 enabledFocusLock = false;
+                mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
+
                 imageView.hideFocusFrame();
 
                 final String message = e.getMessage();
@@ -597,7 +606,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         });
     }
 
-    public void UnlockAutoFocus() {
+    private void unlockAutoFocus() {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             return;
         }
@@ -613,6 +622,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         enabledFocusLock = false;
         imageView.hideFocusFrame();
     }
+
 
 
     // shutter control (still)
@@ -710,6 +720,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 ee.printStackTrace();
             }
             enabledFocusLock = false;
+            mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
+
             imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
@@ -853,6 +865,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 ee.printStackTrace();
             }
             enabledFocusLock = false;
+            mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
+
             imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }

@@ -32,7 +32,7 @@ import jp.co.olympus.camerakit.OLYCamera;
 public class CameraLiveImageView extends View  {
 
 
-    public static enum FocusFrameStatus {
+    public  enum FocusFrameStatus {
         Running,
         Focused,
         Failed,

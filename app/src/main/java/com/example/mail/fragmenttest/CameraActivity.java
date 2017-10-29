@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -80,6 +81,16 @@ public class CameraActivity extends FragmentActivity
             System.err.println(TAG + e.getMessage());
             Log.d(TAG, stackTrace);
         }
+    }
+
+    @Override
+    public void onEnabledFocusLock(Boolean focusLockState) {
+
+    }
+
+    @Override
+    public void onEnabledTouchShutter(Boolean touchShutterState) {
+
     }
 
     @Override
@@ -203,6 +214,12 @@ public class CameraActivity extends FragmentActivity
             ft.commit();
         }
     }
+
+    @Override
+    public void onShutterTouched(MotionEvent event) {
+        fLiveView.onShutterTouched(event);
+    }
+
 
     //connecting Camera
     private void startConnectingCamera() {
