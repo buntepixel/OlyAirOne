@@ -49,7 +49,8 @@ public class MainActivity extends Activity {
         btnCamSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+            Intent camSettingsIntent = new Intent(getBaseContext(),SettingsActivity.class);
+            startActivity(camSettingsIntent);
             }
         });
 

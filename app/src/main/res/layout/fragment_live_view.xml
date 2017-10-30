@@ -36,8 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"
             android:layout_marginTop="@dimen/LiveViewTopMarg"
+            android:layout_weight="1"
             android:text="S-AF"
             android:textColor="@color/button_text_states"
             android:textSize="@dimen/Icon_discription_txt"/>
@@ -46,8 +46,8 @@
             android:id="@+id/iv_sdCardIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@null"
             android:layout_marginTop="@dimen/LiveViewTopMarg"
+            android:contentDescription="@null"
             android:scaleType="center"
             android:scaleX="0.7"
             android:scaleY="0.7"
@@ -58,23 +58,54 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"
             android:layout_marginTop="@dimen/LiveViewTopMarg"
+            android:layout_weight="1"
             android:text="0002"
             android:textColor="@color/button_text_states"
             android:textSize="@dimen/Icon_discription_txt"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/LiveViewTopMarg"
+        >
+
         <ImageView
             android:id="@+id/batteryLevelImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/LiveViewTopMarg"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="centerInside"
             android:scaleX="0.5"
             android:scaleY="0.5"
-            android:src="@drawable/tt_icn_battery_charge"
-            />
+            android:src="@drawable/tt_icn_battery_charge"/>
+        <TextView
+            android:id="@+id/tv_RecordType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="Raw"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:textColor="@color/button_text_states"
+            android:textSize="@dimen/Icon_discription_txt"/>
+
+        <TextView
+            android:id="@+id/tv_Bracketing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="AEB"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:textColor="@color/button_text_states"
+            android:textSize="@dimen/Icon_discription_txt"/>
+
+
+    </LinearLayout>
+
 
 </RelativeLayout>

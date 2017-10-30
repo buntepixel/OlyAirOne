@@ -80,7 +80,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     //	private RectF imageUserInteractionArea = new RectF(0, 0, 1, 1);
     private MediaPlayer focusedSoundPlayer;
     private MediaPlayer shutterSoundPlayer;
-    private Boolean enabledTouchShutter;
+    private Boolean enabledTouchShutter=true;
     private Boolean enabledFocusLock;
     private CameraLiveImageView imageView;
     private OLYCamera camera;
