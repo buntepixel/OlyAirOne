@@ -1,6 +1,7 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -37,7 +38,9 @@ public class TriggerFragment extends Fragment
     private ExposureCorrection expCorr;
     private List<String> possibleExpCorrValues;
     private ImageView iv_driveMode;
+    private String val_driveMode;
     private ImageView iv_meteringMode;
+    private String val_meteringMode;
     private ImageView iv_shutter;
 
     private Boolean enabledFocusLock;
@@ -66,7 +69,6 @@ public class TriggerFragment extends Fragment
         void onShootingModeInteraction(int settingsType);
 
         void onShutterTouched(MotionEvent event);
-
 
 
         void onDriveModeChange(String propValue);
@@ -106,7 +108,6 @@ public class TriggerFragment extends Fragment
             meteringImageViewDidTap();
     }
 
-
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (v == iv_shutter) {
@@ -123,13 +124,21 @@ public class TriggerFragment extends Fragment
     public void onResume() {
         super.onResume();
 
+        restoreCamSettings();
         if (takeMode < 1 || takeMode > 5)
             iv_meteringMode.setVisibility(View.INVISIBLE);
         else
             updateMeteringImageView();
+
+        updateDrivemodeImageView();
     }
 
-    //----------------
+    @Override
+    public void onPause() {
+        super.onPause();
+        saveCamSettings();
+    }
+//----------------
 
     public void SetTakeMode(int takeMode) {
         this.takeMode = takeMode;
@@ -193,7 +202,6 @@ public class TriggerFragment extends Fragment
             imageView.setImageResource(resId);
             triggerFragmListener.onDriveModeChange(propValue);
         } else {
-
             imageView.setImageDrawable(null);
         }
     }
@@ -237,6 +245,47 @@ public class TriggerFragment extends Fragment
 
     }
 
+    private void restoreCamSettings() {
+        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
+        String driveMode = settings.getString(CAMERA_PROPERTY_DRIVE_MODE, null);
+        String meteringMode = settings.getString(CAMERA_PROPERTY_METERING_MODE, null);
+        try{
+            if (driveMode != null){
+                camera.setCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE,driveMode);
+                updatePropertyImageView(iv_driveMode, drivemodeIconList, driveMode);
+            }
+            if (meteringMode != null){
+                camera.setCameraPropertyValue(CAMERA_PROPERTY_METERING_MODE,meteringMode);
+                updatePropertyImageView(iv_meteringMode, meteringIconList, meteringMode);
+            }
+
+        }catch (OLYCameraKitException ex){
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void saveCamSettings() {
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+
+        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        String driveMode = null;
+        String meteringMode = null;
+        try {
+            driveMode = camera.getCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE);
+            meteringMode = camera.getCameraPropertyValue(CAMERA_PROPERTY_METERING_MODE);
+        } catch (OLYCameraKitException ex) {
+            ex.printStackTrace();
+        }
+        editor.putString(CAMERA_PROPERTY_DRIVE_MODE, driveMode);
+        editor.putString(CAMERA_PROPERTY_METERING_MODE, meteringMode);
+
+        // Commit the edits!
+        editor.commit();
+
+    }
 
     @Override
     public void onAttach(Context context) {

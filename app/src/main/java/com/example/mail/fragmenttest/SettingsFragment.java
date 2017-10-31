@@ -1,6 +1,7 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
+import jp.co.olympus.camerakit.OLYCameraKitException;
 
 /**
  * Created by mail on 14/06/2017.
@@ -36,7 +38,6 @@ public class SettingsFragment extends Fragment
 
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
     private static final String CAMERA_PROPERTY_METERING_MODE = "AE";
-    private static final String CAMERA_PROPERTY_EXPOSURE_COMPENSATION = "EXPREV";
 
 
     private TextView tv_expTime;
@@ -78,6 +79,11 @@ public class SettingsFragment extends Fragment
     }
 
 
+    public void SetOLYCam(OLYCamera camera) {
+        this.camera = camera;
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,26 +122,31 @@ public class SettingsFragment extends Fragment
 
     @Override
     public void onClick(View v) {
-        if (v == ll_expTime)
+        Log.d(TAG, "Click: " + v);
+        if (v == ll_expTime) {
             settingsFragmListener.onShootingModeInteraction(0);
-        else if (v == ll_fStop)
+        } else if (v == ll_fStop) {
             settingsFragmListener.onShootingModeInteraction(1);
-        else if (v == ll_expOffset)
+        } else if (v == ll_expOffset) {
             settingsFragmListener.onShootingModeInteraction(2);
-        else if (v == ll_iso)
+        } else if (v == ll_iso) {
             settingsFragmListener.onShootingModeInteraction(3);
-        else if (v == ll_Wb)
+        } else if (v == ll_Wb) {
             settingsFragmListener.onShootingModeInteraction(4);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        restoreCamSettings();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        saveCamSettings();
+
     }
 
     private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
@@ -171,10 +182,139 @@ public class SettingsFragment extends Fragment
         this.takeMode = takeMode;
     }
 
+    public void UpdateValuesOnConnect() {
+        updateWbImageView();
+        updateIsoTxtView();
+        updateApartureTextView();
+        updateShutterSpTextView();
+        updateExposureCompTxtView();
+    }
+
     public void SetExposureCorrValues(List<String> values) {
         possibleExpCorrValues = values;
     }
 
+    private void updateWbImageView() {
+        Log.d(TAG, "updating Wb");
+        updatePropertyImageView(iv_Wb, whiteBalanceIconList, CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE);
+    }
+
+    private void updateIsoTxtView() {
+        Log.d(TAG, "updating ISO");
+        updatePropertyTxtView(tv_iso, CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY);
+    }
+
+    private void updateApartureTextView() {
+        Log.d(TAG, "updating Aparture");
+        updatePropertyTxtView(tv_iso, CameraActivity.CAMERA_PROPERTY_APERTURE_VALUE);
+    }
+
+    private void updateShutterSpTextView() {
+        Log.d(TAG, "updating ShutterSpeed");
+        updatePropertyTxtView(tv_iso, CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED);
+    }
+
+    private void updateExposureCompTxtView() {
+        Log.d(TAG, "updating ExposureCompensation");
+        updatePropertyTxtView(tv_iso, CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+    }
+
+    private void restoreCamSettings() {
+        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
+        String driveMode = settings.getString(CAMERA_PROPERTY_DRIVE_MODE, null);
+        String meteringMode = settings.getString(CAMERA_PROPERTY_METERING_MODE, null);
+        try {
+            if (driveMode != null) {
+                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED, driveMode);
+                updateShutterSpTextView();
+            }
+            if (meteringMode != null) {
+                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY, meteringMode);
+                updateIsoTxtView();
+            }
+
+        } catch (OLYCameraKitException ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void saveCamSettings() {
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        String shutter = null;
+        String iso = null;
+        String wb = null;
+        String aparture = null;
+        String expComp = null;
+        try {
+            shutter = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED);
+            iso = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY);
+            wb = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE);
+            aparture = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_APERTURE_VALUE);
+            expComp = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+
+        } catch (OLYCameraKitException ex) {
+            ex.printStackTrace();
+        }
+        editor.putString(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED, shutter);
+        editor.putString(CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY, iso);
+        editor.putString(CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE, wb);
+        editor.putString(CameraActivity.CAMERA_PROPERTY_APERTURE_VALUE, aparture);
+        editor.putString(CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION, expComp);
+
+        // Commit the edits!
+        editor.commit();
+
+    }
+
+    private void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
+        imageView.setEnabled(camera.canSetCameraProperty(propertyName));
+        Log.d(TAG, "UpdateImageView: " + propertyName);
+        String propValue;
+        Log.d(TAG, "PropName: " + propertyName + "Cameactive" + camera.isConnected());
+
+        try {
+            propValue = camera.getCameraPropertyValue(propertyName);
+            Log.d(TAG, "PropVal: " + propValue);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (propValue == null) {
+            return;
+        }
+        if (iconList.containsKey(propValue)) {
+            int resId = iconList.get(propValue);
+            imageView.setImageResource(resId);
+            //settingsFragmListener.onDriveModeChange(propValue);
+        } else {
+            imageView.setImageDrawable(null);
+        }
+    }
+
+    private void updatePropertyTxtView(TextView textView, String propertyName) {
+        textView.setEnabled(camera.canSetCameraProperty(propertyName));
+        Log.d(TAG, "UpdateTextView: " + propertyName);
+        String propValue;
+        try {
+            propValue = camera.getCameraPropertyValue(propertyName);
+            Log.d(TAG, "PropName: " + propValue);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+
+
+        if (propValue == null) {
+            return;
+        } else {
+            textView.setText(camera.getCameraPropertyValueTitle(propValue));
+        }
+    }
 
     private LinearLayout CreateExpTFstop(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
         LinearLayout root_linearLayout = new LinearLayout(getContext());
@@ -200,9 +340,11 @@ public class SettingsFragment extends Fragment
         if (time) {
             tv_expTimeText.setEnabled(true);
             tv_expTime.setEnabled(true);
+            ll_expTime.setClickable(true);
         } else {
             tv_expTimeText.setEnabled(false);
             tv_expTime.setEnabled(false);
+            ll_expTime.setClickable(false);
         }
         ll_expTime.addView(tv_expTimeText);
         ll_expTime.addView(tv_expTime);
@@ -224,9 +366,11 @@ public class SettingsFragment extends Fragment
         if (aparture) {
             tv_fStopText.setEnabled(true);
             tv_fStop.setEnabled(true);
+            ll_fStop.setClickable(true);
         } else {
             tv_fStopText.setEnabled(false);
             tv_fStop.setEnabled(false);
+            ll_fStop.setClickable(false);
         }
         ll_fStop.addView(tv_fStopText);
         ll_fStop.addView(tv_fStop);
@@ -253,8 +397,11 @@ public class SettingsFragment extends Fragment
         tv_expOffset.setTextColor(colorStateList);
         if (exposureAdj) {
             tv_expOffset.setEnabled(true);
-        } else
+            tv_expOffset.setClickable(true);
+        } else {
+            tv_expOffset.setClickable(false);
             tv_expOffset.setEnabled(false);
+        }
 
         ll_expOffset.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
@@ -320,9 +467,11 @@ public class SettingsFragment extends Fragment
         if (iso) {
             tv_isoText.setEnabled(true);
             tv_iso.setEnabled(true);
+            ll_iso.setClickable(true);
         } else {
             tv_isoText.setEnabled(false);
             tv_iso.setEnabled(false);
+            ll_iso.setClickable(false);
         }
         ll_iso.addView(tv_isoText);
         ll_iso.addView(tv_iso);
@@ -341,17 +490,14 @@ public class SettingsFragment extends Fragment
         if (wb) {
             iv_Wb.setEnabled(true);
 
+
         } else {
             iv_Wb.setEnabled(false);
+
         }
         ll_Wb.addView(iv_Wb);
         root_linearLayout.addView(ll_Wb);
         return root_linearLayout;
-    }
-
-    public void SetOLYCam(OLYCamera camera) {
-        this.camera = camera;
-
     }
 
     public void SetSliderResult(String property, String value) {
@@ -403,6 +549,7 @@ public class SettingsFragment extends Fragment
         if (settingsFragmListener != null)
             settingsFragmListener = null;
     }
+
 }
 
 
