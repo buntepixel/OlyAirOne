@@ -23,7 +23,7 @@ import static com.example.mail.fragmenttest.CameraActivity.camera;
  * Created by mail on 13/10/2016.
  */
 
-public class ScrollingValuePicker extends FrameLayout {
+public class ScrollingValuePicker extends FrameLayout  {
     private static final String TAG = ScrollingValuePicker.class.getSimpleName();
     private View mLeftSpacer;
     private View mRightSpacer;
@@ -62,7 +62,6 @@ public class ScrollingValuePicker extends FrameLayout {
     public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener) {
         mValueInteractionListener = listener;
     }
-
 
     public ScrollingValuePicker(final Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -162,6 +161,11 @@ public class ScrollingValuePicker extends FrameLayout {
         int tmp = getScrollPos(index);
         //Log.d(TAG,"snapBArToValue: "+ tmp);
         obsScrollView.smoothScrollTo(tmp, 0);
+        setSelScrollBarValSelected(index);
+    }
+    public void setBarToValue(int index){
+        int tmp = getScrollPos(index);
+        obsScrollView.setScrollX(tmp);
         setSelScrollBarValSelected(index);
     }
 

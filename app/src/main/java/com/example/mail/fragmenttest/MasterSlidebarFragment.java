@@ -2,11 +2,13 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
 import jp.co.olympus.camerakit.OLYCamera;
@@ -19,27 +21,50 @@ public abstract class MasterSlidebarFragment extends Fragment {
     private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
     OLYCamera camera;
     private String[] myString;
-
-
     private sliderValue sliderValueListener;
+    private int mySliderValIndex = -1;
+    private ScrollingValuePicker mScrollingValuePicker;
 
     public MasterSlidebarFragment() {
     }
 
+
     public interface sliderValue {
         void onSlideValueBar(String value);
+    }
+
+    public void setSliderValueListener(sliderValue listener) {
+        this.sliderValueListener = listener;
+    }
+    public ScrollingValuePicker getScrollingValuePicker(){
+        return mScrollingValuePicker;
     }
 
     public void SetOLYCam(OLYCamera camera) {
         this.camera = camera;
     }
 
-    public void setSliderValueListener(sliderValue listener) {
-        this.sliderValueListener = listener;
-    }
-
     public void setBarStringArr(String[] inStringArr) {
         this.myString = inStringArr;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("SliderValIndex"));
+
+            this.getScrollingValuePicker().snapBarToValue(savedInstanceState.getInt("SliderValIndex"));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mySliderValIndex != -1) {
+            Log.d(TAG, "SavedInt: " + mySliderValIndex);
+            outState.putInt("SliderValIndex", mySliderValIndex);
+        }
     }
 
     @Override
@@ -60,10 +85,20 @@ public abstract class MasterSlidebarFragment extends Fragment {
             // Log.d(TAG, "RootView id: " + rootView.getId());
 
 
-            final ScrollingValuePicker mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
+            mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
             mScrollingValuePicker.addView(mContentLinLayout);
             mScrollingValuePicker.initValuePicker(getContext(), mContentLinLayout, myString);
+            mScrollingValuePicker.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    if(mySliderValIndex==-1)
+                        mySliderValIndex=myString.length/2;
+                    mScrollingValuePicker.setBarToValue(mySliderValIndex);
+                    mScrollingValuePicker.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                }
+            });
             mScrollingValuePicker.SetScrollingValueInteractionListener(new ScrollingValuePicker.ScrollingValueInteraction() {
                 @Override
                 public void onScrollEnd(int currIndex) {
@@ -71,11 +106,13 @@ public abstract class MasterSlidebarFragment extends Fragment {
                     if (sliderValueListener != null) {
                         Log.d(TAG, "CurrSTring: " + myString[currIndex]);
                         sliderValueListener.onSlideValueBar(myString[currIndex]);
-                        mScrollingValuePicker.snapBarToValue(currIndex);
+                        mySliderValIndex = currIndex;
+                        mScrollingValuePicker.snapBarToValue(mySliderValIndex);
                     }
                 }
             });
-//
+
+            //
             //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
 
             //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
@@ -88,6 +125,7 @@ public abstract class MasterSlidebarFragment extends Fragment {
         }
         return null;
     }
+
 
 //    private void CreateImageViewContent(int itemCount) {
 //        //Adding ImageView

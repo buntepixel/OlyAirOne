@@ -104,6 +104,8 @@ public class CameraActivity extends FragmentActivity
         // then we don't need to do anything and should return or else
         // we could end up with overlapping fragments.
         if (savedInstanceState != null) {
+            //exposureCorrFragment = (ExposureCorrFragment) fm.getFragment(savedInstanceState,CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+            //fLiveView = (LiveViewFragment)fm.getFragment(savedInstanceState,CAMERA_PROPERTY_TAKE_MODE);
             return;
         }
         Log.d(TAG, "onCreate__" + "Creating Camera Object");
@@ -130,6 +132,20 @@ public class CameraActivity extends FragmentActivity
         wbFragment = new WbFragment();
         wbFragment.SetOLYCam(camera);
         fm = getSupportFragmentManager();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        fm.putFragment(outState,CAMERA_PROPERTY_EXPOSURE_COMPENSATION,exposureCorrFragment );
+        fm.putFragment(outState,CAMERA_PROPERTY_TAKE_MODE,fLiveView);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        fm.getFragment(savedInstanceState,CAMERA_PROPERTY_TAKE_MODE);
     }
 
     @Override
@@ -222,7 +238,6 @@ public class CameraActivity extends FragmentActivity
     public void onShutterTouched(MotionEvent event) {
         fLiveView.onShutterTouched(event);
     }
-
 
 
     //connecting Camera
@@ -366,7 +381,7 @@ public class CameraActivity extends FragmentActivity
 
     }
 
-    void SetMainSettingsButtons(int mode) {
+    private void SetMainSettingsButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
         fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("Settings");
 

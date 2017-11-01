@@ -14,5 +14,6 @@ public class IsoFragment extends MasterSlidebarFragment {
     public void SetContentString(String[] myString) {
         this.setBarStringArr(myString);
     }
-   
+
+
 }

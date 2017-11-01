@@ -68,6 +68,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
         }
         return myBool;
     }
+    
 
     @Override
     protected void onScrollChanged(int scrollValue, int t, int oldl, int oldt) {

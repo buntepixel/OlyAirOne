@@ -134,6 +134,24 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         this.camera = camera;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d(TAG,"onActivityCreated");
+        if (savedInstanceState != null) {
+            Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("SliderValIndex"));
+            shootingModeCounter =(int) savedInstanceState.getSerializable("SliderValIndex");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+      {
+            Log.d(TAG, "SavedInt: " + shootingModeCounter);
+            outState.putSerializable("SliderValIndex", shootingModeCounter);
+        }
+    }
 
     //----------------------
     //   Functionality
