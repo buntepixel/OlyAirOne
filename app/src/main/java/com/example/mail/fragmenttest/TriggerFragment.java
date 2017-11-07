@@ -123,14 +123,14 @@ public class TriggerFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-
-        restoreCamSettings();
+        //Todo: find way to do it after reconnecting to the cam
+        //restoreCamSettings();
         if (takeMode < 1 || takeMode > 5)
             iv_meteringMode.setVisibility(View.INVISIBLE);
         else
             updateMeteringImageView();
-
-        updateDrivemodeImageView();
+        //Todo: find way to do it after reconnecting to the cam
+        //updateDrivemodeImageView();
     }
 
     @Override
@@ -189,6 +189,8 @@ public class TriggerFragment extends Fragment
         String propValue;
         try {
             propValue = camera.getCameraPropertyValue(propertyName);
+            Log.d(TAG, "PropVal: " + propValue);
+
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;

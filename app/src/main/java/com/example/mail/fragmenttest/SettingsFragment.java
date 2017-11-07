@@ -139,7 +139,7 @@ public class SettingsFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        restoreCamSettings();
+        //restoreCamSettings();
     }
 
     @Override

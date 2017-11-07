@@ -35,6 +35,12 @@ public class CameraActivity extends FragmentActivity
         MasterSlidebarFragment.sliderValue, SettingsFragment.OnSettingsFragmInteractionListener,
         OLYCameraConnectionListener, OLYCameraPropertyListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
+    private static final String FRAGMENT_TAG_SETTINGS = "Settings";
+    private static final String FRAGMENT_TAG_TRIGGER = "Trigger";
+    private static final String FRAGMENT_TAG_LIVEVIEW = "LiveView";
+
+
+
 
     public static final String CAMERA_SETTINGS = "OlyAirOneCamSettings";
 
@@ -61,11 +67,78 @@ public class CameraActivity extends FragmentActivity
     ApartureFragment apartureFragment;
     IsoFragment isoFragment;
     WbFragment wbFragment;
-    ExposureFragment exposureFragment;
+    ShutterFragment shutterSpeedFragment;
     ExposureCorrFragment exposureCorrFragment;
 
     public static OLYCamera camera = null;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_camera);
+        fm = getSupportFragmentManager();
+        // However, if we're being restored from a previous state,
+        // then we don't need to do anything and should return or else
+        // we could end up with overlapping fragments.
+        //Log.d(TAG, "ONCreate");
+        if (savedInstanceState != null) {
+            fSettings = (SettingsFragment) fm.getFragment(savedInstanceState, FRAGMENT_TAG_SETTINGS);
+            fTrigger = (TriggerFragment) fm.getFragment(savedInstanceState, FRAGMENT_TAG_TRIGGER);
+            fLiveView = (LiveViewFragment) fm.getFragment(savedInstanceState, FRAGMENT_TAG_LIVEVIEW);
+
+       /*     shutterSpeedFragment = (ShutterFragment) fm.getFragment(savedInstanceState, CAMERA_PROPERTY_SHUTTER_SPEED);
+            apartureFragment = (ApartureFragment) fm.getFragment(savedInstanceState, CAMERA_PROPERTY_APERTURE_VALUE);
+            exposureCorrFragment = (ExposureCorrFragment) fm.getFragment(savedInstanceState, CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+            isoFragment = (IsoFragment) fm.getFragment(savedInstanceState, CAMERA_PROPERTY_ISO_SENSITIVITY);
+            wbFragment = (WbFragment) fm.getFragment(savedInstanceState, CAMERA_PROPERTY_WHITE_BALANCE);*/
+            return;
+        }
+        //Log.d(TAG, "onCreate__" + "Creating Camera Object");
+        camera = new OLYCamera();
+        camera.setContext(getApplicationContext());
+        camera.setConnectionListener(this);
+        //add Trigger,LiveView Fragment
+        //Log.d(TAG, "onCreate__" + "Creating Fragments,setting olycam to fragments");
+
+        fTrigger = new TriggerFragment();
+        fTrigger.SetOLYCam(camera);
+        //fTrigger.setRetainInstance(true);
+
+        fSettings = new SettingsFragment();
+        fSettings.SetOLYCam(camera);
+        //fSettings.setRetainInstance(true);
+
+        fLiveView = new LiveViewFragment();
+        fLiveView.SetOLYCam(camera);
+        //fLiveView.setRetainInstance(true);
+
+        apartureFragment = new ApartureFragment();
+        apartureFragment.SetOLYCam(camera);
+        shutterSpeedFragment = new ShutterFragment();
+        shutterSpeedFragment.SetOLYCam(camera);
+        exposureCorrFragment = new ExposureCorrFragment();
+        exposureCorrFragment.SetOLYCam(camera);
+        isoFragment = new IsoFragment();
+        isoFragment.SetOLYCam(camera);
+        wbFragment = new WbFragment();
+        wbFragment.SetOLYCam(camera);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        fm.putFragment(outState, FRAGMENT_TAG_LIVEVIEW, fLiveView);
+        fm.putFragment(outState, FRAGMENT_TAG_SETTINGS, fSettings);
+        fm.putFragment(outState, FRAGMENT_TAG_TRIGGER, fTrigger);
+
+
+       /* fm.putFragment(outState, CAMERA_PROPERTY_SHUTTER_SPEED, shutterSpeedFragment);
+        fm.putFragment(outState, CAMERA_PROPERTY_APERTURE_VALUE, apartureFragment);
+        fm.putFragment(outState, CAMERA_PROPERTY_EXPOSURE_COMPENSATION, exposureCorrFragment);
+        fm.putFragment(outState, CAMERA_PROPERTY_ISO_SENSITIVITY, isoFragment);
+        fm.putFragment(outState, CAMERA_PROPERTY_WHITE_BALANCE, wbFragment);*/
+
+    }
 
     @Override
     public void onShootingModeButtonPressed(int currDriveMode) {
@@ -95,60 +168,6 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_camera);
-        //Log.d(TAG, "start");
-        //check for Trigger container
-        // However, if we're being restored from a previous state,
-        // then we don't need to do anything and should return or else
-        // we could end up with overlapping fragments.
-        if (savedInstanceState != null) {
-            //exposureCorrFragment = (ExposureCorrFragment) fm.getFragment(savedInstanceState,CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
-            //fLiveView = (LiveViewFragment)fm.getFragment(savedInstanceState,CAMERA_PROPERTY_TAKE_MODE);
-            return;
-        }
-        Log.d(TAG, "onCreate__" + "Creating Camera Object");
-        camera = new OLYCamera();
-        camera.setContext(getApplicationContext());
-        camera.setConnectionListener(this);
-        //add Trigger,LiveView Fragment
-        Log.d(TAG, "onCreate__" + "Creating Fragments,setting olycam to fragments");
-        fTrigger = new TriggerFragment();
-        fTrigger.SetOLYCam(camera);
-        fSettings = new SettingsFragment();
-        fSettings.SetOLYCam(camera);
-        fLiveView = new LiveViewFragment();
-        fLiveView.SetOLYCam(camera);
-        apartureFragment = new ApartureFragment();
-        //Log.d(TAG, "Setting OlyCAMERA");
-        apartureFragment.SetOLYCam(camera);
-        exposureFragment = new ExposureFragment();
-        exposureFragment.SetOLYCam(camera);
-        exposureCorrFragment = new ExposureCorrFragment();
-        exposureCorrFragment.SetOLYCam(camera);
-        isoFragment = new IsoFragment();
-        isoFragment.SetOLYCam(camera);
-        wbFragment = new WbFragment();
-        wbFragment.SetOLYCam(camera);
-        fm = getSupportFragmentManager();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        fm.putFragment(outState,CAMERA_PROPERTY_EXPOSURE_COMPENSATION,exposureCorrFragment );
-        fm.putFragment(outState,CAMERA_PROPERTY_TAKE_MODE,fLiveView);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        fm.getFragment(savedInstanceState,CAMERA_PROPERTY_TAKE_MODE);
-    }
-
-    @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         View view = super.onCreateView(parent, name, context, attrs);
         return view;
@@ -157,16 +176,26 @@ public class CameraActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume__" + "starting to connect to Camera");
-        startConnectingCamera();
-
-        Log.d(TAG, "onResume__" + "Adding trigger fragment to View");
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, "Trigger");
-        fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, "Settings");
-        fragmentTransaction.commit();
-
-
+        //reset Cam if we had a orientation change
+        fLiveView.SetOLYCam(camera);
+        fTrigger.SetOLYCam(camera);
+        fSettings.SetOLYCam(camera);
+        //add fragments to fragmentManager if here the first time
+        if (fm.findFragmentByTag(FRAGMENT_TAG_TRIGGER) == null) {
+            Log.d(TAG, "onResume__" + "bevoreCommit");
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, FRAGMENT_TAG_TRIGGER);
+            fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, FRAGMENT_TAG_SETTINGS);
+            fragmentTransaction.commit();
+            Log.d(TAG, "onResume__" + "AfterCommit");
+        }
+        if (!camera.isConnected()) {
+            Log.d(TAG, "onResume__" + "connecting");
+            startConnectingCamera();
+        } else {
+            Log.d(TAG, "onResume__" + "connecting");
+            //onConnectedToCamera();
+        }
     }
 
     @Override
@@ -197,7 +226,7 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "currdriveMode: " + currDriveMode);
         if (currDriveMode == 4 && settingsType <= 1) {
             //ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
-            generalPressed(exposureFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart2, ft, 1);
+            generalPressed(shutterSpeedFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart2, ft, 1);
             generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1, ft, 0);
             //Log.d(TAG, "A_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
             ft.commit();
@@ -207,7 +236,7 @@ public class CameraActivity extends FragmentActivity
             switch (settingsType) {
                 case 0:
                     //currExpApart1 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart1, 1);
-                    currExpApart1 = generalPressed(exposureFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart1, ft, 0);
+                    currExpApart1 = generalPressed(shutterSpeedFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart1, ft, 0);
                     break;
                 case 1:
                     //AparturePressed(ft);
@@ -357,19 +386,20 @@ public class CameraActivity extends FragmentActivity
 
     private void onConnectedToCamera() {
         Log.d(TAG, "Connected to Cam");
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, "LiveView");
-        //Todo: maybe only commit();
-        fragmentTransaction.commitAllowingStateLoss();
-           /* LiveViewFragment fragment = new LiveViewFragment();
-            fragment.setCamera(camera);
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment1, fragment);
-            transaction.commitAllowingStateLoss();*/
+        //add fragments to fragment manager if here first time
+        if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
+            //Todo: maybe only commit();
+            //fragmentTransaction.commitAllowingStateLoss();
+            fragmentTransaction.commit();
+        }
 
         try {
             takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
             List<String> valueList = camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+            if (fSettings == null)
+                Log.d(TAG, "fsettings is null");
             fSettings.SetExposureCorrValues(valueList);
 
             fSettings.UpdateValuesOnConnect();
