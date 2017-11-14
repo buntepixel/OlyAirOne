@@ -48,23 +48,12 @@ public abstract class MasterSlidebarFragment extends Fragment {
         this.myString = inStringArr;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("SliderValIndex"));
 
-            this.getScrollingValuePicker().snapBarToValue(savedInstanceState.getInt("SliderValIndex"));
-        }
-    }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mySliderValIndex != -1) {
-            Log.d(TAG, "SavedInt: " + mySliderValIndex);
-            outState.putInt("SliderValIndex", mySliderValIndex);
-        }
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -126,7 +115,12 @@ public abstract class MasterSlidebarFragment extends Fragment {
         return null;
     }
 
-
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "View Created Slider Value: "+ mySliderValIndex);
+        mScrollingValuePicker.setBarToValue(mySliderValIndex);
+    }
 //    private void CreateImageViewContent(int itemCount) {
 //        //Adding ImageView
 //        for (int i = 0; i <= itemCount; i++) {

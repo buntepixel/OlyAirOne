@@ -78,8 +78,7 @@ public class TriggerFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null)
-            return;
+       setRetainInstance(true);
     }
 
     @Override
@@ -150,8 +149,7 @@ public class TriggerFragment extends Fragment
 
     private void drivemodeImageViewDidTap() {
         final View view = iv_driveMode;
-        final String propertyName = CAMERA_PROPERTY_DRIVE_MODE;
-        cameraPropertyDidTab(view, propertyName);
+        cameraPropertyDidTab(view, CAMERA_PROPERTY_DRIVE_MODE);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -168,12 +166,10 @@ public class TriggerFragment extends Fragment
     private void meteringImageViewDidTap() {
         //Log.d(TAG, "Click");
         final View view = iv_meteringMode;
-        final String propertyName = CAMERA_PROPERTY_METERING_MODE;
-
         if (takeMode < 1 || takeMode > 5)
             view.setVisibility(View.INVISIBLE);
         else
-            cameraPropertyDidTab(view, propertyName);
+            cameraPropertyDidTab(view, CAMERA_PROPERTY_METERING_MODE);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -285,7 +281,7 @@ public class TriggerFragment extends Fragment
         editor.putString(CAMERA_PROPERTY_METERING_MODE, meteringMode);
 
         // Commit the edits!
-        editor.commit();
+        editor.apply();
 
     }
 

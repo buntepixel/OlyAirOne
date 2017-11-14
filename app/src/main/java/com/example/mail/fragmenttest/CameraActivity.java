@@ -40,8 +40,6 @@ public class CameraActivity extends FragmentActivity
     private static final String FRAGMENT_TAG_LIVEVIEW = "LiveView";
 
 
-
-
     public static final String CAMERA_SETTINGS = "OlyAirOneCamSettings";
 
     public static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
@@ -102,26 +100,12 @@ public class CameraActivity extends FragmentActivity
 
         fTrigger = new TriggerFragment();
         fTrigger.SetOLYCam(camera);
-        //fTrigger.setRetainInstance(true);
 
         fSettings = new SettingsFragment();
         fSettings.SetOLYCam(camera);
-        //fSettings.setRetainInstance(true);
 
         fLiveView = new LiveViewFragment();
         fLiveView.SetOLYCam(camera);
-        //fLiveView.setRetainInstance(true);
-
-        apartureFragment = new ApartureFragment();
-        apartureFragment.SetOLYCam(camera);
-        shutterSpeedFragment = new ShutterFragment();
-        shutterSpeedFragment.SetOLYCam(camera);
-        exposureCorrFragment = new ExposureCorrFragment();
-        exposureCorrFragment.SetOLYCam(camera);
-        isoFragment = new IsoFragment();
-        isoFragment.SetOLYCam(camera);
-        wbFragment = new WbFragment();
-        wbFragment.SetOLYCam(camera);
     }
 
     @Override
@@ -149,7 +133,7 @@ public class CameraActivity extends FragmentActivity
                 e.printStackTrace();
             }
             this.currDriveMode = currDriveMode;
-            SetMainSettingsButtons(currDriveMode);
+            SetShootingModeButtons(currDriveMode);
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);
             System.err.println(TAG + e.getMessage());
@@ -180,6 +164,17 @@ public class CameraActivity extends FragmentActivity
         fLiveView.SetOLYCam(camera);
         fTrigger.SetOLYCam(camera);
         fSettings.SetOLYCam(camera);
+        //create slider fragments.
+        apartureFragment = new ApartureFragment();
+        apartureFragment.SetOLYCam(camera);
+        shutterSpeedFragment = new ShutterFragment();
+        shutterSpeedFragment.SetOLYCam(camera);
+        exposureCorrFragment = new ExposureCorrFragment();
+        exposureCorrFragment.SetOLYCam(camera);
+        isoFragment = new IsoFragment();
+        isoFragment.SetOLYCam(camera);
+        wbFragment = new WbFragment();
+        wbFragment.SetOLYCam(camera);
         //add fragments to fragmentManager if here the first time
         if (fm.findFragmentByTag(FRAGMENT_TAG_TRIGGER) == null) {
             Log.d(TAG, "onResume__" + "bevoreCommit");
@@ -194,7 +189,7 @@ public class CameraActivity extends FragmentActivity
             startConnectingCamera();
         } else {
             Log.d(TAG, "onResume__" + "connecting");
-            //onConnectedToCamera();
+            onConnectedToCamera();
         }
     }
 
@@ -224,6 +219,7 @@ public class CameraActivity extends FragmentActivity
         //Log.d(TAG,"visFrag"+ fm.getFragments().toString());
         int fragLayout;
         Log.d(TAG, "currdriveMode: " + currDriveMode);
+        //if Manual mode we have 2 fragment sliders
         if (currDriveMode == 4 && settingsType <= 1) {
             //ExposurePressed(ft, R.id.fl_FragCont_ExpApart2, 2);
             generalPressed(shutterSpeedFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart2, ft, 1);
@@ -231,8 +227,7 @@ public class CameraActivity extends FragmentActivity
             //Log.d(TAG, "A_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
             ft.commit();
             //Log.d(TAG, "B_nr1: " + currExpApart1 + " nr2: " + currExpApart2);
-
-        } else {
+        } else {//all other modes
             switch (settingsType) {
                 case 0:
                     //currExpApart1 = ExposurePressed(ft, R.id.fl_FragCont_ExpApart1, 1);
@@ -350,17 +345,29 @@ public class CameraActivity extends FragmentActivity
         });
     }
 
-    private OLYCamera.LiveViewSize toLiveViewSize(String quality) {
-        if (quality.equalsIgnoreCase("QVGA")) {
-            return OLYCamera.LiveViewSize.QVGA;
-        } else if (quality.equalsIgnoreCase("VGA")) {
-            return OLYCamera.LiveViewSize.VGA;
-        } else if (quality.equalsIgnoreCase("SVGA")) {
-            return OLYCamera.LiveViewSize.SVGA;
-        } else if (quality.equalsIgnoreCase("XGA")) {
-            return OLYCamera.LiveViewSize.XGA;
+    private void onConnectedToCamera() {
+        Log.d(TAG, "Connected to Cam");
+        //add fragments to fragment manager if here first time
+        if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
+            //Todo: maybe only commit();
+            //fragmentTransaction.commitAllowingStateLoss();
+            fragmentTransaction.commit();
         }
-        return OLYCamera.LiveViewSize.QVGA;
+
+        try {
+            takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
+            List<String> valueList = camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+
+            /*fSettings.SetExposureCorrValues(valueList);
+            fSettings.UpdateValues();*/
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+
+
     }
 
     private void alertConnectingFailed(Exception e) {
@@ -384,100 +391,75 @@ public class CameraActivity extends FragmentActivity
         });
     }
 
-    private void onConnectedToCamera() {
-        Log.d(TAG, "Connected to Cam");
-        //add fragments to fragment manager if here first time
-        if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
-            FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
-            //Todo: maybe only commit();
-            //fragmentTransaction.commitAllowingStateLoss();
-            fragmentTransaction.commit();
+    private OLYCamera.LiveViewSize toLiveViewSize(String quality) {
+        if (quality.equalsIgnoreCase("QVGA")) {
+            return OLYCamera.LiveViewSize.QVGA;
+        } else if (quality.equalsIgnoreCase("VGA")) {
+            return OLYCamera.LiveViewSize.VGA;
+        } else if (quality.equalsIgnoreCase("SVGA")) {
+            return OLYCamera.LiveViewSize.SVGA;
+        } else if (quality.equalsIgnoreCase("XGA")) {
+            return OLYCamera.LiveViewSize.XGA;
         }
-
-        try {
-            takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
-            List<String> valueList = camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
-            if (fSettings == null)
-                Log.d(TAG, "fsettings is null");
-            fSettings.SetExposureCorrValues(valueList);
-
-            fSettings.UpdateValuesOnConnect();
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-
-
+        return OLYCamera.LiveViewSize.QVGA;
     }
 
-    private void SetMainSettingsButtons(int mode) {
+    private void SetShootingModeButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
-        fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag("Settings");
+        fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
 
         if (fSettings != null) {
             switch (mode) {
                 case 0://iAuto
-                    fSettings.SetButtonsBool(false, false, false, false, false);
                     fSettings.SetTakeMode(mode);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Iauto");
                     break;
                 case 1://Programm
-                    fSettings.SetButtonsBool(false, false, true, true, true);
                     fSettings.SetTakeMode(mode);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Programm");
                     break;
                 case 2://Aparture
-                    fSettings.SetButtonsBool(false, true, true, true, true);
                     fSettings.SetTakeMode(mode);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Aparture");
                     break;
                 case 3://Speed
-                    fSettings.SetButtonsBool(true, false, true, true, true);
                     fSettings.SetTakeMode(mode);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Speed");
                     break;
                 case 4://Manual
-                    fSettings.SetButtonsBool(true, true, false, true, true);
                     fSettings.SetTakeMode(mode);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Manual");
                     break;
                 case 5://Art
-                    fSettings.SetButtonsBool(false, false, true, true, true);
                     Log.d(TAG, "Art");
                     break;
                 case 6://Movie
-                    fSettings.SetButtonsBool(false, true, true, false, true);
                     fSettings.SetTakeMode(mode);
                     fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Movie");
-                    break;
-                case 7:
-                    break;
-                case 8:
                     break;
             }
         } else {
             Log.w(TAG, "couldn't find Fragment with tag: Trigger");
         }
         //refresh view
-        Fragment frgSettings = getSupportFragmentManager().findFragmentByTag("Settings");
-        Fragment frgTrigger = getSupportFragmentManager().findFragmentByTag("Trigger");
+        Fragment frgSettings = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
+        Fragment frgTrigger = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_TRIGGER);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.detach(frgSettings);
-        ft.detach(frgTrigger);
         ft.attach(frgSettings);
+        ft.detach(frgTrigger);
         ft.attach(frgTrigger);
         ft.commit();
 
         //remove fragments that are still on
 
-        ft = getSupportFragmentManager().beginTransaction();
+        //ft = getSupportFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
 
         if (currExpApart1 != null && currExpApart1 != "") {
