@@ -114,7 +114,7 @@ public class CameraActivity extends FragmentActivity
         fm.putFragment(outState, FRAGMENT_TAG_LIVEVIEW, fLiveView);
         fm.putFragment(outState, FRAGMENT_TAG_SETTINGS, fSettings);
         fm.putFragment(outState, FRAGMENT_TAG_TRIGGER, fTrigger);
-
+        outState.putInt("currDriveMode", currDriveMode);
 
        /* fm.putFragment(outState, CAMERA_PROPERTY_SHUTTER_SPEED, shutterSpeedFragment);
         fm.putFragment(outState, CAMERA_PROPERTY_APERTURE_VALUE, apartureFragment);
@@ -122,6 +122,12 @@ public class CameraActivity extends FragmentActivity
         fm.putFragment(outState, CAMERA_PROPERTY_ISO_SENSITIVITY, isoFragment);
         fm.putFragment(outState, CAMERA_PROPERTY_WHITE_BALANCE, wbFragment);*/
 
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        currDriveMode = savedInstanceState.getInt("currDriveMode");
     }
 
     @Override
@@ -182,20 +188,32 @@ public class CameraActivity extends FragmentActivity
             fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, FRAGMENT_TAG_TRIGGER);
             fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, FRAGMENT_TAG_SETTINGS);
             fragmentTransaction.commit();
-            Log.d(TAG, "onResume__" + "AfterCommit");
+            //Log.d(TAG, "onResume__" + "AfterCommit");
         }
         if (!camera.isConnected()) {
-            Log.d(TAG, "onResume__" + "connecting");
+            //Log.d(TAG, "onResume__" + "connecting");
             startConnectingCamera();
         } else {
-            Log.d(TAG, "onResume__" + "connecting");
+            // Log.d(TAG, "onResume__" + "connecting");
             onConnectedToCamera();
         }
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        if (currExpApart2 != null && !currExpApart2.equals("")) {
+            ft.remove(getSupportFragmentManager().findFragmentByTag(currExpApart2));
+            currExpApart2 = "";
+        }
+        if (currExpApart1 != null && !currExpApart1.equals("")) {
+            ft.remove(getSupportFragmentManager().findFragmentByTag(currExpApart1));
+            currExpApart1 = "";
+        }
+        ft.commit();
     }
 
     @Override
@@ -213,6 +231,7 @@ public class CameraActivity extends FragmentActivity
     public void onShootingModeInteraction(int settingsType) {
         // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
         Log.d(TAG, "settingsType: " + settingsType);
+        Log.d(TAG, "CurrentDriveMode" + currDriveMode);
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
