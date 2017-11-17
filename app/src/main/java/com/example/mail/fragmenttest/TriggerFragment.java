@@ -66,11 +66,7 @@ public class TriggerFragment extends Fragment
 
 
     public interface OnTriggerFragmInteractionListener {
-        void onShootingModeInteraction(int settingsType);
-
         void onShutterTouched(MotionEvent event);
-
-
         void onDriveModeChange(String propValue);
     }
 

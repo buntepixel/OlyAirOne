@@ -77,8 +77,7 @@ public class SettingsFragment extends Fragment
 
 
     public interface OnSettingsFragmInteractionListener {
-        void onShootingModeInteraction(int settingsType);
-
+        void onButtonsInteraction(int settingsType);
         void onDriveModeChange(String propValue);
     }
 
@@ -127,17 +126,17 @@ public class SettingsFragment extends Fragment
     public void onClick(View v) {
         Log.d(TAG, "Click: " + v);
         if (v == ll_expTime) {
-            settingsFragmListener.onShootingModeInteraction(0);
+            settingsFragmListener.onButtonsInteraction(0);
         } else if (v == ll_fStop) {
-            settingsFragmListener.onShootingModeInteraction(1);
+            settingsFragmListener.onButtonsInteraction(1);
         } else if (v == ll_expOffset) {
-            settingsFragmListener.onShootingModeInteraction(2);
+            settingsFragmListener.onButtonsInteraction(2);
         } else if (v == ll_iso) {
-            settingsFragmListener.onShootingModeInteraction(3);
+            settingsFragmListener.onButtonsInteraction(3);
         } else if (v == ll_Wb) {
             Log.d(TAG, "ImageView click:");
 
-            settingsFragmListener.onShootingModeInteraction(4);
+            settingsFragmListener.onButtonsInteraction(4);
         }
     }
 
