@@ -6,10 +6,13 @@ package com.example.mail.fragmenttest;
 
 public class ExposureCorrFragment extends MasterSlidebarFragment {
     private static final String TAG = ExposureCorrFragment.class.getSimpleName();
-    private static final String[] myString = {"Exp", "3.2", "3.5", "4", "4.5", "5", "A", "P", "Bulb"};
 
-    public ExposureCorrFragment() {
-        this.setBarStringArr(myString);
+    @Override
+    public void SetSliderBarVal(int Index) {
+        this.mySliderValIndex = Index;
     }
-
+    @Override
+    public void setBarStringArr(String[] inStringArr) {
+        this.myString = inStringArr;
+    }
 }

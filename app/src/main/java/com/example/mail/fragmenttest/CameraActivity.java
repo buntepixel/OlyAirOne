@@ -83,6 +83,8 @@ public class CameraActivity extends FragmentActivity
             fSettings = (SettingsFragment) fm.getFragment(savedInstanceState, FRAGMENT_TAG_SETTINGS);
             fTrigger = (TriggerFragment) fm.getFragment(savedInstanceState, FRAGMENT_TAG_TRIGGER);
             fLiveView = (LiveViewFragment) fm.getFragment(savedInstanceState, FRAGMENT_TAG_LIVEVIEW);
+
+
             return;
         }
         //Log.d(TAG, "onCreate__" + "Creating Camera Object");
@@ -100,6 +102,8 @@ public class CameraActivity extends FragmentActivity
 
         fLiveView = new LiveViewFragment();
         fLiveView.SetOLYCam(camera);
+
+
     }
 
     @Override
@@ -109,18 +113,12 @@ public class CameraActivity extends FragmentActivity
         fm.putFragment(outState, FRAGMENT_TAG_SETTINGS, fSettings);
         fm.putFragment(outState, FRAGMENT_TAG_TRIGGER, fTrigger);
         outState.putInt("currDriveMode", currDriveMode);
-    /*    outState.putString("currExpApart1", currExpApart1);
-        outState.putString("currExpApart2", currExpApart2);*/
-
-
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         currDriveMode = savedInstanceState.getInt("currDriveMode");
-       /* currExpApart1 = savedInstanceState.getString("currExpApart1");
-        currExpApart2 = savedInstanceState.getString("currExpApart2");*/
     }
 
     @Override
@@ -511,7 +509,7 @@ public class CameraActivity extends FragmentActivity
             FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             //Remove Fragment showing
-            MasterSlidebarFragment myFrag = (MasterSlidebarFragment) fm.findFragmentById(frameLayoutToAppear);
+            final MasterSlidebarFragment myFrag = (MasterSlidebarFragment) fm.findFragmentById(frameLayoutToAppear);
             if (myFrag == myFragment) {
                 ft.remove(myFrag);
                 ft.commit();
@@ -521,8 +519,12 @@ public class CameraActivity extends FragmentActivity
                     Log.d(TAG, "Exists");
                     ft.replace(frameLayoutToAppear, myFragment, propertyName);
 
+                    //set slider to curr value
+                    int index = valueList.indexOf(value);
+                    myFrag.SetSliderBarVal(index);
+
                     MasterSlidebarFragment myFrag2 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
-                    if(myFrag2!= null)
+                    if (myFrag2 != null)
                         ft.remove(myFrag2);
 
                 } else {
@@ -530,7 +532,6 @@ public class CameraActivity extends FragmentActivity
                     myFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
                         @Override
                         public void onSlideValueBar(String value) {
-
                             fSettings.SetSliderResult(value, propertyName);
                         }
                     });

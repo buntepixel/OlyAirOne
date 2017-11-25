@@ -6,13 +6,16 @@ package com.example.mail.fragmenttest;
 
 public class WbFragment extends MasterSlidebarFragment {
     private static final String TAG = WbFragment.class.getSimpleName();
-    private static final String[] myString = {"Auto", "Fine", "Shade", "Cloud", "Lamp", "Fluoresc", "Water", "Custom"};
 
-    public WbFragment() {
-        this.setBarStringArr(myString);
 
+
+    @Override
+    public void SetSliderBarVal(int Index) {
+        this.mySliderValIndex = Index;
     }
-    public void SetContentString(String[] myString) {
-        this.setBarStringArr(myString);
+
+    @Override
+    public void setBarStringArr(String[] inStringArr) {
+        this.myString = inStringArr;
     }
 }

@@ -134,8 +134,6 @@ public class SettingsFragment extends Fragment
         } else if (v == ll_iso) {
             settingsFragmListener.onButtonsInteraction(3);
         } else if (v == ll_Wb) {
-            Log.d(TAG, "ImageView click:");
-
             settingsFragmListener.onButtonsInteraction(4);
         }
     }

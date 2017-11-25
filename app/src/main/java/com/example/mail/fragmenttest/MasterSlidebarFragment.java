@@ -17,12 +17,12 @@ import jp.co.olympus.camerakit.OLYCamera;
  * Created by mail on 13/10/2016.
  */
 
-public abstract class MasterSlidebarFragment extends Fragment {
+public abstract class MasterSlidebarFragment extends Fragment implements ViewTreeObserver.OnPreDrawListener,ScrollingValuePicker.ScrollingValueInteraction {
     private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
     OLYCamera camera;
-    private String[] myString;
+    protected String[] myString = new String[]{"default, Value"};
     private sliderValue sliderValueListener;
-    private int mySliderValIndex = -1;
+    protected   int mySliderValIndex = -1;
     private ScrollingValuePicker mScrollingValuePicker;
 
     public MasterSlidebarFragment() {
@@ -36,7 +36,8 @@ public abstract class MasterSlidebarFragment extends Fragment {
     public void setSliderValueListener(sliderValue listener) {
         this.sliderValueListener = listener;
     }
-    public ScrollingValuePicker getScrollingValuePicker(){
+
+    public ScrollingValuePicker getScrollingValuePicker() {
         return mScrollingValuePicker;
     }
 
@@ -44,21 +45,21 @@ public abstract class MasterSlidebarFragment extends Fragment {
         this.camera = camera;
     }
 
-    public void setBarStringArr(String[] inStringArr) {
-        this.myString = inStringArr;
-    }
-
+    public abstract void SetSliderBarVal(int Index);
+    public abstract void setBarStringArr(String[] inStringArr);
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        Log.d(TAG, "OnCreate");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         try {
+            Log.d(TAG, "OnCreateView");
+
             //create LinLayout to hold the text view
             LinearLayout mContentLinLayout = new LinearLayout(getContext());
 
@@ -71,42 +72,19 @@ public abstract class MasterSlidebarFragment extends Fragment {
 
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             rootView.setId(View.generateViewId());
-            // Log.d(TAG, "RootView id: " + rootView.getId());
 
+            if (savedInstanceState != null) {
+                mySliderValIndex = savedInstanceState.getInt("mySliderValIndex", -5);
+                // mScrollingValuePicker.setBarToValue(mySliderValIndex);
+                Log.d(TAG, "mySliderValIdx: " + mySliderValIndex);
+            }
 
             mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
             mScrollingValuePicker.addView(mContentLinLayout);
             mScrollingValuePicker.initValuePicker(getContext(), mContentLinLayout, myString);
-            mScrollingValuePicker.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    if(mySliderValIndex==-1)
-                        mySliderValIndex=myString.length/2;
-                    mScrollingValuePicker.setBarToValue(mySliderValIndex);
-                    mScrollingValuePicker.getViewTreeObserver().removeOnPreDrawListener(this);
-                    return true;
-                }
-            });
-            mScrollingValuePicker.SetScrollingValueInteractionListener(new ScrollingValuePicker.ScrollingValueInteraction() {
-                @Override
-                public void onScrollEnd(int currIndex) {
-                    Log.d(TAG, "onScroll End ");
-                    if (sliderValueListener != null) {
-                        Log.d(TAG, "CurrSTring: " + myString[currIndex]);
-                        sliderValueListener.onSlideValueBar(myString[currIndex]);
-                        mySliderValIndex = currIndex;
-                        mScrollingValuePicker.snapBarToValue(mySliderValIndex);
-                    }
-                }
-            });
-
-            //
-            //mScrollingValuePicker.setOnScrollChangeListener(onScrollChanged(mScrollingValuePicker,0,0););
-
-            //Log.d(TAG, "mScrollingValuePicker id: " + mScrollingValuePicker.getId());
-            //mScrollingValuePicker.setupValuePicker(myString);
-
+            mScrollingValuePicker.getViewTreeObserver().addOnPreDrawListener(this);
+            mScrollingValuePicker.SetScrollingValueInteractionListener(this);
             return rootView;
         } catch (Exception e) {
             Log.e(TAG, "exception: " + e.getMessage());
@@ -114,14 +92,62 @@ public abstract class MasterSlidebarFragment extends Fragment {
         }
         return null;
     }
+    @Override
+    public boolean onPreDraw() {
+        Log.d(TAG, "OnPreeDraw");
+        Log.d(TAG, "mySliderValIdx: " + mySliderValIndex);
+        if (mySliderValIndex == -1)
+            mySliderValIndex = myString.length / 2;
+        Log.d(TAG, "mySliderValIdx: " + mySliderValIndex);
+
+        mScrollingValuePicker.setBarToValue(mySliderValIndex);
+        mScrollingValuePicker.getViewTreeObserver().removeOnPreDrawListener(this);
+        return true;
+    }
+    @Override
+    public void onScrollEnd(int currIndex) {
+        Log.d(TAG, "onScroll End ");
+        if (sliderValueListener != null) {
+            sliderValueListener.onSlideValueBar(myString[currIndex]);
+            mySliderValIndex = currIndex;
+            Log.d(TAG, "CurrSTring: " + myString[currIndex] + "mysliderValIdx: " + mySliderValIndex);
+            mScrollingValuePicker.snapBarToValue(mySliderValIndex);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("mySliderValIndex", mySliderValIndex);
+        Log.d(TAG, "Save Instance State" + mySliderValIndex);
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d(TAG, "View Created Slider Value: "+ mySliderValIndex);
-        mScrollingValuePicker.setBarToValue(mySliderValIndex);
+        Log.d(TAG, "View Created");
+        if (savedInstanceState != null) {
+            mySliderValIndex = savedInstanceState.getInt("mySliderValIndex", -5);
+            mScrollingValuePicker.setBarToValue(mySliderValIndex);
+            Log.d(TAG, "mySliderValIndex: " + mySliderValIndex);
+
+
+        }
+
     }
-//    private void CreateImageViewContent(int itemCount) {
+
+/*    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d(TAG, "ACTCREA mySliderValIndex: " + mySliderValIndex);
+
+        mySliderValIndex = savedInstanceState.getInt("mySliderValIndex", -5);
+        mScrollingValuePicker.setBarToValue(mySliderValIndex);
+        Log.d(TAG, "ACTCREA mySliderValIndex: " + mySliderValIndex);
+
+    }*/
+    //    private void CreateImageViewContent(int itemCount) {
 //        //Adding ImageView
 //        for (int i = 0; i <= itemCount; i++) {
 //            ImageView imageView = new ImageView(getActivity());

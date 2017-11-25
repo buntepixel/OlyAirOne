@@ -136,6 +136,7 @@ public class ScrollingValuePicker extends FrameLayout  {
 
             //the actual context gets Injected
             Log.d(TAG, "myStringBarValues: " + myStringBarValues[0]);
+            //if icons
             if (whiteBalanceIconList.containsKey(myStringBarValues[0])) {
                 for (String i : myStringBarValues)
                     Log.d(TAG, "WbValues: " + i);
@@ -168,6 +169,7 @@ public class ScrollingValuePicker extends FrameLayout  {
         obsScrollView.setScrollX(tmp);
         setSelScrollBarValSelected(index);
     }
+
 
     private void setSelScrollBarValSelected(int index) {
         //index+1 since we have the spacers
@@ -204,7 +206,7 @@ public class ScrollingValuePicker extends FrameLayout  {
                 int myWidth = v.getWidth();
                 if (i > 0 && i < childCount - 1) {
                     contentWidthList.add(myWidth);
-                    Log.d(TAG, "Array: " + v.getWidth());
+                    //Log.d(TAG, "Array: " + v.getWidth());
                 }
             }
         }

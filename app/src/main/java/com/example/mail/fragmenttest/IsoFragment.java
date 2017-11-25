@@ -6,14 +6,13 @@ package com.example.mail.fragmenttest;
 
 public class IsoFragment extends MasterSlidebarFragment {
     private static final String TAG = IsoFragment.class.getSimpleName();
-    private  String[] myString = {"iso", "3.2", "3.5", "4", "4.5", "5", "A", "P", "M", "S", "A", "P", "M", "S", "A", "P"};
 
-    public IsoFragment() {
-        this.setBarStringArr(myString);
+    @Override
+    public void SetSliderBarVal(int Index) {
+        this.mySliderValIndex = Index;
     }
-    public void SetContentString(String[] myString) {
-        this.setBarStringArr(myString);
+    @Override
+    public void setBarStringArr(String[] inStringArr) {
+        this.myString = inStringArr;
     }
-
-
 }
