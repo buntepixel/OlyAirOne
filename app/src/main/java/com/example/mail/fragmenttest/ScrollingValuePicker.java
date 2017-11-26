@@ -31,7 +31,7 @@ public class ScrollingValuePicker extends FrameLayout  {
     private int mCenterContainerWidth;
     private int currContentIndex;
     private ObservableHorizontalScrollView obsScrollView;
-    private String[] content;
+    private List<String> content;
     private int txtPadding = 25;
     private List<Integer> contentWidthList = new ArrayList<Integer>();
 
@@ -101,11 +101,11 @@ public class ScrollingValuePicker extends FrameLayout  {
     private int getCurrIndex(int scrollValue) {
         // scrollvalue from 0-0,99999999
         float decScrollVal = (float) scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
-        int currIndex = Math.round((decScrollVal * content.length));
+        int currIndex = Math.round((decScrollVal * content.size()));
         //Log.d(TAG, "containerWidth: " + mCenterContainerWidth + "  ScrollValue" + scrollValue + " decScrollValue: " + decScrollVal);
         //make sure index doesn't get out of range on overscroll
         currIndex = Math.max(0, currIndex);
-        currIndex = Math.min(content.length - 1, currIndex);
+        currIndex = Math.min(content.size() - 1, currIndex);
         return currIndex;
     }
 
@@ -123,7 +123,7 @@ public class ScrollingValuePicker extends FrameLayout  {
         return sum;
     }
 
-    public void initValuePicker(Context context, LinearLayout ll_wraperLayout, String[] myStringBarValues) {
+    public void initValuePicker(Context context, LinearLayout ll_wraperLayout, List<String> myStringBarValues) {
         try {
             // Create a horizontal (by default) LinearLayout as our child container
             content = myStringBarValues;
@@ -135,9 +135,8 @@ public class ScrollingValuePicker extends FrameLayout  {
             mCenterContainer = ll_contentContainer;
 
             //the actual context gets Injected
-            Log.d(TAG, "myStringBarValues: " + myStringBarValues[0]);
             //if icons
-            if (whiteBalanceIconList.containsKey(myStringBarValues[0])) {
+            if (whiteBalanceIconList.containsKey(myStringBarValues.get(0))) {
                 for (String i : myStringBarValues)
                     Log.d(TAG, "WbValues: " + i);
                 AddImageViewContent(context, myStringBarValues, ll_contentContainer);
@@ -213,17 +212,17 @@ public class ScrollingValuePicker extends FrameLayout  {
     }
 
     // do stuff with the scroll listener we created early to make our values usable.
-    private void AddTextViewContent(Context context, String[] stringArr, LinearLayout linearLayout) {
+    private void AddTextViewContent(Context context, List<String> stringArr, LinearLayout linearLayout) {
         //Adding Textview
         try {
-            for (int i = 0; i < stringArr.length; i++) {
+            for (int i = 0; i < stringArr.size(); i++) {
                 TextView textView = new TextView(context);
                 textView.setId(View.generateViewId());
                 //Log.d(TAG, "textView " + i + " id: " + textView.getId());
                 //Log.d(TAG, "mystring:  " + i);
                 if (camera != null) {
                     //Log.d(TAG, "CurrentValue::::::" + camera.getCameraPropertyValueTitle(i));
-                    textView.setText(camera.getCameraPropertyValueTitle(stringArr[i]));
+                    textView.setText(camera.getCameraPropertyValueTitle(stringArr.get(i)));
                 } else {
                     Log.d(TAG, "Cam Seems to be null");
                     textView.setText(i);
@@ -244,15 +243,15 @@ public class ScrollingValuePicker extends FrameLayout  {
         }
     }
 
-    private void AddImageViewContent(Context context, String[] stringArr, LinearLayout linearLayout) {
+    private void AddImageViewContent(Context context, List<String> stringArr, LinearLayout linearLayout) {
         try {
             //Adding ImageView
             Collection<Integer> myValues = whiteBalanceIconList.values();
-            Log.d(TAG, "StringArrLength: " + stringArr.length + "Iconlist" + myValues.size());
+            Log.d(TAG, "StringArrLength: " + stringArr.size() + "Iconlist" + myValues.size());
 
-            for (int i = 0; i < stringArr.length; i++) {
+            for (int i = 0; i < stringArr.size(); i++) {
                 ImageView imageView = new ImageView(getContext());
-                int viewId = whiteBalanceIconList.get(stringArr[i]);
+                int viewId = whiteBalanceIconList.get(stringArr.get(i));
                 imageView.setImageResource(viewId);
 
                 imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,

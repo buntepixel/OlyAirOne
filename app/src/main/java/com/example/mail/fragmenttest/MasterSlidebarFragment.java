@@ -11,23 +11,25 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
+import java.util.List;
+
 import jp.co.olympus.camerakit.OLYCamera;
 
 /**
  * Created by mail on 13/10/2016.
  */
 
-public abstract class MasterSlidebarFragment extends Fragment implements ViewTreeObserver.OnPreDrawListener,ScrollingValuePicker.ScrollingValueInteraction {
+public abstract class MasterSlidebarFragment extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
     private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
     OLYCamera camera;
-    protected String[] myString = new String[]{"default, Value"};
+    protected List<String> myString;
     private sliderValue sliderValueListener;
-    protected   int mySliderValIndex = -1;
+    protected int mySliderValIndex = -1;
     private ScrollingValuePicker mScrollingValuePicker;
 
     public MasterSlidebarFragment() {
-    }
 
+    }
 
     public interface sliderValue {
         void onSlideValueBar(String value);
@@ -45,8 +47,26 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
         this.camera = camera;
     }
 
-    public abstract void SetSliderBarVal(int Index);
-    public abstract void setBarStringArr(String[] inStringArr);
+
+    public void SetSliderBarValues(List<String> inStringArr) {
+        myString = inStringArr;
+    }
+
+    public boolean SetSliderBarValIdx(String value) {
+        if (myString != null && myString.size() > 0) {
+            SetSliderBarValIdx(myString.indexOf(value));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean SetSliderBarValIdx(int index) {
+        Log.d(TAG,"setting SlideBar to: "+ index);
+
+        mySliderValIndex = index;
+        return true;
+    }
 
 
     @Override
@@ -73,11 +93,10 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
             View rootView = inflater.inflate(R.layout.fragment_observablescrollview, container, false);
             rootView.setId(View.generateViewId());
 
-            if (savedInstanceState != null) {
-                mySliderValIndex = savedInstanceState.getInt("mySliderValIndex", -5);
-                // mScrollingValuePicker.setBarToValue(mySliderValIndex);
-                Log.d(TAG, "mySliderValIdx: " + mySliderValIndex);
-            }
+            myString = getArguments().getStringArrayList("myString");
+            mySliderValIndex = myString.indexOf(getArguments().getString("value"));
+            Log.d(TAG, "mySliderValIdx: " + mySliderValIndex);
+
 
             mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             mScrollingValuePicker.generateViewId();
@@ -92,25 +111,27 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
         }
         return null;
     }
+
     @Override
     public boolean onPreDraw() {
         Log.d(TAG, "OnPreeDraw");
         Log.d(TAG, "mySliderValIdx: " + mySliderValIndex);
         if (mySliderValIndex == -1)
-            mySliderValIndex = myString.length / 2;
+            mySliderValIndex = myString.size() / 2;
         Log.d(TAG, "mySliderValIdx: " + mySliderValIndex);
 
         mScrollingValuePicker.setBarToValue(mySliderValIndex);
         mScrollingValuePicker.getViewTreeObserver().removeOnPreDrawListener(this);
         return true;
     }
+
     @Override
     public void onScrollEnd(int currIndex) {
         Log.d(TAG, "onScroll End ");
         if (sliderValueListener != null) {
-            sliderValueListener.onSlideValueBar(myString[currIndex]);
+            sliderValueListener.onSlideValueBar(myString.get(currIndex));
             mySliderValIndex = currIndex;
-            Log.d(TAG, "CurrSTring: " + myString[currIndex] + "mysliderValIdx: " + mySliderValIndex);
+            Log.d(TAG, "CurrSTring: " + myString.get(currIndex) + "mysliderValIdx: " + mySliderValIndex);
             mScrollingValuePicker.snapBarToValue(mySliderValIndex);
         }
     }
@@ -131,8 +152,6 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
             mySliderValIndex = savedInstanceState.getInt("mySliderValIndex", -5);
             mScrollingValuePicker.setBarToValue(mySliderValIndex);
             Log.d(TAG, "mySliderValIndex: " + mySliderValIndex);
-
-
         }
 
     }

@@ -1,5 +1,10 @@
 package com.example.mail.fragmenttest;
 
+import android.os.Bundle;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by mail on 13/10/2016.
  */
@@ -7,15 +12,19 @@ package com.example.mail.fragmenttest;
 public class ShutterFragment extends MasterSlidebarFragment {
     private static final String TAG = ShutterFragment.class.getSimpleName();
 
+    public  static ShutterFragment newInstance(List<String> myString,String value) {
+        ShutterFragment myFragment = new ShutterFragment();
+
+        Bundle args = new Bundle();
+        ArrayList<String> myArrList = new ArrayList();
+        myArrList.addAll(myString);
+        args.putStringArrayList("myString",myArrList );
+        args.putString("value", value);
+        myFragment.setArguments(args);
+
+        return myFragment;
+    }
 
 
-    @Override
-    public void SetSliderBarVal(int Index) {
-        this.mySliderValIndex = Index;
-    }
-    @Override
-    public void setBarStringArr(String[] inStringArr) {
-        this.myString = inStringArr;
-    }
 
 }

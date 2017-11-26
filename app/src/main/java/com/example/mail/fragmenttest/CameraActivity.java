@@ -162,17 +162,8 @@ public class CameraActivity extends FragmentActivity
         fLiveView.SetOLYCam(camera);
         fTrigger.SetOLYCam(camera);
         fSettings.SetOLYCam(camera);
-        //create slider fragments.
-        apartureFragment = new ApartureFragment();
-        apartureFragment.SetOLYCam(camera);
-        shutterSpeedFragment = new ShutterFragment();
-        shutterSpeedFragment.SetOLYCam(camera);
-        exposureCorrFragment = new ExposureCorrFragment();
-        exposureCorrFragment.SetOLYCam(camera);
-        isoFragment = new IsoFragment();
-        isoFragment.SetOLYCam(camera);
-        wbFragment = new WbFragment();
-        wbFragment.SetOLYCam(camera);
+
+
         //add fragments to fragmentManager if here the first time
         if (fm.findFragmentByTag(FRAGMENT_TAG_TRIGGER) == null) {
             Log.d(TAG, "onResume__" + "bevoreCommit");
@@ -189,8 +180,8 @@ public class CameraActivity extends FragmentActivity
             // Log.d(TAG, "onResume__" + "connecting");
             onConnectedToCamera();
         }
-        if (isoFragment == null)
-            Log.d(TAG, "END Resume");
+
+        Log.d(TAG, "END Resume");
 
     }
 
@@ -372,13 +363,26 @@ public class CameraActivity extends FragmentActivity
             //fragmentTransaction.commitAllowingStateLoss();
             fragmentTransaction.commit();
         }
-
         try {
             takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
-            List<String> valueList = camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
 
-            /*fSettings.SetExposureCorrValues(valueList);
-            fSettings.UpdateValues();*/
+            //create slider fragments.
+            Log.d(TAG, "VALUE" + GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
+            apartureFragment = ApartureFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
+            apartureFragment.SetOLYCam(camera);
+
+            shutterSpeedFragment = ShutterFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), GetCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
+            shutterSpeedFragment.SetOLYCam(camera);
+
+            exposureCorrFragment = ExposureCorrFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION), GetCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
+            exposureCorrFragment.SetOLYCam(camera);
+
+            isoFragment = IsoFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_ISO_SENSITIVITY), GetCamPropertyValue(CAMERA_PROPERTY_ISO_SENSITIVITY));
+            isoFragment.SetOLYCam(camera);
+
+            wbFragment = WbFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_WHITE_BALANCE), GetCamPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE));
+            wbFragment.SetOLYCam(camera);
+
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;
@@ -478,33 +482,38 @@ public class CameraActivity extends FragmentActivity
         ft.commit();
     }
 
-    private void generalPressed(MasterSlidebarFragment myFragment, final String propertyName, int frameLayoutToAppear) {
-        if (myFragment == null)
-            Log.d(TAG, "myfrag Is null");
-        //getting possible values
-        List<String> valueList;
+    private List<String> GetCamPropertyValues(String propertyName) {
         try {
-            valueList = camera.getCameraPropertyValueList(propertyName);
+            return camera.getCameraPropertyValueList(propertyName);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
-            return;
+            return null;
         }
+    }
+
+    private String GetCamPropertyValue(String propertyName) {
+        try {
+            return camera.getCameraPropertyValue(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void generalPressed(MasterSlidebarFragment myFragment, final String propertyName, int frameLayoutToAppear) {
+        //getting possible values
+        List<String> valueList = GetCamPropertyValues(propertyName);
         if (valueList == null || valueList.size() == 0) return;
+        myFragment.SetSliderBarValues(valueList);
         //Todo: this is ugly find other way
         //set possible values for display
         fSettings.SetExposureCorrValues(valueList);
 
-        myFragment.setBarStringArr(valueList.toArray(new String[0]));
-        //get Value
-        String value;
-        try {
-            value = camera.getCameraPropertyValue(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-        if (value == null) return;
 
+        //get Value
+        String value = GetCamPropertyValue(propertyName);
+        if (value == null) return;
+        myFragment.SetSliderBarValIdx(value);
         try {
             FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
@@ -520,8 +529,7 @@ public class CameraActivity extends FragmentActivity
                     ft.replace(frameLayoutToAppear, myFragment, propertyName);
 
                     //set slider to curr value
-                    int index = valueList.indexOf(value);
-                    myFrag.SetSliderBarVal(index);
+                    myFrag.SetSliderBarValIdx(value);
 
                     MasterSlidebarFragment myFrag2 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
                     if (myFrag2 != null)
