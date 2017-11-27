@@ -53,11 +53,9 @@ public class CameraActivity extends FragmentActivity
 
     List<String> takeModeStrings;
 
-    //Boolean isActive = false;
     Executor connectionExecutor = Executors.newFixedThreadPool(1);
     int currDriveMode = 0;
-    /*  String currExpApart1;
-      String currExpApart2;*/
+
     FragmentManager fm;
     TriggerFragment fTrigger;
     LiveViewFragment fLiveView;
@@ -107,51 +105,24 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
+    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+        View view = super.onCreateView(parent, name, context, attrs);
+        return view;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        removeVisibleSliderFragments();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         fm.putFragment(outState, FRAGMENT_TAG_LIVEVIEW, fLiveView);
         fm.putFragment(outState, FRAGMENT_TAG_SETTINGS, fSettings);
         fm.putFragment(outState, FRAGMENT_TAG_TRIGGER, fTrigger);
         outState.putInt("currDriveMode", currDriveMode);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        currDriveMode = savedInstanceState.getInt("currDriveMode");
-    }
-
-    @Override
-    public void onShootingModeButtonPressed(int currDriveMode) {
-        try {
-            try {
-                camera.setCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE, takeModeStrings.get(currDriveMode));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            this.currDriveMode = currDriveMode;
-            SetShootingModeButtons(currDriveMode);
-        } catch (Exception e) {
-            String stackTrace = Log.getStackTraceString(e);
-            System.err.println(TAG + e.getMessage());
-            Log.d(TAG, stackTrace);
-        }
-    }
-
-    @Override
-    public void onEnabledFocusLock(Boolean focusLockState) {
-
-    }
-
-    @Override
-    public void onEnabledTouchShutter(Boolean touchShutterState) {
-
-    }
-
-    @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        View view = super.onCreateView(parent, name, context, attrs);
-        return view;
     }
 
     @Override
@@ -186,15 +157,50 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        removeVisibleSliderFragments();
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        currDriveMode = savedInstanceState.getInt("currDriveMode");
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         startActivity(new Intent(this, MainActivity.class));
+    }
+
+    //-----------------
+    //   Interaction
+    //-----------------
+    @Override
+    public void onShutterTouched(MotionEvent event) {
+        fLiveView.onShutterTouched(event);
+    }
+
+    @Override
+    public void onShootingModeButtonPressed(int currDriveMode) {
+        try {
+            try {
+                camera.setCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE, takeModeStrings.get(currDriveMode));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            this.currDriveMode = currDriveMode;
+            SetShootingModeButtons(currDriveMode);
+        } catch (Exception e) {
+            String stackTrace = Log.getStackTraceString(e);
+            System.err.println(TAG + e.getMessage());
+            Log.d(TAG, stackTrace);
+        }
+    }
+
+    @Override
+    public void onEnabledFocusLock(Boolean focusLockState) {
+
+    }
+
+    @Override
+    public void onEnabledTouchShutter(Boolean touchShutterState) {
+
     }
 
     @Override
@@ -247,32 +253,17 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
-    private void removeVisibleSliderFragments() {
-        //if there is a fragment loaded remove it
-        Log.d(TAG, "RemoveVisFragment");
-        MasterSlidebarFragment fragment1 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart1);
-        if (fragment1 != null) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
-            ft.remove(fragment1);
-            Log.d(TAG, "Removing expApart1");
-            MasterSlidebarFragment fragment2 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
-            if (fragment2 != null) {
-                ft.remove(fragment2);
-                Log.d(TAG, "Removing expApart2");
-            }
-            ft.commit();
-        }
-    }
-
-
     @Override
-    public void onShutterTouched(MotionEvent event) {
-        fLiveView.onShutterTouched(event);
+    public void onSlideValueBar(String value) {
+        String propValue = value;
+        String property = extractProperty(value);
+        fSettings.SetSliderResult(property, propValue);
+
     }
 
-
-    //connecting Camera
+    //------------------------
+    //    Connecting Camera
+    //------------------------
     private void startConnectingCamera() {
         Log.d(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
         connectionExecutor.execute(new Runnable() {
@@ -353,44 +344,6 @@ public class CameraActivity extends FragmentActivity
         });
     }
 
-    private void onConnectedToCamera() {
-        Log.d(TAG, "Connected to Cam");
-        //add fragments to fragment manager if here first time
-        if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
-            FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
-            //Todo: maybe only commit();
-            //fragmentTransaction.commitAllowingStateLoss();
-            fragmentTransaction.commit();
-        }
-        try {
-            takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
-
-            //create slider fragments.
-            Log.d(TAG, "VALUE" + GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
-            apartureFragment = ApartureFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
-            apartureFragment.SetOLYCam(camera);
-
-            shutterSpeedFragment = ShutterFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), GetCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
-            shutterSpeedFragment.SetOLYCam(camera);
-
-            exposureCorrFragment = ExposureCorrFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION), GetCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
-            exposureCorrFragment.SetOLYCam(camera);
-
-            isoFragment = IsoFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_ISO_SENSITIVITY), GetCamPropertyValue(CAMERA_PROPERTY_ISO_SENSITIVITY));
-            isoFragment.SetOLYCam(camera);
-
-            wbFragment = WbFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_WHITE_BALANCE), GetCamPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE));
-            wbFragment.SetOLYCam(camera);
-
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-
-
-    }
-
     private void alertConnectingFailed(Exception e) {
         final Intent myIntent = new Intent(this, ConnectToCamActivity.class);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -412,6 +365,27 @@ public class CameraActivity extends FragmentActivity
         });
     }
 
+    private void onConnectedToCamera() {
+        Log.d(TAG, "Connected to Cam");
+        //add fragments to fragment manager if here first time
+        if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
+            //Todo: maybe only commit();
+            //fragmentTransaction.commitAllowingStateLoss();
+            fragmentTransaction.commit();
+        }
+        try {
+            takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
+            createSliderFragments();
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+
+
     private OLYCamera.LiveViewSize toLiveViewSize(String quality) {
         if (quality.equalsIgnoreCase("QVGA")) {
             return OLYCamera.LiveViewSize.QVGA;
@@ -425,6 +399,15 @@ public class CameraActivity extends FragmentActivity
         return OLYCamera.LiveViewSize.QVGA;
     }
 
+    @Override
+    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
+        Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
+        finish();
+        startActivity(new Intent(this, MainActivity.class));
+    }
+    //------------------------
+    //     Helpers
+    //------------------------
     private void SetShootingModeButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
         fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
@@ -482,22 +465,46 @@ public class CameraActivity extends FragmentActivity
         ft.commit();
     }
 
-    private List<String> GetCamPropertyValues(String propertyName) {
-        try {
-            return camera.getCameraPropertyValueList(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return null;
+    private void createSliderFragments() {
+        //create slider fragments.
+        Log.d(TAG, "VALUE" + GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
+        apartureFragment = ApartureFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
+        apartureFragment.SetOLYCam(camera);
+
+        shutterSpeedFragment = ShutterFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), GetCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
+        shutterSpeedFragment.SetOLYCam(camera);
+
+        exposureCorrFragment = ExposureCorrFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION), GetCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
+        exposureCorrFragment.SetOLYCam(camera);
+
+        isoFragment = IsoFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_ISO_SENSITIVITY), GetCamPropertyValue(CAMERA_PROPERTY_ISO_SENSITIVITY));
+        isoFragment.SetOLYCam(camera);
+
+        wbFragment = WbFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_WHITE_BALANCE), GetCamPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE));
+        wbFragment.SetOLYCam(camera);
+    }
+
+    private void removeVisibleSliderFragments() {
+        //if there is a fragment loaded remove it
+        Log.d(TAG, "RemoveVisFragment");
+        MasterSlidebarFragment fragment1 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart1);
+        if (fragment1 != null) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+            ft.remove(fragment1);
+            Log.d(TAG, "Removing expApart1");
+            MasterSlidebarFragment fragment2 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
+            if (fragment2 != null) {
+                ft.remove(fragment2);
+                Log.d(TAG, "Removing expApart2");
+            }
+            ft.commit();
         }
     }
 
-    private String GetCamPropertyValue(String propertyName) {
-        try {
-            return camera.getCameraPropertyValue(propertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return null;
-        }
+    @Override
+    public void onUpdateCameraProperty(OLYCamera olyCamera, String s) {
+
     }
 
     private void generalPressed(MasterSlidebarFragment myFragment, final String propertyName, int frameLayoutToAppear) {
@@ -553,32 +560,35 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
-    @Override
-    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
-        Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
-        finish();
-        startActivity(new Intent(this, MainActivity.class));
-    }
-
-
-    @Override
-    public void onUpdateCameraProperty(OLYCamera olyCamera, String s) {
-
-    }
-
-    @Override
-    public void onSlideValueBar(String value) {
-        String propValue = value;
-        String property = extractProperty(value);
-        fSettings.SetSliderResult(property, propValue);
-
-    }
-
     private String extractProperty(String value) {
         String[] myStringArr = value.split("/");
         String extractedString = myStringArr[0].substring(1);
         return extractedString;
     }
+
+    private List<String> GetCamPropertyValues(String propertyName) {
+        try {
+            return camera.getCameraPropertyValueList(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String GetCamPropertyValue(String propertyName) {
+        try {
+            return camera.getCameraPropertyValue(propertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
+
+
+
 }
 
 
