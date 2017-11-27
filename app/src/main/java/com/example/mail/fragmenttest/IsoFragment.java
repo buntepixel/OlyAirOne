@@ -1,6 +1,7 @@
 package com.example.mail.fragmenttest;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class IsoFragment extends MasterSlidebarFragment {
 
     public  static IsoFragment newInstance(List<String> myString,String value) {
         IsoFragment myFragment = new IsoFragment();
+        Log.d(TAG, "SliderBarValues: " + myString.size());
 
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
@@ -24,6 +26,7 @@ public class IsoFragment extends MasterSlidebarFragment {
 
         return myFragment;
     }
+
 
 
 }

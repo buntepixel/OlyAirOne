@@ -35,34 +35,8 @@ public class ScrollingValuePicker extends FrameLayout  {
     private int txtPadding = 25;
     private List<Integer> contentWidthList = new ArrayList<Integer>();
 
+
     @SuppressWarnings("serial")
-    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
-        {
-            put("<WB/WB_AUTO>", R.drawable.icn_wb_setting_wbauto);
-            put("<WB/MWB_SHADE>", R.drawable.icn_wb_setting_16);
-            put("<WB/MWB_CLOUD>", R.drawable.icn_wb_setting_17);
-            put("<WB/MWB_FINE>", R.drawable.icn_wb_setting_18);
-            put("<WB/MWB_LAMP>", R.drawable.icn_wb_setting_20);
-            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
-            put("<WB/MWB_WATER_1>", R.drawable.icn_wb_setting_64);
-            put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
-        }
-    };
-
-    public int getCurrValueIndex() {
-        return currContentIndex;
-    }
-
-    public ScrollingValueInteraction mValueInteractionListener;
-
-    public interface ScrollingValueInteraction {
-        void onScrollEnd(int currentIndex);
-    }
-
-    public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener) {
-        mValueInteractionListener = listener;
-    }
-
     public ScrollingValuePicker(final Context context, AttributeSet attrs) {
         super(context, attrs);
         // Create our internal scroll view
@@ -98,6 +72,34 @@ public class ScrollingValuePicker extends FrameLayout  {
         });
     }
 
+    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
+        {
+            put("<WB/WB_AUTO>", R.drawable.icn_wb_setting_wbauto);
+            put("<WB/MWB_SHADE>", R.drawable.icn_wb_setting_16);
+            put("<WB/MWB_CLOUD>", R.drawable.icn_wb_setting_17);
+            put("<WB/MWB_FINE>", R.drawable.icn_wb_setting_18);
+            put("<WB/MWB_LAMP>", R.drawable.icn_wb_setting_20);
+            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
+            put("<WB/MWB_WATER_1>", R.drawable.icn_wb_setting_64);
+            put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
+        }
+    };
+
+    public int getCurrValueIndex() {
+        return currContentIndex;
+    }
+
+    public ScrollingValueInteraction mValueInteractionListener;
+
+    public interface ScrollingValueInteraction {
+        void onScrollEnd(int currentIndex);
+
+    }
+
+    public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener) {
+        mValueInteractionListener = listener;
+    }
+
     private int getCurrIndex(int scrollValue) {
         // scrollvalue from 0-0,99999999
         float decScrollVal = (float) scrollValue / (mCenterContainerWidth + 1);//add 1 so it never gets 1 and breaks the index
@@ -123,10 +125,14 @@ public class ScrollingValuePicker extends FrameLayout  {
         return sum;
     }
 
+    public void updateContentList(List<String> myStringBarValues){
+        content = myStringBarValues;
+    }
+
     public void initValuePicker(Context context, LinearLayout ll_wraperLayout, List<String> myStringBarValues) {
         try {
+            updateContentList(myStringBarValues);
             // Create a horizontal (by default) LinearLayout as our child container
-            content = myStringBarValues;
             final LinearLayout ll_contentContainer = new LinearLayout(context);
             ll_contentContainer.setId(View.generateViewId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -163,6 +169,7 @@ public class ScrollingValuePicker extends FrameLayout  {
         obsScrollView.smoothScrollTo(tmp, 0);
         setSelScrollBarValSelected(index);
     }
+
     public void setBarToValue(int index){
         int tmp = getScrollPos(index);
         obsScrollView.setScrollX(tmp);

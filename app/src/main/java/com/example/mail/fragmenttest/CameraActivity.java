@@ -67,6 +67,9 @@ public class CameraActivity extends FragmentActivity
     ExposureCorrFragment exposureCorrFragment;
 
     public static OLYCamera camera = null;
+    //-----------------
+    //   Setup
+    //-----------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -367,7 +370,7 @@ public class CameraActivity extends FragmentActivity
 
     private void onConnectedToCamera() {
         Log.d(TAG, "Connected to Cam");
-        //add fragments to fragment manager if here first time
+        //add LiveView to fragment manager if here first time
         if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
@@ -467,7 +470,7 @@ public class CameraActivity extends FragmentActivity
 
     private void createSliderFragments() {
         //create slider fragments.
-        Log.d(TAG, "VALUE" + GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
+        Log.d(TAG, "Creating Slider Fragments: ----------------" + GetCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE).size());
         apartureFragment = ApartureFragment.newInstance(GetCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), GetCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
         apartureFragment.SetOLYCam(camera);
 
@@ -511,16 +514,16 @@ public class CameraActivity extends FragmentActivity
         //getting possible values
         List<String> valueList = GetCamPropertyValues(propertyName);
         if (valueList == null || valueList.size() == 0) return;
-        myFragment.SetSliderBarValues(valueList);
+        //myFragment.SetSliderBarValues(valueList);
         //Todo: this is ugly find other way
         //set possible values for display
         fSettings.SetExposureCorrValues(valueList);
 
-
         //get Value
         String value = GetCamPropertyValue(propertyName);
         if (value == null) return;
-        myFragment.SetSliderBarValIdx(value);
+        //myFragment.SetSliderBarValIdx(value);
+        myFragment.updateBundle(valueList,value);
         try {
             FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);

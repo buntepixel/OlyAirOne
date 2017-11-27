@@ -25,8 +25,6 @@ public class ApartureFragment extends MasterSlidebarFragment {
         return myFragment;
     }
 
-
-
 }
 
 
