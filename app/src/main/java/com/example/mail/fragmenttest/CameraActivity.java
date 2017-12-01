@@ -514,21 +514,21 @@ public class CameraActivity extends FragmentActivity
         //getting possible values
         List<String> valueList = GetCamPropertyValues(propertyName);
         if (valueList == null || valueList.size() == 0) return;
-        //myFragment.SetSliderBarValues(valueList);
         //Todo: this is ugly find other way
         //set possible values for display
         fSettings.SetExposureCorrValues(valueList);
 
         //get Value
         String value = GetCamPropertyValue(propertyName);
+        Log.d(TAG,"Value: "+value);
         if (value == null) return;
-        //myFragment.SetSliderBarValIdx(value);
-        myFragment.updateBundle(valueList,value);
         try {
             FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             //Remove Fragment showing
             final MasterSlidebarFragment myFrag = (MasterSlidebarFragment) fm.findFragmentById(frameLayoutToAppear);
+
+            Log.d(TAG,"myFrag: "+ myFrag+" myFragment: " +myFragment);
             if (myFrag == myFragment) {
                 ft.remove(myFrag);
                 ft.commit();
@@ -547,6 +547,7 @@ public class CameraActivity extends FragmentActivity
 
                 } else {
                     Log.d(TAG, "New");
+                    myFragment.updateBundle(valueList,value);
                     myFragment.setSliderValueListener(new MasterSlidebarFragment.sliderValue() {
                         @Override
                         public void onSlideValueBar(String value) {
