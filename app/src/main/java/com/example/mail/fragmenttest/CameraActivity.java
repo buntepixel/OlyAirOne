@@ -196,6 +196,8 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
+
+
     @Override
     public void onEnabledFocusLock(Boolean focusLockState) {
 
@@ -207,7 +209,18 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
+    public void updateDriveModeImage(String propValue) {
+        fTrigger.updateDrivemodeImageView(propValue);
+    }
+
+ /*   @Override
+    public void updateDrivemodeImage() {
+
+    }
+*/
+    @Override
     public void onDriveModeChange(String propValue) {
+        fTrigger.updateAfterCamConnection();
         //fLiveView.updateFocusMode(propValue);
     }
 
@@ -381,6 +394,7 @@ public class CameraActivity extends FragmentActivity
         try {
             takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
             createSliderFragments();
+            fTrigger.updateAfterCamConnection();
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
             return;

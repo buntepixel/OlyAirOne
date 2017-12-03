@@ -16,7 +16,8 @@
     <color name="SrlBar_Text_focused">#53a6ff</color>
     <color name="SrlBar_Bg">#6464646e</color>
     <color name="Btn_Mode">#c8ce2549</color>
-
+    <color name="LiveView_Text_active">#c8ffffff</color>
+    <color name="LiveView_Text_deactivated">#c854535b</color>
     <color name="BgPrim_HalfTransp_Grey">#64646464</color>
 
 

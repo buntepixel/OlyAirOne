@@ -67,14 +67,15 @@ public class TriggerFragment extends Fragment
 
     public interface OnTriggerFragmInteractionListener {
         void onShutterTouched(MotionEvent event);
-        void onDriveModeChange(String propValue);
+
+        //void updateDrivemodeImage();
     }
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       setRetainInstance(true);
+        setRetainInstance(true);
     }
 
     @Override
@@ -124,8 +125,6 @@ public class TriggerFragment extends Fragment
             iv_meteringMode.setVisibility(View.INVISIBLE);
         else
             updateMeteringImageView();
-        //Todo: find way to do it after reconnecting to the cam
-        //updateDrivemodeImageView();
     }
 
     @Override
@@ -133,14 +132,21 @@ public class TriggerFragment extends Fragment
         super.onPause();
         saveCamSettings();
     }
+
+    public void updateAfterCamConnection() {
+        updateDrivemodeImageView();
+    }
 //----------------
 
     public void SetTakeMode(int takeMode) {
         this.takeMode = takeMode;
     }
 
-    private void updateDrivemodeImageView() {
+    public void updateDrivemodeImageView() {
         updatePropertyImageView(iv_driveMode, drivemodeIconList, CAMERA_PROPERTY_DRIVE_MODE);
+    }
+    public void updateDrivemodeImageView(String value){
+        updateImageView( iv_driveMode,drivemodeIconList,value);
     }
 
     private void drivemodeImageViewDidTap() {
@@ -191,14 +197,20 @@ public class TriggerFragment extends Fragment
         if (propValue == null) {
             return;
         }
+        updateImageView(imageView, iconList, propValue);
+
+    }
+
+    public void updateImageView(ImageView imageView, Map<String, Integer> iconList, String propValue) {
         if (iconList.containsKey(propValue)) {
             int resId = iconList.get(propValue);
             imageView.setImageResource(resId);
-            triggerFragmListener.onDriveModeChange(propValue);
+            //triggerFragmListener.updateDrivemodeImage();
         } else {
             imageView.setImageDrawable(null);
         }
     }
+
 
     private void cameraPropertyDidTab(View inView, String inPropertyName) {
         final List<String> valueList;
@@ -226,7 +238,7 @@ public class TriggerFragment extends Fragment
             int listSize = valueList.size();
             //Log.d(TAG, "listSize: " + listSize);
             int moduloIndex = index % listSize;
-            //Log.d(TAG, "ModuloIndex: " + moduloIndex);
+            Log.d(TAG, "Property: " + inPropertyName + " Value: " + valueList.get(moduloIndex));
             camera.setCameraPropertyValue(inPropertyName, valueList.get(moduloIndex));
 
         } catch (Exception e) {
@@ -243,17 +255,17 @@ public class TriggerFragment extends Fragment
         SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
         String driveMode = settings.getString(CAMERA_PROPERTY_DRIVE_MODE, null);
         String meteringMode = settings.getString(CAMERA_PROPERTY_METERING_MODE, null);
-        try{
-            if (driveMode != null){
-                camera.setCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE,driveMode);
+        try {
+            if (driveMode != null) {
+                camera.setCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE, driveMode);
                 updatePropertyImageView(iv_driveMode, drivemodeIconList, driveMode);
             }
-            if (meteringMode != null){
-                camera.setCameraPropertyValue(CAMERA_PROPERTY_METERING_MODE,meteringMode);
+            if (meteringMode != null) {
+                camera.setCameraPropertyValue(CAMERA_PROPERTY_METERING_MODE, meteringMode);
                 updatePropertyImageView(iv_meteringMode, meteringIconList, meteringMode);
             }
 
-        }catch (OLYCameraKitException ex){
+        } catch (OLYCameraKitException ex) {
             ex.printStackTrace();
         }
 
