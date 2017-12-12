@@ -1,7 +1,6 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -30,10 +29,6 @@ public class TriggerFragment extends Fragment
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
     private int takeMode;
     OLYCamera camera;
-
-    private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
-    private static final String CAMERA_PROPERTY_METERING_MODE = "AE";
-
 
     private ExposureCorrection expCorr;
     private List<String> possibleExpCorrValues;
@@ -130,7 +125,6 @@ public class TriggerFragment extends Fragment
     @Override
     public void onPause() {
         super.onPause();
-        saveCamSettings();
     }
 
     public void updateAfterCamConnection() {
@@ -142,16 +136,10 @@ public class TriggerFragment extends Fragment
         this.takeMode = takeMode;
     }
 
-    public void updateDrivemodeImageView() {
-        updatePropertyImageView(iv_driveMode, drivemodeIconList, CAMERA_PROPERTY_DRIVE_MODE);
-    }
-    public void updateDrivemodeImageView(String value){
-        updateImageView( iv_driveMode,drivemodeIconList,value);
-    }
 
     private void drivemodeImageViewDidTap() {
         final View view = iv_driveMode;
-        cameraPropertyDidTab(view, CAMERA_PROPERTY_DRIVE_MODE);
+        cameraPropertyDidTab(view, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -161,8 +149,15 @@ public class TriggerFragment extends Fragment
         });
     }
 
+    public void updateDrivemodeImageView() {
+        updatePropertyImageView(iv_driveMode, drivemodeIconList, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE);
+    }
+    public void updateDrivemodeImageView(String value){
+        updateImageView( iv_driveMode,drivemodeIconList,value);
+    }
+
     private void updateMeteringImageView() {
-        updatePropertyImageView(iv_meteringMode, meteringIconList, CAMERA_PROPERTY_METERING_MODE);
+        updatePropertyImageView(iv_meteringMode, meteringIconList, CameraActivity.CAMERA_PROPERTY_METERING_MODE);
     }
 
     private void meteringImageViewDidTap() {
@@ -171,7 +166,7 @@ public class TriggerFragment extends Fragment
         if (takeMode < 1 || takeMode > 5)
             view.setVisibility(View.INVISIBLE);
         else
-            cameraPropertyDidTab(view, CAMERA_PROPERTY_METERING_MODE);
+            cameraPropertyDidTab(view,CameraActivity.CAMERA_PROPERTY_METERING_MODE);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -251,47 +246,8 @@ public class TriggerFragment extends Fragment
 
     }
 
-    private void restoreCamSettings() {
-        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
-        String driveMode = settings.getString(CAMERA_PROPERTY_DRIVE_MODE, null);
-        String meteringMode = settings.getString(CAMERA_PROPERTY_METERING_MODE, null);
-        try {
-            if (driveMode != null) {
-                camera.setCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE, driveMode);
-                updatePropertyImageView(iv_driveMode, drivemodeIconList, driveMode);
-            }
-            if (meteringMode != null) {
-                camera.setCameraPropertyValue(CAMERA_PROPERTY_METERING_MODE, meteringMode);
-                updatePropertyImageView(iv_meteringMode, meteringIconList, meteringMode);
-            }
 
-        } catch (OLYCameraKitException ex) {
-            ex.printStackTrace();
-        }
 
-    }
-
-    private void saveCamSettings() {
-        // We need an Editor object to make preference changes.
-        // All objects are from android.context.Context
-
-        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        String driveMode = null;
-        String meteringMode = null;
-        try {
-            driveMode = camera.getCameraPropertyValue(CAMERA_PROPERTY_DRIVE_MODE);
-            meteringMode = camera.getCameraPropertyValue(CAMERA_PROPERTY_METERING_MODE);
-        } catch (OLYCameraKitException ex) {
-            ex.printStackTrace();
-        }
-        editor.putString(CAMERA_PROPERTY_DRIVE_MODE, driveMode);
-        editor.putString(CAMERA_PROPERTY_METERING_MODE, meteringMode);
-
-        // Commit the edits!
-        editor.apply();
-
-    }
 
     @Override
     public void onAttach(Context context) {

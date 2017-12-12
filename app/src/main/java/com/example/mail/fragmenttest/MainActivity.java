@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -19,7 +20,9 @@ public class MainActivity extends Activity {
     private BroadcastReceiver mReceiver;
     private WifiManager mWifiManager;
 
-    static SharedPreferences preferences;
+    private static SharedPreferences preferences;
+    public static final String PREFS_NAME = "AirOnePrefs";
+
 
     public static SharedPreferences getPreferences() {
         return preferences;
@@ -30,6 +33,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         preferences= PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        Log.d(TAG,"SET PrefsObj");
         btnCamera = (Button) findViewById(R.id.btnCamera);
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,7 +46,6 @@ public class MainActivity extends Activity {
         btnViewImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
             }
         });
         btnCamSettings = (Button) findViewById(R.id.btnCamSettings);
@@ -53,11 +56,7 @@ public class MainActivity extends Activity {
             startActivity(camSettingsIntent);
             }
         });
-
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-
-
-
     }
 
     @Override

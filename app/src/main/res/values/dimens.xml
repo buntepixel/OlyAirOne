@@ -5,5 +5,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="Icon_discription_txt">16dp</dimen>
     <dimen name="LiveViewTopMarg">6dp</dimen>
+    <dimen name="CamSetting_horizMargin">16dp</dimen>
+    <dimen name="CamSetting_vertMargin">6dp</dimen>
 
 </resources>

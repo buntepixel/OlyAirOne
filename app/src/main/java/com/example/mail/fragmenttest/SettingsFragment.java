@@ -151,7 +151,7 @@ public class SettingsFragment extends Fragment
             takeMode = savedInstanceState.getInt("takeMode", 0);
         }
         //update values and set onclickListeners
-        updateValues();
+        updateAllValues();
     }
 
     @Override
@@ -230,7 +230,7 @@ public class SettingsFragment extends Fragment
                 Log.d(TAG, "Movie");
                 break;
         }
-        updateValues();
+        updateAllValues();
     }
 
     public void SetExposureCorrValues(List<String> values) {
@@ -269,7 +269,7 @@ public class SettingsFragment extends Fragment
     }
 
     //UPDATES
-    private void updateValues() {
+    public void updateAllValues() {
         updateWbImageView();
         updateIsoTxtView();
         updateApartureTextView();
