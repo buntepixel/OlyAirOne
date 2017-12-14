@@ -116,6 +116,7 @@ public class TriggerFragment extends Fragment
         super.onResume();
         //Todo: find way to do it after reconnecting to the cam
         //restoreCamSettings();
+        Log.d(TAG,"takemode on resume: "+takeMode);
         if (takeMode < 1 || takeMode > 5)
             iv_meteringMode.setVisibility(View.INVISIBLE);
         else

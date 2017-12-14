@@ -1,7 +1,6 @@
 package com.example.mail.fragmenttest;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -99,26 +98,7 @@ public class SettingsFragment extends Fragment
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         view.setId(View.generateViewId());
-
-
         CreateSettings(settingsArr, view);
-//        //shutter release pressed
-//        ImageButton ib_shutterRelease = (ImageButton) view.findViewById(R.id.ib_shutterrelease);
-//        ib_shutterRelease.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                // Do something in response to button click
-//                //Toast.makeText(getActivity(), "Click!", Toast.LENGTH_SHORT).show();
-//                mCallback.onShutterReleasedPressed(10);
-//
-//            }
-//        });
-
-        //ImageButton ib_driveMode = (ImageButton) view.findViewById(R.id.ib_drivemode);
-   /*     ll_expTime.setOnClickListener(this);
-        ll_fStop.setOnClickListener(this);
-        ll_expOffset.setOnClickListener(this);
-        ll_iso.setOnClickListener(this);
-        ll_Wb.setOnClickListener(this);*/
         return view;
     }
 
@@ -157,15 +137,12 @@ public class SettingsFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "tageMode: " + takeMode);
-        // restoreCamSettings();
-        //UpdateValues();
+        Log.d(TAG, "takeMode: " + takeMode);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        saveCamSettings();
 
     }
 
@@ -393,7 +370,7 @@ public class SettingsFragment extends Fragment
     }
 
     //RESTORE
-
+/*
     private void restoreCamSettings() {
         SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
         String driveMode = settings.getString(CAMERA_PROPERTY_DRIVE_MODE, null);
@@ -444,7 +421,7 @@ public class SettingsFragment extends Fragment
         // Commit the edits!
         editor.commit();
 
-    }
+    }*/
 
     private LinearLayout CreateExpTFstop(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
         LinearLayout root_linearLayout = new LinearLayout(getContext());
