@@ -33,13 +33,7 @@
     <string name="camsettings_number_of_images">Number of Images</string>
     <string name="camsettings_exposure_spread">Exposure Spread</string>
     <string name="camsettings_aspectratio_txt">AspectRatio</string>
-    <string-array name="camsettings_aspectratio_entries">
-        <item>4:3</item>
-        <item>3:2</item>
-        <item>16:9</item>
-        <item>3:4</item>
-        <item>1:1</item>
-    </string-array>
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

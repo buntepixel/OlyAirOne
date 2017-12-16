@@ -7,5 +7,7 @@
     <dimen name="LiveViewTopMarg">6dp</dimen>
     <dimen name="CamSetting_horizMargin">16dp</dimen>
     <dimen name="CamSetting_vertMargin">6dp</dimen>
+    <dimen name="ListView_childItem_horizMargin">32dp</dimen>
+
 
 </resources>
