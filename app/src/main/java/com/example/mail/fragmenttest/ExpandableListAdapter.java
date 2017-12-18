@@ -14,10 +14,11 @@ import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import jp.co.olympus.camerakit.OLYCameraKitException;
 
 /**
  * Created by mail on 30/11/2017.
@@ -36,68 +37,69 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private Activity context;
     private Map<String, List<String>> myChilds;
     private List<String> myParents;
-    ArrayList<String> child2ArrList;
+    private final Map<String, String> dropdownVals = new HashMap<String, String>();
 
     private final Map<String, String> aspectRatio = new HashMap<String, String>() {{
-        put("4:3 ", "04_03");
-        put("3:2", "03_02");
-        put("16:9", "16_09");
-        put("3:4", "03_04");
-        put("1:1", "06_06");
+        put("4:3 ", "<ASPECT_RATIO/04_03>");
+        put("3:2", "<ASPECT_RATIO/03_02>");
+        put("16:9", "<ASPECT_RATIO/16_09>");
+        put("3:4", "<ASPECT_RATIO/03_04>");
+        put("1:1", "<ASPECT_RATIO/06_06>");
     }};
     private final Map<String, String> jpgCompression = new HashMap<String, String>() {
         {
-            put("Super Fine", "CMP_2_7");
-            put("Fine", "CMP_4");
-            put("Normal", "CMP_8");
-            put("Basic", "CMP_12");
+            put("Super Fine", "<COMPRESSIBILITY_RATIO/CMP_2_7>>");
+            put("Fine", "<COMPRESSIBILITY_RATIO/CMP_4>");
+            put("Normal", "<COMPRESSIBILITY_RATIO/CMP_8>");
+            put("Basic", "<COMPRESSIBILITY_RATIO/CMP_12>");
         }
     };
     private final Map<String, String> imageSize = new HashMap<String, String>() {
         {
-            put("4608x3456", "4608x3456");
-            put("2560x1920", "2560x1920");
-            put("1920x1440", "1920x1440");
-            put("1600x1200", "1600x1200");
-            put("1280x960", "1280x960");
-            put("1024x768", "1024x768");
-            put("640x480", "640x480");
+            put("4608x3456", "<IMAGESIZE/4608x3456>");
+            put("2560x1920", "<IMAGESIZE/2560x1920>");
+            put("1920x1440", "<IMAGESIZE/1920x1440>");
+            put("1600x1200", "<IMAGESIZE/1600x1200>");
+            put("1280x960", "<IMAGESIZE/1280x960>");
+            put("1024x768", "<IMAGESIZE/1024x768>");
+            put("640x480", "<IMAGESIZE/640x480>");
         }
     };
     private final Map<String, String> imageSaveDestination = new HashMap<String, String>() {{
-        put("store on Camera", "DESTINATION_FILE_MEDIA");
-        put("Store on Mobile", "DESTINATION_FILE_WIFI");
+        put("store on Camera", "<DESTINATION_FILE/DESTINATION_FILE_MEDIA>");
+        put("Store on Mobile", "<DESTINATION_FILE/DESTINATION_FILE_WIFI>");
     }};
 
+
     private final Map<String, String> movieQuality = new HashMap<String, String>() {{
-        put("Full HD (Fine Quality)", "QUALITY_MOVIE_FULL_HD_FINE");
-        put("Full HD (Normal Quality)", "QUALITY_MOVIE_FULL_HD_NORMAL");
-        put("HD (Fine Quality)", "QUALITY_MOVIE_HD_FINE");
-        put("HD (Normal Quality)", "QUALITY_MOVIE_HD_NORMAL");
-        put("Clip Full HD (1920x1080)", "QUALITY_MOVIE_SHORT_MOVIE");
+        put("Full HD (Fine Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_FINE>");
+        put("Full HD (Normal Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_NORMAL>");
+        put("HD (Fine Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_HD_FINE>");
+        put("HD (Normal Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_HD_NORMAL>");
+        put("Clip Full HD (1920x1080)", "<QUALITY_MOVIE/QUALITY_MOVIE_SHORT_MOVIE>");
     }};
     private final Map<String, String> clipRecordTime = new HashMap<String, String>() {{
-        put("1 sec", "1");
-        put("2 sec", "2");
-        put("3 sec", "3");
-        put("4 sec", "4");
-        put("5 sec", "5");
-        put("6 sec", "6");
-        put("7 sec", "7");
-        put("8 sec", "8");
+        put("1 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/1>");
+        put("2 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/2>");
+        put("3 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/3>");
+        put("4 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/4>");
+        put("5 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/5>");
+        put("6 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/6>");
+        put("7 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/7>");
+        put("8 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/8>");
     }};
 
     private final Map<String, String> continousShootingSpeed = new HashMap<String, String>() {{
-        put("1fps", "1");
-        put("2fps", "2");
-        put("3fps", "3");
-        put("4fps", "4");
-        put("5fps", "5");
-        put("6fps", "6");
-        put("7fps", "7");
-        put("8fps", "8");
-        put("9fps", "9");
-        put("10fps", "10");
+        put("1fps", "<CONTINUOUS_SHOOTING_VELOCITY/1>");
+        put("2fps", "<CONTINUOUS_SHOOTING_VELOCITY/2>");
+        put("3fps", "<CONTINUOUS_SHOOTING_VELOCITY/3>");
+        put("4fps", "<CONTINUOUS_SHOOTING_VELOCITY/4>");
+        put("5fps", "<CONTINUOUS_SHOOTING_VELOCITY/5>");
+        put("6fps", "<CONTINUOUS_SHOOTING_VELOCITY/6>");
+        put("7fps", "<CONTINUOUS_SHOOTING_VELOCITY/7>");
+        put("8fps", "<CONTINUOUS_SHOOTING_VELOCITY/8>");
+        put("9fps", "<CONTINUOUS_SHOOTING_VELOCITY/9>");
+        put("10fps", "<CONTINUOUS_SHOOTING_VELOCITY/10>");
     }};
     private final Map<String, String> empty = new HashMap<String, String>() {{
         put("empty", "empty");
@@ -126,7 +128,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         final String child = (String) getChild(groupPosition, childPosition);
         LayoutInflater inflater = context.getLayoutInflater();
 
-        int childType = getChildType(groupPosition, childPosition);
+        final int childType = getChildType(groupPosition, childPosition);
 
         if (convertView == null) {
         }
@@ -182,17 +184,22 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 txt = (TextView) convertView.findViewById(R.id.tv_ddch_discription);
                 txt.setText(child);
                 ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(context, android.R.layout.simple_spinner_item);
+
                 //if Image Settings
                 if (groupPosition == 1) {
                     if (childPosition == 0) {
                         adapter.addAll(aspectRatio.keySet().toArray(new CharSequence[0]));
+                        dropdownVals.putAll(aspectRatio);
                     } else if (childPosition == 1) {
                         adapter.addAll(imageSize.keySet().toArray(new CharSequence[0]));
+                        dropdownVals.putAll(imageSize);
                     } else if (childPosition == 2) {
                         //CharSequence[] player_names = players.keySet().toArray(new CharSequence[0]);
                         adapter.addAll(jpgCompression.keySet().toArray(new CharSequence[0]));
+                        dropdownVals.putAll(jpgCompression);
                     } else if (childPosition == 3) {
                         adapter.addAll(imageSaveDestination.keySet().toArray(new CharSequence[0]));
+                        dropdownVals.putAll(imageSaveDestination);
                     } else {
                         adapter.addAll(empty.keySet().toArray(new CharSequence[0]));
                     }
@@ -201,8 +208,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 else if (groupPosition == 2) {
                     if (childPosition == 0) {
                         adapter.addAll(movieQuality.keySet().toArray(new CharSequence[0]));
+                        dropdownVals.putAll(movieQuality);
                     } else if (childPosition == 1) {
                         adapter.addAll(clipRecordTime.keySet().toArray(new CharSequence[0]));
+                        dropdownVals.putAll(clipRecordTime);
                     }
                 }
 
@@ -312,9 +321,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         setupNumberPicker(np_exposureSpreadVal, expSprVal);
     }
 
-    private void setup_ddch() {
-
-    }
 
     private void setupNumberPicker(NumberPicker np, String[] strVal) {
         np.setMinValue(0); //from array first value
@@ -342,6 +348,15 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         Log.d(TAG, "selected: " + parent.getItemAtPosition(position));
+        String value = dropdownVals.get(parent.getItemAtPosition(position));
+        String prop = CameraActivity.extractProperty(value);
+        Log.d(TAG, "selected: " + value +"  "+ CameraActivity.extractProperty(value));
+        try {
+            CameraActivity.getCamera().setCameraPropertyValue(prop,value);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

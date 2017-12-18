@@ -1,5 +1,6 @@
 package com.example.mail.fragmenttest;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -58,7 +59,13 @@ public class CamSettingsActivity extends AppCompatActivity {
         groupList.add("Movie Settings");
         groupList.add("Focusing");
         groupList.add("Shooting");
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        startActivity(new Intent(this, MainActivity.class));
     }
 
     private void createCollection() {
