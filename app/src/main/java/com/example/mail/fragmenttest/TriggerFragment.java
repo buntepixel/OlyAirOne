@@ -2,7 +2,6 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,7 +20,7 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends Fragment
+public class TriggerFragment extends android.app.Fragment
         implements View.OnClickListener, View.OnTouchListener {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
@@ -80,9 +79,9 @@ public class TriggerFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
         view.setId(View.generateViewId());
 
-        iv_driveMode = (ImageView) view.findViewById(R.id.ib_drivemode);
-        iv_meteringMode = (ImageView) view.findViewById(R.id.ib_metering);
-        iv_shutter = (ImageView) view.findViewById(R.id.ib_shutterrelease);
+        iv_driveMode = view.findViewById(R.id.ib_drivemode);
+        iv_meteringMode = view.findViewById(R.id.ib_metering);
+        iv_shutter = view.findViewById(R.id.ib_shutterrelease);
 
         iv_driveMode.setOnClickListener(this);
         iv_meteringMode.setOnClickListener(this);
@@ -114,8 +113,6 @@ public class TriggerFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        //Todo: find way to do it after reconnecting to the cam
-        //restoreCamSettings();
         Log.d(TAG,"takemode on resume: "+takeMode);
         if (takeMode < 1 || takeMode > 5)
             iv_meteringMode.setVisibility(View.INVISIBLE);
@@ -178,6 +175,7 @@ public class TriggerFragment extends Fragment
     }
 
     private void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
+
         imageView.setEnabled(camera.canSetCameraProperty(propertyName));
         Log.d(TAG, "Update: " + propertyName);
         String propValue;

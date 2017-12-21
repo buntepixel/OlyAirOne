@@ -1,20 +1,15 @@
 package com.example.mail.fragmenttest;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Toast;
 
 import java.util.Arrays;
@@ -30,7 +25,7 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
 
-public class CameraActivity extends FragmentActivity
+public class CameraActivity extends Activity
         implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
         MasterSlidebarFragment.sliderValue, SettingsFragment.OnSettingsFragmInteractionListener,
         OLYCameraConnectionListener, OLYCameraPropertyListener {
@@ -70,7 +65,7 @@ public class CameraActivity extends FragmentActivity
     Executor connectionExecutor = Executors.newFixedThreadPool(1);
     int currDriveMode = 0;
 
-    FragmentManager fm;
+    android.app.FragmentManager fm;
     TriggerFragment fTrigger;
     LiveViewFragment fLiveView;
     SettingsFragment fSettings;
@@ -89,11 +84,18 @@ public class CameraActivity extends FragmentActivity
         return takeModeStrings;
     }
 
+    public static OLYCamera getCamera() {
+        return camera;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        fm = getSupportFragmentManager();
+
+        //--------------------------
+        //setContentView(R.layout.activity_camera);
+        fm = getFragmentManager();
         // However, if we're being restored from a previous state,
         // then we don't need to do anything and should return or else
         // we could end up with overlapping fragments.
@@ -106,11 +108,11 @@ public class CameraActivity extends FragmentActivity
         }
         Log.d(TAG, "onCreate__" + "Creating Camera Object");
         camera = new OLYCamera();
-        camera.setContext(getApplicationContext());
+        camera.setContext(this);
         camera.setConnectionListener(this);
+
         //add Trigger,LiveView Fragment
         //Log.d(TAG, "onCreate__" + "Creating Fragments,setting olycam to fragments");
-
         fTrigger = new TriggerFragment();
         fTrigger.SetOLYCam(camera);
 
@@ -119,34 +121,23 @@ public class CameraActivity extends FragmentActivity
 
         fLiveView = new LiveViewFragment();
         fLiveView.SetOLYCam(camera);
+        fLiveView.setOnLiveViewInteractionListener(this);
 
+        Log.d(TAG, "onResume__" + "bevoreCommit");
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, FRAGMENT_TAG_TRIGGER);
+        fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, FRAGMENT_TAG_SETTINGS);
+        fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
+        fragmentTransaction.commit();
+        Log.d(TAG, "onResume__" + "AfterCommit");
 
     }
 
-    @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        View view = super.onCreateView(parent, name, context, attrs);
-        return view;
-    }
-
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         Log.d(TAG, "START Resume");
-        //reset Cam if we had a orientation change
-        fLiveView.SetOLYCam(camera);
-        fTrigger.SetOLYCam(camera);
-        fSettings.SetOLYCam(camera);
-        //add fragments to fragmentManager if here the first time
-        if (fm.findFragmentByTag(FRAGMENT_TAG_TRIGGER) == null) {
-            Log.d(TAG, "onResume__" + "bevoreCommit");
-            FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, FRAGMENT_TAG_TRIGGER);
-            fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, FRAGMENT_TAG_SETTINGS);
-            fragmentTransaction.commit();
-            //Log.d(TAG, "onResume__" + "AfterCommit");
-        }
         if (!camera.isConnected()) {
             //Log.d(TAG, "onResume__" + "connecting");
             startConnectingCamera();
@@ -154,40 +145,48 @@ public class CameraActivity extends FragmentActivity
             // Log.d(TAG, "onResume__" + "connecting");
             onConnectedToCamera();
         }
+        //reset Cam if we had a orientation change
+        fLiveView.SetOLYCam(camera);
+        fTrigger.SetOLYCam(camera);
+        fSettings.SetOLYCam(camera);
         Log.d(TAG, "END Resume");
 
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         removeVisibleSliderFragments();
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         saveCamSettings();
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        fm.putFragment(outState, FRAGMENT_TAG_LIVEVIEW, fLiveView);
-        fm.putFragment(outState, FRAGMENT_TAG_SETTINGS, fSettings);
-        fm.putFragment(outState, FRAGMENT_TAG_TRIGGER, fTrigger);
+        if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) != null)
+            fm.putFragment(outState, FRAGMENT_TAG_LIVEVIEW, fLiveView);
+        if (fm.findFragmentByTag(FRAGMENT_TAG_SETTINGS) != null)
+            fm.putFragment(outState, FRAGMENT_TAG_SETTINGS, fSettings);
+        if (fm.findFragmentByTag(FRAGMENT_TAG_TRIGGER) != null)
+            fm.putFragment(outState, FRAGMENT_TAG_TRIGGER, fTrigger);
         outState.putInt("currDriveMode", currDriveMode);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        currDriveMode = savedInstanceState.getInt("currDriveMode");
+        savedInstanceState.getInt("currDriveMode");
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        finish();
         startActivity(new Intent(this, MainActivity.class));
     }
 
@@ -216,7 +215,6 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
-
     @Override
     public void onEnabledFocusLock(Boolean focusLockState) {
 
@@ -232,10 +230,10 @@ public class CameraActivity extends FragmentActivity
         fTrigger.updateDrivemodeImageView(propValue);
     }
 
-
     @Override
     public void onDriveModeChange(String propValue) {
         fTrigger.updateAfterCamConnection();
+
         //fLiveView.updateFocusMode(propValue);
     }
 
@@ -252,7 +250,7 @@ public class CameraActivity extends FragmentActivity
             Log.d(TAG, "currdriveMode: " + currDriveMode);
             //if Manual mode we have 2 fragment sliders
             if (currDriveMode == 4 && settingsType <= 1) {
-                Log.d(TAG,"Manual Mode;");
+                Log.d(TAG, "Manual Mode;");
                 generalPressed(shutterSpeedFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart2);
                 generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1);
 
@@ -396,13 +394,14 @@ public class CameraActivity extends FragmentActivity
         });
     }
 
+
     private void onConnectedToCamera() {
         Log.d(TAG, "Connected to Cam");
         //restore Cam settings from Shared prefs
-        restoreCamSettings();
+        //restoreCamSettings();
         //add LiveView to fragment manager if here first time
         if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
-            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            android.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
             //Todo: maybe only commit();
             //fragmentTransaction.commitAllowingStateLoss();
@@ -434,7 +433,11 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
-        Toast.makeText(this, "Connection to Camera Lost, please Reconnect", Toast.LENGTH_SHORT).show();
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getBaseContext(), "Connection to Camera Lost, please Reconnect", Toast.LENGTH_LONG).show();
+            }
+        });
         finish();
         startActivity(new Intent(this, MainActivity.class));
     }
@@ -444,7 +447,7 @@ public class CameraActivity extends FragmentActivity
     //------------------------
     private void setShootingModeButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
-        fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
+        fSettings = (SettingsFragment) getFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
 
         if (fSettings != null) {
             switch (mode) {
@@ -489,14 +492,16 @@ public class CameraActivity extends FragmentActivity
         removeVisibleSliderFragments();
         //refresh view
         //todo: find other way to refresh view
-        Fragment frgSettings = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
-        Fragment frgTrigger = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_TRIGGER);
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+       /* android.app.Fragment frgSettings = getFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
+        android.app.Fragment frgTrigger = getFragmentManager().findFragmentByTag(FRAGMENT_TAG_TRIGGER);
+        android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(frgSettings);
         ft.attach(frgSettings);
         ft.detach(frgTrigger);
         ft.attach(frgTrigger);
-        ft.commit();
+        ft.commit();*/
+       fLiveView.refresh();
+       fSettings.refresh();
     }
 
     private void createSliderFragments() {
@@ -523,8 +528,8 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "RemoveVisFragment");
         MasterSlidebarFragment fragment1 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart1);
         if (fragment1 != null) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+            android.app.FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.animator.slidedown, R.animator.slideup);
             ft.remove(fragment1);
             Log.d(TAG, "Removing expApart1");
             MasterSlidebarFragment fragment2 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
@@ -554,8 +559,8 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "Value: " + value);
         if (value == null) return;
         try {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
+            android.app.FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.animator.slidedown, R.animator.slideup);
             //Remove Fragment showing
             final MasterSlidebarFragment myFrag = (MasterSlidebarFragment) fm.findFragmentById(frameLayoutToAppear);
 
@@ -595,7 +600,7 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
-    private String extractProperty(String value) {
+    public static String extractProperty(String value) {
         String[] myStringArr = value.split("/");
         String extractedString = myStringArr[0].substring(1);
         return extractedString;
@@ -626,7 +631,8 @@ public class CameraActivity extends FragmentActivity
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
         Log.d(TAG, "SavingCamSettings");
-        SharedPreferences settings = MainActivity.getPreferences();
+        // SharedPreferences settings = MainActivity.getPreferences();
+        SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         //we need to only save the take mode, since we retain instance state on trigger and settings fragment
         //not on live view though.
@@ -644,10 +650,10 @@ public class CameraActivity extends FragmentActivity
     }
 
     private void restoreCamSettings() {
-        SharedPreferences settings = MainActivity.getPreferences();
-        if (settings != null) {
+        SharedPreferences preferences = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE);
+        if (preferences != null) {
             Log.d(TAG, "Restoring camSettings");
-            String takeMode = settings.getString(CAMERA_PROPERTY_TAKE_MODE, null);
+            String takeMode = preferences.getString(CAMERA_PROPERTY_TAKE_MODE, null);
             takeModeStrings = getCamPropertyValues(CAMERA_PROPERTY_TAKE_MODE);
             try {
                 if (takeMode != null) {
@@ -655,7 +661,7 @@ public class CameraActivity extends FragmentActivity
                     currDriveMode = takeModeStrings.indexOf(takeMode);
                     fSettings.SetTakeMode(currDriveMode);
                     fTrigger.SetTakeMode(currDriveMode);
-                    FragmentTransaction ft = fm.beginTransaction();
+                    android.app.FragmentTransaction ft = fm.beginTransaction();
                     ft.detach(fTrigger);
                     ft.detach(fSettings);
                     ft.attach(fTrigger);

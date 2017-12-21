@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
@@ -27,7 +26,7 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
  * Created by mail on 14/06/2017.
  */
 
-public class SettingsFragment extends Fragment
+public class SettingsFragment extends android.app.Fragment
         implements View.OnClickListener {
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
@@ -77,6 +76,7 @@ public class SettingsFragment extends Fragment
 
     public interface OnSettingsFragmInteractionListener {
         void onButtonsInteraction(int settingsType);
+
         void onDriveModeChange(String propValue);
     }
 
@@ -147,7 +147,7 @@ public class SettingsFragment extends Fragment
     }
 
     private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
-        RelativeLayout relativeLayout = (RelativeLayout) rootView.findViewById(R.id.rl_settings);
+        RelativeLayout relativeLayout = rootView.findViewById(R.id.rl_settings);
 
         SetupButtons(relativeLayout);
         return relativeLayout;
@@ -254,9 +254,14 @@ public class SettingsFragment extends Fragment
         updateExposureCompTxtView();
     }
 
+    public void refresh(){
+        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+    }
+
     private void updateWbImageView() {
         Log.d(TAG, "updating Wb");
-        updatePropertyImageView(iv_Wb, whiteBalanceIconList, CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE);
+        if (camera != null && camera.isConnected())
+            updatePropertyImageView(iv_Wb, whiteBalanceIconList, CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE);
         if (wb) {
             iv_Wb.setEnabled(true);
             ll_Wb.setOnClickListener(this);
@@ -268,7 +273,8 @@ public class SettingsFragment extends Fragment
 
     private void updateIsoTxtView() {
         Log.d(TAG, "updating ISO");
-        updatePropertyTxtView(tv_iso, CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY);
+        if (camera != null && camera.isConnected())
+            updatePropertyTxtView(tv_iso, CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY);
         if (iso) {
             tv_isoText.setEnabled(true);
             tv_iso.setEnabled(true);
@@ -282,7 +288,8 @@ public class SettingsFragment extends Fragment
 
     private void updateApartureTextView() {
         Log.d(TAG, "updating Aparture");
-        updatePropertyTxtView(tv_fStop, CameraActivity.CAMERA_PROPERTY_APERTURE_VALUE);
+        if (camera != null && camera.isConnected())
+            updatePropertyTxtView(tv_fStop, CameraActivity.CAMERA_PROPERTY_APERTURE_VALUE);
         if (aparture) {
             tv_fStopText.setEnabled(true);
             tv_fStop.setEnabled(true);
@@ -296,7 +303,8 @@ public class SettingsFragment extends Fragment
 
     private void updateShutterSpTextView() {
         Log.d(TAG, "updating ShutterSpeed");
-        updatePropertyTxtView(tv_expTime, CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED);
+        if (camera != null && camera.isConnected())
+            updatePropertyTxtView(tv_expTime, CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED);
         if (time) {
             tv_expTimeText.setEnabled(true);
             tv_expTime.setEnabled(true);
@@ -310,7 +318,8 @@ public class SettingsFragment extends Fragment
 
     private void updateExposureCompTxtView() {
         Log.d(TAG, "updating ExposureCompensation");
-        updatePropertyTxtView(tv_expOffset, CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+        if (camera != null && camera.isConnected())
+            updatePropertyTxtView(tv_expOffset, CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
         if (exposureAdj) {
             tv_expOffset.setEnabled(true);
             ll_expOffset.setOnClickListener(this);
@@ -424,7 +433,7 @@ public class SettingsFragment extends Fragment
     }*/
 
     private LinearLayout CreateExpTFstop(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
-        LinearLayout root_linearLayout = new LinearLayout(getContext());
+        LinearLayout root_linearLayout = new LinearLayout(getActivity());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         root_linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         relParams.addRule(RelativeLayout.START_OF, alignLayout.getId());
@@ -432,11 +441,11 @@ public class SettingsFragment extends Fragment
         root_linearLayout.setLayoutParams(relParams);
 
         // exposure Time
-        ll_expTime = new LinearLayout(getContext());
+        ll_expTime = new LinearLayout(getActivity());
         ll_expTime.setOrientation(LinearLayout.VERTICAL);
         ll_expTime.setId(View.generateViewId());
 
-        tv_expTimeText = new TextView(getContext());
+        tv_expTimeText = new TextView(getActivity());
         tv_expTimeText.setText("EXP");
         tv_expTimeText.setGravity(Gravity.CENTER_HORIZONTAL);
         tv_expTime = new TextView(getActivity());
@@ -450,11 +459,11 @@ public class SettingsFragment extends Fragment
         root_linearLayout.addView(ll_expTime);
 
         //Fstop
-        ll_fStop = new LinearLayout(getContext());
+        ll_fStop = new LinearLayout(getActivity());
         ll_fStop.setOrientation(LinearLayout.VERTICAL);
         ll_fStop.setId(View.generateViewId());
 
-        tv_fStopText = new TextView(getContext());
+        tv_fStopText = new TextView(getActivity());
         tv_fStopText.setText("F");
         tv_fStopText.setGravity(Gravity.CENTER_HORIZONTAL);
         tv_fStop = new TextView(getActivity());
@@ -470,7 +479,7 @@ public class SettingsFragment extends Fragment
     }
 
     private LinearLayout CreateExposureCorr(ColorStateList colorStateList, int padding) {
-        ll_expOffset = new LinearLayout(getContext());
+        ll_expOffset = new LinearLayout(getActivity());
         ll_expOffset.setId(View.generateViewId());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -491,7 +500,7 @@ public class SettingsFragment extends Fragment
         ll_expOffset.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
         if (takeMode > 0 && takeMode < 4) {
-            LinearLayout containerLLayout = new LinearLayout(getContext());
+            LinearLayout containerLLayout = new LinearLayout(getActivity());
             LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             containerLLayout.setLayoutParams(linParams);
             containerLLayout.setGravity(Gravity.CENTER_VERTICAL);
@@ -499,28 +508,28 @@ public class SettingsFragment extends Fragment
             containerLLayout.setWeightSum(8);
             ll_expOffset.addView(containerLLayout);
 
-            TextView leftText = new TextView(getContext());
+            TextView leftText = new TextView(getActivity());
             leftText.setGravity(Gravity.CENTER);
             leftText.setMinWidth(10);
 
             leftText.setText("-");
             leftText.setWidth(30);
-            leftText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
+            leftText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextWhite));
             leftText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             containerLLayout.addView(leftText);
 
 
-            expCorr = new ExposureCorrection(getContext());
+            expCorr = new ExposureCorrection(getActivity());
             linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             expCorr.setLayoutParams(linParams);
 
             containerLLayout.addView(expCorr);
 
-            TextView rightText = new TextView(getContext());
+            TextView rightText = new TextView(getActivity());
             rightText.setGravity(Gravity.CENTER);
             rightText.setWidth(30);
             rightText.setText("+");
-            rightText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorTextWhite));
+            rightText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextWhite));
             rightText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             containerLLayout.addView(rightText);
         }
@@ -528,7 +537,7 @@ public class SettingsFragment extends Fragment
     }
 
     private LinearLayout CreateIsoWBBtn(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
-        LinearLayout root_linearLayout = new LinearLayout(getContext());
+        LinearLayout root_linearLayout = new LinearLayout(getActivity());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         //relParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         relParams.addRule(RelativeLayout.END_OF, alignLayout.getId());
@@ -536,11 +545,11 @@ public class SettingsFragment extends Fragment
         root_linearLayout.setLayoutParams(relParams);
 
         //iso
-        ll_iso = new LinearLayout(getContext());
+        ll_iso = new LinearLayout(getActivity());
         ll_iso.setOrientation(LinearLayout.VERTICAL);
         ll_iso.setId(View.generateViewId());
 
-        tv_isoText = new TextView(getContext());
+        tv_isoText = new TextView(getActivity());
         tv_isoText.setText("ISO");
         tv_isoText.setGravity(Gravity.CENTER_HORIZONTAL);
         tv_iso = new TextView(getActivity());
@@ -555,7 +564,7 @@ public class SettingsFragment extends Fragment
         root_linearLayout.addView(ll_iso);
 
         //WhiteBalance
-        ll_Wb = new LinearLayout(getContext());
+        ll_Wb = new LinearLayout(getActivity());
         ll_Wb.setOrientation(LinearLayout.VERTICAL);
         ll_Wb.setId(View.generateViewId());
 
@@ -592,8 +601,19 @@ public class SettingsFragment extends Fragment
     @Override
     public void onDestroy() {
         super.onDestroy();
-        tv_expTime = null; tv_expTimeText =null; ll_expTime=null; tv_fStop=null; tv_fStopText=null; ll_fStop=null;
-        tv_iso=null; tv_isoText=null; ll_iso=null;iv_Wb=null; ll_Wb=null; tv_expOffset=null;  ll_expOffset =null;
+        tv_expTime = null;
+        tv_expTimeText = null;
+        ll_expTime = null;
+        tv_fStop = null;
+        tv_fStopText = null;
+        ll_fStop = null;
+        tv_iso = null;
+        tv_isoText = null;
+        ll_iso = null;
+        iv_Wb = null;
+        ll_Wb = null;
+        tv_expOffset = null;
+        ll_expOffset = null;
     }
 }
 

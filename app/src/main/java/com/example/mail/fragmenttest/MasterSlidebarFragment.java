@@ -3,7 +3,6 @@ package com.example.mail.fragmenttest;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +19,7 @@ import jp.co.olympus.camerakit.OLYCamera;
  * Created by mail on 13/10/2016.
  */
 
-public abstract class MasterSlidebarFragment extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
+public abstract class MasterSlidebarFragment extends android.app.Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
     private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
     OLYCamera camera;
     protected List<String> myString;
@@ -51,7 +50,7 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
             Log.d(TAG, "OnCreateView");
 
             //create LinLayout to hold the text view
-            LinearLayout mContentLinLayout = new LinearLayout(getContext());
+            LinearLayout mContentLinLayout = new LinearLayout(getActivity());
 
             mContentLinLayout.setId(View.generateViewId());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -66,10 +65,10 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
             myString = getArguments().getStringArrayList("myString");
             mySliderValIndex = myString.indexOf(getArguments().getString("value"));
 
-            mScrollingValuePicker = (ScrollingValuePicker) rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
+            mScrollingValuePicker = rootView.findViewById(R.id.svp_neutralScrollingValuePicker);
             View.generateViewId();
             mScrollingValuePicker.addView(mContentLinLayout);
-            mScrollingValuePicker.initValuePicker(getContext(), mContentLinLayout, myString);
+            mScrollingValuePicker.initValuePicker(getActivity(), mContentLinLayout, myString);
             mScrollingValuePicker.getViewTreeObserver().addOnPreDrawListener(this);
             mScrollingValuePicker.SetScrollingValueInteractionListener(this);
 

@@ -6,6 +6,7 @@
 package com.example.mail.fragmenttest;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -25,7 +26,7 @@ import java.util.Map;
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCameraRecordingSupportsListener;
 
-public class RecviewFragment extends android.support.v4.app.Fragment implements OLYCameraRecordingSupportsListener, View.OnTouchListener {
+public class RecviewFragment extends Fragment implements OLYCameraRecordingSupportsListener, View.OnTouchListener {
 	
 	private ImageView imageView;
 	
@@ -37,7 +38,7 @@ public class RecviewFragment extends android.support.v4.app.Fragment implements 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_recview, container, false);
 		
-		imageView = (ImageView)view.findViewById(R.id.imageView1);
+		imageView = view.findViewById(R.id.imageView1);
 		
 		view.findViewById(R.id.view1).setOnTouchListener(this);
 		view.findViewById(R.id.view2).setOnTouchListener(this);

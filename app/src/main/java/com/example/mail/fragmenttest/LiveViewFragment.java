@@ -10,7 +10,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -40,7 +39,7 @@ import jp.co.olympus.camerakit.OLYCameraStatusListener;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener,
+public class LiveViewFragment extends android.app.Fragment implements OLYCameraLiveViewListener,
         OLYCameraStatusListener, OLYCameraPropertyListener, OLYCameraRecordingListener, OLYCameraRecordingSupportsListener, View.OnClickListener, View.OnTouchListener {
     private static final String TAG = LiveViewFragment.class.getSimpleName();
 
@@ -86,6 +85,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
         void onEnabledTouchShutter(Boolean touchShutterState);
 
+    }
+    public void setOnLiveViewInteractionListener(OnLiveViewInteractionListener listener){
+        mOnLiveViewInteractionListener = listener;
     }
 
     @SuppressWarnings("serial")
@@ -140,10 +142,16 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.d(TAG, "onActivityCreated");
+        Log.d(TAG, "ActivtiyCreated ISCONNECTED " + camera.isConnected());
+
         if (savedInstanceState != null) {
             Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("SliderValIndex"));
             shootingModeCounter = savedInstanceState.getInt("SliderValIndex");
         }
+    }
+
+    public void refresh(){
+        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
 
     //----------------------
@@ -268,7 +276,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             RecviewFragment fragment = new RecviewFragment();
             fragment.setCamera(camera);
             fragment.setImageData(data, metadata);
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(getId(), fragment);
             transaction.addToBackStack(null);
             transaction.commit();
@@ -297,7 +305,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        Log.d(TAG, "touch");
+        Log.d(TAG, "onTouch");
         if (v == imageView) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 imageViewDidTouchDown(event);
@@ -318,6 +326,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "onClick");
+
         if (v == focusModeTextView) {
             focusModeTextViewDidTap();
         } else if (v == ib_shootingMode) {
@@ -342,13 +352,13 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_live_view, container, false);
         view.setId(View.generateViewId());
-        imageView = (CameraLiveImageView) view.findViewById(R.id.cameraLiveImageView);
+        imageView = view.findViewById(R.id.cameraLiveImageView);
 
-        batteryLevelImageView = (ImageView) view.findViewById(R.id.batteryLevelImageView);
-        remainingRecordableImagesTextView = (TextView) view.findViewById(R.id.tv_SdCardSpaceRemain);
-        focusModeTextView = (TextView) view.findViewById(R.id.tv_focusMode);
-        ib_shootingMode = (ImageButton) view.findViewById(R.id.ib_RecordMode);
-        tv_AEB = (TextView) view.findViewById(R.id.tv_Bracketing);
+        batteryLevelImageView = view.findViewById(R.id.batteryLevelImageView);
+        remainingRecordableImagesTextView = view.findViewById(R.id.tv_SdCardSpaceRemain);
+        focusModeTextView = view.findViewById(R.id.tv_focusMode);
+        ib_shootingMode = view.findViewById(R.id.ib_RecordMode);
+        tv_AEB = view.findViewById(R.id.tv_Bracketing);
 
 
         focusModeTextView.setOnClickListener(this);
@@ -361,6 +371,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
+
+        Log.d(TAG, "Resume ISCONNECTED " + camera.isConnected()+"CamisNull: "+(camera==null));
 
       /*  SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         enabledTouchShutter = preferences.getBoolean("touch_shutter", false);
@@ -379,11 +392,12 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 //        updateExposureCompensationTextView();
 //        updateIsoSensitivityTextView();
         //updateWhiteBalanceImageView();
-        updateBatteryLevelImageView();
-        updateRemainingRecordableImagesTextView();
-        updateTakeModeImageView();
-        updateAEBTextView();
-
+        if(camera.isConnected()){
+            updateBatteryLevelImageView();
+            updateRemainingRecordableImagesTextView();
+            updateTakeModeImageView();
+            updateAEBTextView();
+        }
 //        try {
 //            camera.clearAutoFocusPoint();
 //            camera.UnlockAutoFocus();
@@ -404,12 +418,12 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     @Override
     public void onAttach(Context context) {
+        Log.d(TAG, "onAttach");
+
         super.onAttach(context);
         try {
-            focusedSoundPlayer = MediaPlayer.create(getContext(), R.raw.focusedsound);
-            shutterSoundPlayer = MediaPlayer.create(getContext(), R.raw.shuttersound);
-            camera = camera;
-
+            focusedSoundPlayer = MediaPlayer.create(getActivity(), R.raw.focusedsound);
+            shutterSoundPlayer = MediaPlayer.create(getActivity(), R.raw.shuttersound);
             mOnLiveViewInteractionListener = (OnLiveViewInteractionListener) context;
 
             Log.d(TAG, "finished onAttatch");
@@ -1151,19 +1165,20 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void shootingModeDidTap() {
+        Log.d(TAG, "shootingModeDidTap");
+
         updateTakeModeImageView();
+        Log.d(TAG, "ISCONNECTED " + camera.isConnected());
+
         Log.d(TAG,"shootingmodeCounter: "+shootingModeCounter);
         shootingModeCounter = (shootingModeCounter + 1) % shootingModeDrawablesArr.length;
         Log.d(TAG,"shootingmodeCounter: "+shootingModeCounter);
         ib_shootingMode.setImageResource(shootingModeDrawablesArr[shootingModeCounter]);
-
-
         if (shootingModeCounter != CameraActivity.SHOOTING_MODE_MOVIE)
             updateFocusModeTextView(CameraActivity.CAMERA_PROPERTY_FOCUS_STILL);
-        //currDriveMode = counterMod;
         if (mOnLiveViewInteractionListener != null) {
-            //Log.d(TAG, "CounterMode: " + counterMode);
             mOnLiveViewInteractionListener.onShootingModeButtonPressed(shootingModeCounter);
+            Log.d(TAG,"mOnliveView... shootingmodeCounter: "+shootingModeCounter);
         }
 
     }
@@ -1171,10 +1186,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     private void autoExposureBracketingDidTap() {
         if (AEB) {
             AEB = false;
-            tv_AEB.setTextColor(getContext().getResources().getColor(R.color.LiveView_Text_deactivated));
+            tv_AEB.setTextColor(getActivity().getResources().getColor(R.color.LiveView_Text_deactivated));
         } else {
             AEB = true;
-            tv_AEB.setTextColor(getContext().getResources().getColor(R.color.button_text_states));
+            tv_AEB.setTextColor(getActivity().getResources().getColor(R.color.button_text_states));
         }
         Log.d(TAG, "AEB did Tap: " + AEB);
     }
@@ -1182,12 +1197,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     // -------------------------------------------------------------------------
     // Updates
     // -------------------------------------------------------------------------
-    public void updateAllViews() {
-        updateTakeModeImageView();
-        updateBatteryLevelImageView();
-    }
 
     private void updateBatteryLevelImageView() {
+        Log.d(TAG, "updateBatteryLevelImageView");
+
         String value = null;
         try {
             value = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_BATTERY_LEVEL);
@@ -1208,6 +1221,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void updateRemainingRecordableImagesTextView() {
+        Log.d(TAG, "updateRemainingRecordableImagesTextView");
+
         final String text;
         if (camera.isConnected() || camera.getRunMode() == OLYCamera.RunMode.Recording) {
             if (camera.isMediaBusy()) {
@@ -1222,6 +1237,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void updateFocusModeTextView(String propName) {
+        Log.d(TAG, "updateFocusModeTextView");
+
         Log.d(TAG, "New FocusMode: " + propName);
         try {
             String txt = camera.getCameraPropertyValueTitle(camera.getCameraPropertyValue(propName));
@@ -1234,15 +1251,18 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void updateAEBTextView() {
+        Log.d(TAG, "updateAEBTextView");
         tv_AEB.setEnabled(AEB);
     }
 
 
     private void updateTakeModeImageView() {
+        Log.d(TAG, "updateTakeModeImageView");
         try {
             String takeMode = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
             List<String> takemodes = CameraActivity.getTakeModeStrings();
             shootingModeCounter = takemodes.indexOf(takeMode);
+            Log.d(TAG,"updateTakeModeIv shootingModecounter: "+ shootingModeCounter);
         } catch (OLYCameraKitException ex) {
             ex.printStackTrace();
         }
