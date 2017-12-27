@@ -2,6 +2,7 @@ package com.example.mail.fragmenttest;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,7 +21,7 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends android.app.Fragment
+public class TriggerFragment extends Fragment
         implements View.OnClickListener, View.OnTouchListener {
     private static final String TAG = TriggerFragment.class.getSimpleName();
 
@@ -65,17 +66,17 @@ public class TriggerFragment extends android.app.Fragment
         //void updateDrivemodeImage();
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        camera = CameraActivity.getCamera();
+        Log.d(TAG, " camera Conntected: camera set:" + camera.isConnected());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        //Log.d(TAG, "notdead A");
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
         view.setId(View.generateViewId());
 
@@ -83,9 +84,9 @@ public class TriggerFragment extends android.app.Fragment
         iv_meteringMode = view.findViewById(R.id.ib_metering);
         iv_shutter = view.findViewById(R.id.ib_shutterrelease);
 
+        iv_shutter.setOnTouchListener(this);
         iv_driveMode.setOnClickListener(this);
         iv_meteringMode.setOnClickListener(this);
-        iv_shutter.setOnTouchListener(this);
 
         return view;
     }
@@ -113,45 +114,46 @@ public class TriggerFragment extends android.app.Fragment
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG,"takemode on resume: "+takeMode);
+        Log.d(TAG, "takemode on resume: " + takeMode);
         if (takeMode < 1 || takeMode > 5)
             iv_meteringMode.setVisibility(View.INVISIBLE);
         else
-            updateMeteringImageView();
+            iv_meteringMode.setVisibility(View.VISIBLE);
+        // updateMeteringImageView();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    public void updateAfterCamConnection() {
+    public void refresh() {
+        Log.d(TAG,"refresh");
         updateDrivemodeImageView();
+        updateMeteringImageView();
+        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
+ /*   public void updateAfterCamConnection() {
+        updateDrivemodeImageView();
+    }*/
 //----------------
 
     public void SetTakeMode(int takeMode) {
         this.takeMode = takeMode;
     }
 
+    public void updateDrivemodeImageView(String value) {
+        updateImageView(iv_driveMode, drivemodeIconList, value);
+    }
 
     private void drivemodeImageViewDidTap() {
-        final View view = iv_driveMode;
-        cameraPropertyDidTab(view, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE);
 
-        getActivity().runOnUiThread(new Runnable() {
+        updateImageView(iv_driveMode, drivemodeIconList, cameraPropertyDidTab(iv_driveMode, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE) );
+       /* getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                updateDrivemodeImageView();
+
             }
-        });
+        });*/
     }
 
-    public void updateDrivemodeImageView() {
+    private void updateDrivemodeImageView() {
         updatePropertyImageView(iv_driveMode, drivemodeIconList, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE);
-    }
-    public void updateDrivemodeImageView(String value){
-        updateImageView( iv_driveMode,drivemodeIconList,value);
     }
 
     private void updateMeteringImageView() {
@@ -159,13 +161,11 @@ public class TriggerFragment extends android.app.Fragment
     }
 
     private void meteringImageViewDidTap() {
-        //Log.d(TAG, "Click");
         final View view = iv_meteringMode;
         if (takeMode < 1 || takeMode > 5)
             view.setVisibility(View.INVISIBLE);
         else
-            cameraPropertyDidTab(view,CameraActivity.CAMERA_PROPERTY_METERING_MODE);
-
+            cameraPropertyDidTab(view, CameraActivity.CAMERA_PROPERTY_METERING_MODE);
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -175,55 +175,60 @@ public class TriggerFragment extends android.app.Fragment
     }
 
     private void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
-
-        imageView.setEnabled(camera.canSetCameraProperty(propertyName));
-        Log.d(TAG, "Update: " + propertyName);
-        String propValue;
         try {
-            propValue = camera.getCameraPropertyValue(propertyName);
-            Log.d(TAG, "PropVal: " + propValue);
+            imageView.setEnabled(camera.canSetCameraProperty(propertyName));
+            Log.d(TAG, "Update: " + propertyName);
+            String propValue;
+            try {
+                propValue = camera.getCameraPropertyValue(propertyName);
+                Log.d(TAG, "PropVal: " + propValue);
 
-        } catch (OLYCameraKitException e) {
+            } catch (OLYCameraKitException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            if (propValue == null) {
+                return;
+            }
+            updateImageView(imageView, iconList, propValue);
+        } catch (Exception e) {
             e.printStackTrace();
-            return;
-        }
-
-        if (propValue == null) {
-            return;
-        }
-        updateImageView(imageView, iconList, propValue);
-
-    }
-
-    public void updateImageView(ImageView imageView, Map<String, Integer> iconList, String propValue) {
-        if (iconList.containsKey(propValue)) {
-            int resId = iconList.get(propValue);
-            imageView.setImageResource(resId);
-            //triggerFragmListener.updateDrivemodeImage();
-        } else {
-            imageView.setImageDrawable(null);
         }
     }
 
+    private void updateImageView(ImageView imageView, Map<String, Integer> iconList, String propValue) {
+        try {
+            if (iconList.containsKey(propValue)) {
+                int resId = iconList.get(propValue);
+                imageView.setImageResource(resId);
+            } else {
+                imageView.setImageDrawable(null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    private void cameraPropertyDidTab(View inView, String inPropertyName) {
+    private String cameraPropertyDidTab(View inView, String inPropertyName) {
         final List<String> valueList;
+        String retVal = "";
         try {
             valueList = camera.getCameraPropertyValueList(inPropertyName);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
-            return;
+            return "";
         }
-        if (valueList == null || valueList.size() == 0) return;
+        if (valueList == null || valueList.size() == 0) return retVal;
 
         String value;
         try {
             value = camera.getCameraPropertyValue(inPropertyName);
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
-            return;
+            return retVal;
         }
-        if (value == null) return;
+        if (value == null) return retVal;
         inView.setSelected(true);
 
         try {
@@ -233,20 +238,14 @@ public class TriggerFragment extends android.app.Fragment
             //Log.d(TAG, "listSize: " + listSize);
             int moduloIndex = index % listSize;
             Log.d(TAG, "Property: " + inPropertyName + " Value: " + valueList.get(moduloIndex));
-            camera.setCameraPropertyValue(inPropertyName, valueList.get(moduloIndex));
-
+            retVal = valueList.get(moduloIndex);
+            camera.setCameraPropertyValue(inPropertyName,retVal );
+            return retVal;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return retVal;
     }
-
-    public void SetOLYCam(OLYCamera camera) {
-        this.camera = camera;
-
-    }
-
-
-
 
     @Override
     public void onAttach(Context context) {

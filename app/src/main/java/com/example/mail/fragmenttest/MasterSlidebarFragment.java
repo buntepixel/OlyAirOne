@@ -3,6 +3,7 @@ package com.example.mail.fragmenttest;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,7 @@ import jp.co.olympus.camerakit.OLYCamera;
  * Created by mail on 13/10/2016.
  */
 
-public abstract class MasterSlidebarFragment extends android.app.Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
+public abstract class MasterSlidebarFragment extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
     private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
     OLYCamera camera;
     protected List<String> myString;
@@ -42,6 +43,7 @@ public abstract class MasterSlidebarFragment extends android.app.Fragment implem
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "OnCreate");
+        camera = CameraActivity.getCamera();
     }
 
     @Override

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:state_enabled="false"
-        android:drawable="@drawable/ic_pinpoint" />
+        android:layout_height="wrap_content"
+        android:drawable="@drawable/ic_pinpoint" android:state_enabled="false"/>
     <item
-        android:state_selected="true"
-        android:drawable="@drawable/ic_pinpoint" />
+        android:drawable="@drawable/ic_pinpoint"
+        android:state_selected="true"/>
     <item
-        android:state_pressed="true"
-        android:drawable="@drawable/ic_pinpoint_pressed" />
+        android:drawable="@drawable/ic_pinpoint_pressed"
+        android:state_pressed="true"/>
     <item
-        android:drawable="@drawable/ic_pinpoint" />
+        android:drawable="@drawable/ic_pinpoint"/>
 </selector>

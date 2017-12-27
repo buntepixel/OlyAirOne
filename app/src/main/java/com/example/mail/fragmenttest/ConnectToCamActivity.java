@@ -34,15 +34,11 @@ public class ConnectToCamActivity extends Activity {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
     //private String mSavedSsid, mSavedPw;
 
-    private boolean isActive = false;
     private SharedPreferences settings;
-    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
     private WifiManager mWifiManager;
     private ScanForWifiAcessPoints wifiScanReceiver;
 
-
     private ImageView waitconnect;
-    private OLYCamera camera = null;
 
 
     @Override

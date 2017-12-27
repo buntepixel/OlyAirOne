@@ -1,13 +1,12 @@
 package com.example.mail.fragmenttest;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Toast;
@@ -24,8 +23,10 @@ import jp.co.olympus.camerakit.OLYCameraConnectionListener;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
+import static com.example.mail.fragmenttest.MainActivity.PREFS_NAME;
 
-public class CameraActivity extends Activity
+
+public class CameraActivity extends FragmentActivity
         implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
         MasterSlidebarFragment.sliderValue, SettingsFragment.OnSettingsFragmInteractionListener,
         OLYCameraConnectionListener, OLYCameraPropertyListener {
@@ -59,13 +60,15 @@ public class CameraActivity extends Activity
     public static final String CAMERA_PROPERTY_ISO_SENSITIVITY = "ISO";
     public static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
 
+    public static final String CAMERA_PROPERTY_IMAGE_PREVIEW = "RECVIEW";
+    public static final String CAMERA_LIVEVIEWSIZE = "LIVEVIESIZE";
 
     static List<String> takeModeStrings;
 
     Executor connectionExecutor = Executors.newFixedThreadPool(1);
-    int currDriveMode = 0;
+    int currTakeMode = 0;
 
-    android.app.FragmentManager fm;
+    FragmentManager fm;
     TriggerFragment fTrigger;
     LiveViewFragment fLiveView;
     SettingsFragment fSettings;
@@ -95,7 +98,7 @@ public class CameraActivity extends Activity
 
         //--------------------------
         //setContentView(R.layout.activity_camera);
-        fm = getFragmentManager();
+        fm = getSupportFragmentManager();
         // However, if we're being restored from a previous state,
         // then we don't need to do anything and should return or else
         // we could end up with overlapping fragments.
@@ -114,17 +117,11 @@ public class CameraActivity extends Activity
         //add Trigger,LiveView Fragment
         //Log.d(TAG, "onCreate__" + "Creating Fragments,setting olycam to fragments");
         fTrigger = new TriggerFragment();
-        fTrigger.SetOLYCam(camera);
-
         fSettings = new SettingsFragment();
-        fSettings.SetOLYCam(camera);
-
         fLiveView = new LiveViewFragment();
-        fLiveView.SetOLYCam(camera);
-        fLiveView.setOnLiveViewInteractionListener(this);
 
         Log.d(TAG, "onResume__" + "bevoreCommit");
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, FRAGMENT_TAG_TRIGGER);
         fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, FRAGMENT_TAG_SETTINGS);
         fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
@@ -139,18 +136,13 @@ public class CameraActivity extends Activity
         super.onResume();
         Log.d(TAG, "START Resume");
         if (!camera.isConnected()) {
-            //Log.d(TAG, "onResume__" + "connecting");
+            Log.d(TAG, "Cam Is NOT connected");
             startConnectingCamera();
         } else {
-            // Log.d(TAG, "onResume__" + "connecting");
+            Log.d(TAG, "Cam Is connected");
             onConnectedToCamera();
         }
-        //reset Cam if we had a orientation change
-        fLiveView.SetOLYCam(camera);
-        fTrigger.SetOLYCam(camera);
-        fSettings.SetOLYCam(camera);
         Log.d(TAG, "END Resume");
-
     }
 
     @Override
@@ -163,6 +155,11 @@ public class CameraActivity extends Activity
     public void onStop() {
         super.onStop();
         saveCamSettings();
+        try {
+            camera.disconnectWithPowerOff(false);
+        } catch (OLYCameraKitException e) {
+            Log.w(this.toString(), "To disconnect from the camera is failed.");
+        }
     }
 
     @Override
@@ -174,13 +171,13 @@ public class CameraActivity extends Activity
             fm.putFragment(outState, FRAGMENT_TAG_SETTINGS, fSettings);
         if (fm.findFragmentByTag(FRAGMENT_TAG_TRIGGER) != null)
             fm.putFragment(outState, FRAGMENT_TAG_TRIGGER, fTrigger);
-        outState.putInt("currDriveMode", currDriveMode);
+        outState.putInt("currTakeMode", currTakeMode);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        savedInstanceState.getInt("currDriveMode");
+        savedInstanceState.getInt("currTakeMode");
     }
 
     @Override
@@ -206,7 +203,7 @@ public class CameraActivity extends Activity
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            this.currDriveMode = currDriveMode;
+            this.currTakeMode = currDriveMode;
             setShootingModeButtons(currDriveMode);
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);
@@ -230,26 +227,20 @@ public class CameraActivity extends Activity
         fTrigger.updateDrivemodeImageView(propValue);
     }
 
-    @Override
-    public void onDriveModeChange(String propValue) {
-        fTrigger.updateAfterCamConnection();
-
-        //fLiveView.updateFocusMode(propValue);
-    }
 
     @Override
     public void onButtonsInteraction(int settingsType) {
         // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
         Log.d(TAG, "settingsType: " + settingsType);
-        Log.d(TAG, "CurrentDriveMode" + currDriveMode);
+        Log.d(TAG, "CurrentDriveMode" + currTakeMode);
         //removeVisibleSliderFragments();
 
         try {
             //Log.d(TAG,"visFrag"+ fm.getFragments().toString());
             int fragLayout;
-            Log.d(TAG, "currdriveMode: " + currDriveMode);
+            Log.d(TAG, "currdriveMode: " + currTakeMode);
             //if Manual mode we have 2 fragment sliders
-            if (currDriveMode == 4 && settingsType <= 1) {
+            if (currTakeMode == 4 && settingsType <= 1) {
                 Log.d(TAG, "Manual Mode;");
                 generalPressed(shutterSpeedFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart2);
                 generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1);
@@ -298,7 +289,7 @@ public class CameraActivity extends Activity
         connectionExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CameraActivity.this);
+                SharedPreferences preferences = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE);
                 Boolean canConnect = false;
                 while (!canConnect) {
                     canConnect = camera.canConnect(OLYCamera.ConnectionType.WiFi, 0);
@@ -310,13 +301,13 @@ public class CameraActivity extends Activity
                     alertConnectingFailed(e);
                     return;
                 }
-                /*try {
+                try {
                     camera.changeLiveViewSize(toLiveViewSize(preferences.getString("live_view_quality", "QVGA")));
                 } catch (OLYCameraKitException e) {
                     Log.w(TAG, "You had better uninstall this application and install it again.");
                     alertConnectingFailed(e);
                     return;
-                }*/
+                }
                 Log.d(TAG, "startConnectingCamera__" + "OLYCamera.RunMode.Recording");
                 try {
                     camera.changeRunMode(OLYCamera.RunMode.Recording);
@@ -326,37 +317,14 @@ public class CameraActivity extends Activity
                 }
                 Log.d(TAG, "startConnectingCamera__" + "Restores my settings");
                 // Restores my settings.
-                if (camera.isConnected()) {
-                    Map<String, String> values = new HashMap<String, String>();
-                    for (String name : Arrays.asList(
-                            "TAKEMODE",
-                            "TAKE_DRIVE",
-                            "APERTURE",
-                            "SHUTTER",
-                            "EXPREV",
-                            "WB",
-                            "ISO",
-                            "RECVIEW"
-                    )) {
-                        String value = preferences.getString(name, null);
-                        if (value != null) {
-                            values.put(name, value);
-                        }
-                    }
-                    if (values.size() > 0) {
-                        try {
-                            camera.setCameraPropertyValues(values);
-                        } catch (OLYCameraKitException e) {
-                            Log.w(TAG, "To change the camera properties is failed: " + e.getMessage());
-                        }
-                    }
-                }
-
+                restoreCamSettings(preferences);
+                Log.d(TAG, "::::::::::::::::::::::::::::-----Restored Settings----:::::::::::::::::::::::::::::::::: ");
                 if (!camera.isAutoStartLiveView()) { // Please refer a document about OLYCamera.autoStartLiveView.
                     // Start the live-view.
                     // If you forget calling this method, live view will not be displayed on the screen.
                     try {
                         camera.startLiveView();
+                        Log.d(TAG, "StartedLiveView");
                     } catch (OLYCameraKitException e) {
                         Log.w(TAG, "To start the live-view is failed: " + e.getMessage());
                         return;
@@ -372,6 +340,7 @@ public class CameraActivity extends Activity
             }
         });
     }
+
 
     private void alertConnectingFailed(Exception e) {
         final Intent myIntent = new Intent(this, ConnectToCamActivity.class);
@@ -394,45 +363,32 @@ public class CameraActivity extends Activity
         });
     }
 
-
     private void onConnectedToCamera() {
-        Log.d(TAG, "Connected to Cam");
-        //restore Cam settings from Shared prefs
-        //restoreCamSettings();
-        //add LiveView to fragment manager if here first time
-        if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) == null) {
-            android.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
-            //Todo: maybe only commit();
-            //fragmentTransaction.commitAllowingStateLoss();
-            fragmentTransaction.commit();
-        }
         try {
-            takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
+            Log.d(TAG, "Connected to Cam");
+            //restore Cam settings from Shared prefs
+            //restoreCamSettings();
+            //add LiveView to fragment manager if here first time
             createSliderFragments();
-            fTrigger.updateAfterCamConnection();
-        } catch (OLYCameraKitException e) {
+            try {
+                //get Takemode strings for static variable
+                takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
+                currTakeMode = takeModeStrings.indexOf(camera.getCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE));
+                fLiveView.triggerTakeModeUpdate(currTakeMode);
+               // fTrigger.updateAfterCamConnection();
+            } catch (OLYCameraKitException e) {
+                e.printStackTrace();
+                return;
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
-
-    private OLYCamera.LiveViewSize toLiveViewSize(String quality) {
-        if (quality.equalsIgnoreCase("QVGA")) {
-            return OLYCamera.LiveViewSize.QVGA;
-        } else if (quality.equalsIgnoreCase("VGA")) {
-            return OLYCamera.LiveViewSize.VGA;
-        } else if (quality.equalsIgnoreCase("SVGA")) {
-            return OLYCamera.LiveViewSize.SVGA;
-        } else if (quality.equalsIgnoreCase("XGA")) {
-            return OLYCamera.LiveViewSize.XGA;
-        }
-        return OLYCamera.LiveViewSize.QVGA;
-    }
 
     @Override
     public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
+        Log.d(TAG, "LostConnection");
         runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(getBaseContext(), "Connection to Camera Lost, please Reconnect", Toast.LENGTH_LONG).show();
@@ -447,7 +403,7 @@ public class CameraActivity extends Activity
     //------------------------
     private void setShootingModeButtons(int mode) {
         Log.d(TAG, "Mode: " + mode);
-        fSettings = (SettingsFragment) getFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
+        fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
 
         if (fSettings != null) {
             switch (mode) {
@@ -500,27 +456,20 @@ public class CameraActivity extends Activity
         ft.detach(frgTrigger);
         ft.attach(frgTrigger);
         ft.commit();*/
-       fLiveView.refresh();
-       fSettings.refresh();
+        fLiveView.refresh();
+        fSettings.refresh();
+        fTrigger.refresh();
+
     }
 
     private void createSliderFragments() {
         //create slider fragments.
-        Log.d(TAG, "Creating Slider Fragments: ----------------" + getCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE).size());
+        Log.d(TAG, "Creating Slider Fragments");
         apartureFragment = ApertureFragment.newInstance(getCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), getCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
-        apartureFragment.SetOLYCam(camera);
-
         shutterSpeedFragment = ShutterFragment.newInstance(getCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), getCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
-        shutterSpeedFragment.SetOLYCam(camera);
-
         exposureCorrFragment = ExposureCorrFragment.newInstance(getCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION), getCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
-        exposureCorrFragment.SetOLYCam(camera);
-
         isoFragment = IsoFragment.newInstance(getCamPropertyValues(CAMERA_PROPERTY_ISO_SENSITIVITY), getCamPropertyValue(CAMERA_PROPERTY_ISO_SENSITIVITY));
-        isoFragment.SetOLYCam(camera);
-
         wbFragment = WbFragment.newInstance(getCamPropertyValues(CAMERA_PROPERTY_WHITE_BALANCE), getCamPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE));
-        wbFragment.SetOLYCam(camera);
     }
 
     private void removeVisibleSliderFragments() {
@@ -528,8 +477,8 @@ public class CameraActivity extends Activity
         Log.d(TAG, "RemoveVisFragment");
         MasterSlidebarFragment fragment1 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart1);
         if (fragment1 != null) {
-            android.app.FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.animator.slidedown, R.animator.slideup);
+            android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(fragment1);
             Log.d(TAG, "Removing expApart1");
             MasterSlidebarFragment fragment2 = (MasterSlidebarFragment) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
@@ -559,8 +508,8 @@ public class CameraActivity extends Activity
         Log.d(TAG, "Value: " + value);
         if (value == null) return;
         try {
-            android.app.FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.animator.slidedown, R.animator.slideup);
+            android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             //Remove Fragment showing
             final MasterSlidebarFragment myFrag = (MasterSlidebarFragment) fm.findFragmentById(frameLayoutToAppear);
 
@@ -624,6 +573,21 @@ public class CameraActivity extends Activity
         }
     }
 
+    private OLYCamera.LiveViewSize toLiveViewSize(String quality) {
+        if (quality.equalsIgnoreCase("QUAD_VGA"))
+            return OLYCamera.LiveViewSize.QUAD_VGA;
+        else if (quality.equalsIgnoreCase("QVGA"))
+            return OLYCamera.LiveViewSize.QVGA;
+        else if (quality.equalsIgnoreCase("VGA"))
+            return OLYCamera.LiveViewSize.VGA;
+        else if (quality.equalsIgnoreCase("SVGA"))
+            return OLYCamera.LiveViewSize.SVGA;
+        else if (quality.equalsIgnoreCase("XGA"))
+            return OLYCamera.LiveViewSize.XGA;
+
+        return OLYCamera.LiveViewSize.QVGA;
+    }
+
     //------------------------
     //     SaveSettings
     //------------------------
@@ -632,45 +596,73 @@ public class CameraActivity extends Activity
         // All objects are from android.context.Context
         Log.d(TAG, "SavingCamSettings");
         // SharedPreferences settings = MainActivity.getPreferences();
-        SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        //we need to only save the take mode, since we retain instance state on trigger and settings fragment
-        //not on live view though.
-        String takeMode = null;
-        try {
-            takeMode = camera.getCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE);
-            Log.d(TAG, "Saved: CAMERA_PROPERTY_TAKE_MODE = " + takeMode);
 
+        String value = null;
+        OLYCamera.LiveViewSize live_view_quality = null;
+        try {
+            for (String name : Arrays.asList(
+                    CAMERA_PROPERTY_TAKE_MODE,
+                    CAMERA_PROPERTY_DRIVE_MODE,
+                    CAMERA_PROPERTY_METERING_MODE,
+                    CAMERA_PROPERTY_APERTURE_VALUE,
+                    CAMERA_PROPERTY_SHUTTER_SPEED,
+                    CAMERA_PROPERTY_EXPOSURE_COMPENSATION,
+                    CAMERA_PROPERTY_ISO_SENSITIVITY,
+                    CAMERA_PROPERTY_WHITE_BALANCE,
+                    CAMERA_PROPERTY_IMAGE_PREVIEW
+            )) {
+                value = camera.getCameraPropertyValue(name);
+                editor.putString(name, value);
+                Log.d(TAG, "Saved: " + name + "  =  " + value);
+            }
+            live_view_quality = camera.getLiveViewSize();
+            if (live_view_quality == OLYCamera.LiveViewSize.QUAD_VGA)
+                editor.putString(CAMERA_LIVEVIEWSIZE, "QUAD_VGA");
+            else if (live_view_quality == OLYCamera.LiveViewSize.QVGA)
+                editor.putString(CAMERA_LIVEVIEWSIZE, "QUAD");
+            else if (live_view_quality == OLYCamera.LiveViewSize.SVGA)
+                editor.putString(CAMERA_LIVEVIEWSIZE, "SVGA");
+            else if (live_view_quality == OLYCamera.LiveViewSize.VGA)
+                editor.putString(CAMERA_LIVEVIEWSIZE, "VGA");
+            else if (live_view_quality == OLYCamera.LiveViewSize.XGA)
+                editor.putString(CAMERA_LIVEVIEWSIZE, "XGA");
+
+            Log.d(TAG, "Saved: live_view_quality = " + settings.getString(CAMERA_LIVEVIEWSIZE, "noValue"));
         } catch (OLYCameraKitException ex) {
             ex.printStackTrace();
         }
-        editor.putString(CAMERA_PROPERTY_TAKE_MODE, takeMode);
         // Commit the edits!
         editor.apply();
     }
 
-    private void restoreCamSettings() {
-        SharedPreferences preferences = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE);
-        if (preferences != null) {
-            Log.d(TAG, "Restoring camSettings");
-            String takeMode = preferences.getString(CAMERA_PROPERTY_TAKE_MODE, null);
-            takeModeStrings = getCamPropertyValues(CAMERA_PROPERTY_TAKE_MODE);
-            try {
-                if (takeMode != null) {
-                    camera.setCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE, takeMode);
-                    currDriveMode = takeModeStrings.indexOf(takeMode);
-                    fSettings.SetTakeMode(currDriveMode);
-                    fTrigger.SetTakeMode(currDriveMode);
-                    android.app.FragmentTransaction ft = fm.beginTransaction();
-                    ft.detach(fTrigger);
-                    ft.detach(fSettings);
-                    ft.attach(fTrigger);
-                    ft.attach(fSettings);
-                    ft.commit();
-                    Log.d(TAG, "Restored: CAMERA_PROPERTY_TAKE_MODE = " + takeMode);
+    private void restoreCamSettings(SharedPreferences preferences) {
+        if (camera.isConnected()) {
+            Map<String, String> values = new HashMap<String, String>();
+            for (String name : Arrays.asList(
+                    CAMERA_PROPERTY_TAKE_MODE,
+                    CAMERA_PROPERTY_DRIVE_MODE,
+                    CAMERA_PROPERTY_METERING_MODE,
+                    CAMERA_PROPERTY_APERTURE_VALUE,
+                    CAMERA_PROPERTY_SHUTTER_SPEED,
+                    CAMERA_PROPERTY_EXPOSURE_COMPENSATION,
+                    CAMERA_PROPERTY_ISO_SENSITIVITY,
+                    CAMERA_PROPERTY_WHITE_BALANCE,
+                    CAMERA_PROPERTY_IMAGE_PREVIEW
+            )) {
+                String value = preferences.getString(name, null);
+                if (value != null) {
+                    Log.d(TAG, "Name: " + name + "  Value: " + value);
+                    values.put(name, value);
                 }
-            } catch (OLYCameraKitException ex) {
-                ex.printStackTrace();
+            }
+            if (values.size() > 0) {
+                try {
+                    camera.setCameraPropertyValues(values);
+                } catch (OLYCameraKitException e) {
+                    Log.w(TAG, "To change the camera properties is failed: " + e.getMessage());
+                }
             }
         }
     }

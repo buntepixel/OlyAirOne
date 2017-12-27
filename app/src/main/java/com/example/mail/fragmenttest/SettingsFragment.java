@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,7 +27,7 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
  * Created by mail on 14/06/2017.
  */
 
-public class SettingsFragment extends android.app.Fragment
+public class SettingsFragment extends Fragment
         implements View.OnClickListener {
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
@@ -76,19 +77,13 @@ public class SettingsFragment extends android.app.Fragment
 
     public interface OnSettingsFragmInteractionListener {
         void onButtonsInteraction(int settingsType);
-
-        void onDriveModeChange(String propValue);
-    }
-
-
-    public void SetOLYCam(OLYCamera camera) {
-        this.camera = camera;
-
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        camera = CameraActivity.getCamera();
+        Log.d(TAG, " camera Conntected: camera set:"+ camera.isConnected());
         setRetainInstance(true);
     }
 
