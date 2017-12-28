@@ -1,4 +1,4 @@
-package com.example.mail.fragmenttest;
+package com.example.mail.OlyAirONE;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,8 +24,6 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import jp.co.olympus.camerakit.OLYCamera;
 

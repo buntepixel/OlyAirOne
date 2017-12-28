@@ -3,11 +3,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/Black"
-                tools:context="com.example.mail.fragmenttest.LiveViewFragment">
+                tools:context="com.example.mail.OlyAirONE.LiveViewFragment">
 
     <view
         android:id="@+id/cameraLiveImageView"
-        class="com.example.mail.fragmenttest.CameraLiveImageView"
+        class="com.example.mail.OlyAirONE.CameraLiveImageView"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_weight="1"

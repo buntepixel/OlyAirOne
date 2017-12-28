@@ -1,4 +1,4 @@
-package com.example.mail.fragmenttest;
+package com.example.mail.OlyAirONE;
 
 import android.os.Bundle;
 
@@ -9,11 +9,11 @@ import java.util.List;
  * Created by mail on 13/10/2016.
  */
 
-public class ExposureCorrFragment extends MasterSlidebarFragment {
-    private static final String TAG = ExposureCorrFragment.class.getSimpleName();
+public class WbFragment extends MasterSlidebarFragment {
+    private static final String TAG = WbFragment.class.getSimpleName();
 
-    public  static ExposureCorrFragment newInstance(List<String> myString,String value) {
-        ExposureCorrFragment myFragment = new ExposureCorrFragment();
+    public  static WbFragment newInstance(List<String> myString,String value) {
+        WbFragment myFragment = new WbFragment();
 
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
@@ -24,7 +24,6 @@ public class ExposureCorrFragment extends MasterSlidebarFragment {
 
         return myFragment;
     }
-
 
 
 }

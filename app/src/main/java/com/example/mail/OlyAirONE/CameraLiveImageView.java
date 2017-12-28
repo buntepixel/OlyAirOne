@@ -3,7 +3,7 @@
  * Olympus Imaging Corp. licenses this software to you under EULA_OlympusCameraKit_ForDevelopers.pdf.
  */
 
-package com.example.mail.fragmenttest;
+package com.example.mail.OlyAirONE;
 
 import android.content.Context;
 import android.graphics.Bitmap;

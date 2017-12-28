@@ -1,4 +1,4 @@
-package com.example.mail.fragmenttest;
+package com.example.mail.OlyAirONE;
 
 import android.content.Intent;
 import android.os.Bundle;

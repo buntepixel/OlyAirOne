@@ -1,4 +1,4 @@
-package com.example.mail.fragmenttest;
+package com.example.mail.OlyAirONE;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.mail.fragmenttest.CameraActivity.camera;
+import static com.example.mail.OlyAirONE.CameraActivity.camera;
 
 /**
  * Created by mail on 13/10/2016.

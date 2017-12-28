@@ -2,15 +2,15 @@
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             tools:context="com.example.mail.fragmenttest.ApertureFragment">
+             tools:context="com.example.mail.OlyAirONE.ApertureFragment">
 
 
-    <com.example.mail.fragmenttest.ScrollingValuePicker
+    <com.example.mail.OlyAirONE.ScrollingValuePicker
         android:id="@+id/svp_neutralScrollingValuePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fillViewport="true"
         android:scrollbars="none">
 
-    </com.example.mail.fragmenttest.ScrollingValuePicker>
+    </com.example.mail.OlyAirONE.ScrollingValuePicker>
 </FrameLayout>

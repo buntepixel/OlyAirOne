@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.mail.fragmenttest">
+          package="com.example.mail.OlyAirONE">
 
     <!-- To access Google+ APIs: -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.example.mail.OlyAirONE.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -22,18 +22,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ConnectToCamActivity"
-            android:parentActivityName=".MainActivity">
+            android:name="com.example.mail.OlyAirONE.ConnectToCamActivity"
+            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
         </activity>
         <activity
-            android:name=".AppSettingsActivity"
-            android:parentActivityName=".MainActivity">
+            android:name="com.example.mail.OlyAirONE.AppSettingsActivity"
+            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
         </activity>
         <activity
-            android:name=".CameraActivity"
-            android:parentActivityName=".MainActivity">
+            android:name="com.example.mail.OlyAirONE.CameraActivity"
+            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
         </activity>
-        <activity android:name=".CamSettingsActivity">
+        <activity android:name="com.example.mail.OlyAirONE.CamSettingsActivity">
         </activity>
     </application>
 

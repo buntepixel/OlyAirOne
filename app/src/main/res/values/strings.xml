@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FragmentTest</string>
+    <string name="app_name">OlyAirONE</string>
     <string name="maChange_wifi">Change Wifi</string>
     <string name="title_activity_preferences">Preferences</string>
     <string name="mainTb_settings">Settings</string>

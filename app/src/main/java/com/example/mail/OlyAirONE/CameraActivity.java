@@ -1,4 +1,4 @@
-package com.example.mail.fragmenttest;
+package com.example.mail.OlyAirONE;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,7 +23,7 @@ import jp.co.olympus.camerakit.OLYCameraConnectionListener;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
-import static com.example.mail.fragmenttest.MainActivity.PREFS_NAME;
+import static com.example.mail.OlyAirONE.MainActivity.PREFS_NAME;
 
 
 public class CameraActivity extends FragmentActivity

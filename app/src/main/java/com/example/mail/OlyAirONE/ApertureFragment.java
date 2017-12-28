@@ -1,4 +1,4 @@
-package com.example.mail.fragmenttest;
+package com.example.mail.OlyAirONE;
 
 import android.os.Bundle;
 
@@ -9,11 +9,11 @@ import java.util.List;
  * Created by mail on 13/10/2016.
  */
 
-public class ShutterFragment extends MasterSlidebarFragment {
-    private static final String TAG = ShutterFragment.class.getSimpleName();
+public class ApertureFragment extends MasterSlidebarFragment {
+    private static final String TAG = ApertureFragment.class.getSimpleName();
 
-    public  static ShutterFragment newInstance(List<String> myString,String value) {
-        ShutterFragment myFragment = new ShutterFragment();
+    public  static ApertureFragment newInstance(List<String> myString, String value) {
+        ApertureFragment myFragment = new ApertureFragment();
 
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
@@ -25,6 +25,6 @@ public class ShutterFragment extends MasterSlidebarFragment {
         return myFragment;
     }
 
-
-
 }
+
+
