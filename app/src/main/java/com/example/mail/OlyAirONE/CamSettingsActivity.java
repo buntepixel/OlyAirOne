@@ -1,7 +1,5 @@
 package com.example.mail.OlyAirONE;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,24 +15,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import jp.co.olympus.camerakit.OLYCamera;
-import jp.co.olympus.camerakit.OLYCameraConnectionListener;
-import jp.co.olympus.camerakit.OLYCameraKitException;
 
 import static com.example.mail.OlyAirONE.MainActivity.PREFS_NAME;
 
-public class CamSettingsActivity extends AppCompatActivity implements OLYCameraConnectionListener,ExpandableListAdapter.CallParentActivtiy {
+public class CamSettingsActivity extends AppCompatActivity implements ExpandableListAdapter.CallParentActivtiy {
     private static final String TAG = CamSettingsActivity.class.getSimpleName();
 
     List<String> groupList;
     List<String> childList;
     Map<String, List<String>> categoryColl;
     ExpandableListView expListView;
-    static OLYCamera  camera;
-    Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    SharedPreferences preferences;
+
 
     private final Map<String, String> aspectRatio = new HashMap<String, String>() {{
         put("4:3 ", "<ASPECT_RATIO/04_03>");
@@ -105,25 +97,30 @@ public class CamSettingsActivity extends AppCompatActivity implements OLYCameraC
     //------------------------
     //    Getters
     //------------------------
-    public static OLYCamera getCamera() {
-        return camera;
-    }
+
 
     public Map<String,String> getAspectRatioMap(){return aspectRatio;}
     public Map<String,String> getJpgCompressionMap(){return jpgCompression;}
     public Map<String,String> getImageSizeMap(){return imageSize;}
     public Map<String,String> getImageSaveDestinationMap(){return imageSaveDestination;}
     public Map<String,String> getMovieQualityMap(){return movieQuality;}
+
     public Map<String,String> getClipRecordTimeMap(){return clipRecordTime;}
+
     public Map<String,String> getContinousShootingSpeedMap(){return continousShootingSpeed;}
     public Map<String,String> getEmptyMap(){return empty;}
-
     @Override
     public void saveSetting(String property, String value) {
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(property, value);
         editor.apply();
+    }
+
+    @Override
+    public String getSetting(String property, String defvalue) {
+        String value = CameraActivity.extractValue(preferences.getString(property, defvalue )) ;
+        return  value;
     }
 
     @Override
@@ -135,10 +132,8 @@ public class CamSettingsActivity extends AppCompatActivity implements OLYCameraC
         createCollection();
 
         Boolean rawImageSaving;
+        preferences = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE);
 
-        camera = new OLYCamera();
-        camera.setContext(this);
-        camera.setConnectionListener(this);
 
         expListView = (ExpandableListView) findViewById(R.id.laptop_list);
         final ExpandableListAdapter expListAdapter = new ExpandableListAdapter(
@@ -159,120 +154,7 @@ public class CamSettingsActivity extends AppCompatActivity implements OLYCameraC
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "START Resume");
-        if (!camera.isConnected()) {
-            Log.d(TAG, "Cam Is NOT connected");
-            startConnectingCamera();
-        } else {
-            Log.d(TAG, "Cam Is connected");
-            onConnectedToCamera();
-        }
-        Log.d(TAG, "END Resume");
-    }
 
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        try {
-            camera.disconnectWithPowerOff(false);
-        } catch (OLYCameraKitException e) {
-            Log.w(this.toString(), "To disconnect from the camera is failed.");
-        }
-    }
-
-    //------------------------
-    //    Connecting Camera
-    //------------------------
-    private void startConnectingCamera() {
-        Log.d(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
-        connectionExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-
-                Boolean canConnect = false;
-                while (!canConnect) {
-                    canConnect = camera.canConnect(OLYCamera.ConnectionType.WiFi, 0);
-                }
-                Log.d(TAG, "OLYCamera.ConnectionType.WiFi");
-                try {
-                    camera.connect(OLYCamera.ConnectionType.WiFi);
-                } catch (OLYCameraKitException e) {
-                    alertConnectingFailed(e);
-                    return;
-                }
-
-                Log.d(TAG, "startConnectingCamera__" + "OLYCamera.RunMode.Recording");
-                try {
-                    camera.changeRunMode(OLYCamera.RunMode.Recording);
-                } catch (OLYCameraKitException e) {
-                    alertConnectingFailed(e);
-                    return;
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onConnectedToCamera();
-                    }
-                });
-            }
-        });
-    }
-
-    @Override
-    public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
-        Log.d(TAG, "LostConnection");
-        runOnUiThread(new Runnable() {
-            public void run() {
-                Toast.makeText(getBaseContext(), "Connection to Camera Lost, please Reconnect", Toast.LENGTH_LONG).show();
-            }
-        });
-        finish();
-        startActivity(new Intent(this, MainActivity.class));
-    }
-
-    private void alertConnectingFailed(Exception e) {
-        final Intent myIntent = new Intent(this, ConnectToCamActivity.class);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle("Connect failed")
-                .setMessage(e.getMessage() != null ? e.getMessage() : "Unknown error")
-                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        //startScanningCamera();
-                        startActivity(myIntent);
-                    }
-                });
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                builder.show();
-            }
-        });
-    }
-
-    private void onConnectedToCamera() {
-        try {
-            Log.d(TAG, "Connected to Cam");
-            //restore Cam settings from Shared prefs
-            //restoreCamSettings();
-            //add LiveView to fragment manager if here first time
-            Log.d(TAG, "::::::::::::Cam is Connected: " + camera.isConnected());
-           /* try {
-
-            } catch (OLYCameraKitException e) {
-                e.printStackTrace();
-                return;
-            }*/
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     //------------------------
     //    listView

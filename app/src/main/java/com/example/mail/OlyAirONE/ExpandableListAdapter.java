@@ -47,15 +47,25 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     }
 
     public interface CallParentActivtiy {
-        public Map<String,String> getAspectRatioMap();
-        public Map<String,String> getJpgCompressionMap();
-        public Map<String,String> getImageSizeMap();
-        public Map<String,String> getImageSaveDestinationMap();
-        public Map<String,String> getMovieQualityMap();
-        public Map<String,String> getClipRecordTimeMap();
-        public Map<String,String> getContinousShootingSpeedMap();
-        public Map<String,String> getEmptyMap();
+        public Map<String, String> getAspectRatioMap();
+
+        public Map<String, String> getJpgCompressionMap();
+
+        public Map<String, String> getImageSizeMap();
+
+        public Map<String, String> getImageSaveDestinationMap();
+
+        public Map<String, String> getMovieQualityMap();
+
+        public Map<String, String> getClipRecordTimeMap();
+
+        public Map<String, String> getContinousShootingSpeedMap();
+
+        public Map<String, String> getEmptyMap();
+
         public void saveSetting(String property, String value);
+
+        public String getSetting(String property, String defvalue);
 
     }
 
@@ -140,6 +150,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     } else if (childPosition == 1) {
                         adapter.addAll(listener.getImageSizeMap().keySet().toArray(new CharSequence[0]));
                         dropdownVals.putAll(listener.getImageSizeMap());
+                        String compareValue = listener.getSetting("IMAGESIZE", "1024x768");
+                        Log.d(TAG,"compareVal: "+compareValue);
+                        if (!compareValue.equals(null)) {
+                            int spinnerPosition = adapter.getPosition(compareValue);
+                            Log.d(TAG,"spinnerPos: "+spinnerPosition);
+                            spinner.setSelection(spinnerPosition);
+                        }
                     } else if (childPosition == 2) {
                         //CharSequence[] player_names = players.keySet().toArray(new CharSequence[0]);
                         adapter.addAll(listener.getJpgCompressionMap().keySet().toArray(new CharSequence[0]));
@@ -298,13 +315,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         String value = dropdownVals.get(parent.getItemAtPosition(position));
         String prop = CameraActivity.extractProperty(value);
         Log.d(TAG, "selected: " + value + "  " + prop);
-        listener.saveSetting(prop,value);
-      /*  try {
-            CamSettingsActivity.getCamera().setCameraPropertyValue(prop, value);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-        }*/
-
+        listener.saveSetting(prop, value);
     }
 
     @Override

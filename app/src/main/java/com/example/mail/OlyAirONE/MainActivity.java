@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }else if(view == btnViewImages){
 
         }else if(view == btnCamSettings){
-            intent = new Intent(getBaseContext(),ConnectToCamActivity.class);
+            intent = new Intent(getBaseContext(),CamSettingsActivity.class);
             intent.putExtra("target","settings");
             startActivity(intent);
         }

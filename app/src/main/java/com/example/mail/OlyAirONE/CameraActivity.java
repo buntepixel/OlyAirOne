@@ -553,6 +553,11 @@ public class CameraActivity extends FragmentActivity
         String extractedString = myStringArr[0].substring(1);
         return extractedString;
     }
+    public static String extractValue(String value){
+        String[] myStringArr = value.split("/");
+        String extractedString = myStringArr[1].substring(0,myStringArr[1].length()-1);
+        return extractedString;
+    }
 
     private List<String> getCamPropertyValues(String propertyName) {
         try {
@@ -649,7 +654,13 @@ public class CameraActivity extends FragmentActivity
                     CAMERA_PROPERTY_ISO_SENSITIVITY,
                     CAMERA_PROPERTY_WHITE_BALANCE,
                     CAMERA_PROPERTY_IMAGE_PREVIEW,
-                    "IMAGESIZE"
+                    "ASPECT_RATIO",
+                    "COMPRESSIBILITY_RATIO",
+                    "IMAGESIZE",
+                    "DESTINATION_FILE",
+                    "QUALITY_MOVIE",
+                    "QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME",
+                    "CONTINUOUS_SHOOTING_VELOCITY"
             )) {
                 String value = preferences.getString(name, null);
                 if (value != null) {
