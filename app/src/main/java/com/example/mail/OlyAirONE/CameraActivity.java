@@ -78,7 +78,7 @@ public class CameraActivity extends FragmentActivity
     ShutterFragment shutterSpeedFragment;
     ExposureCorrFragment exposureCorrFragment;
 
-    public static OLYCamera camera = null;
+     static OLYCamera camera = null;
 
     //-----------------
     //   Setup
@@ -385,7 +385,6 @@ public class CameraActivity extends FragmentActivity
         }
     }
 
-
     @Override
     public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
         Log.d(TAG, "LostConnection");
@@ -649,7 +648,8 @@ public class CameraActivity extends FragmentActivity
                     CAMERA_PROPERTY_EXPOSURE_COMPENSATION,
                     CAMERA_PROPERTY_ISO_SENSITIVITY,
                     CAMERA_PROPERTY_WHITE_BALANCE,
-                    CAMERA_PROPERTY_IMAGE_PREVIEW
+                    CAMERA_PROPERTY_IMAGE_PREVIEW,
+                    "IMAGESIZE"
             )) {
                 String value = preferences.getString(name, null);
                 if (value != null) {

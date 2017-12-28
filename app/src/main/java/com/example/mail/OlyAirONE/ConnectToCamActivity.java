@@ -25,8 +25,6 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.List;
 
-import jp.co.olympus.camerakit.OLYCamera;
-
 
 public class ConnectToCamActivity extends Activity {
     private static final String TAG = ConnectToCamActivity.class.getSimpleName();
@@ -37,6 +35,7 @@ public class ConnectToCamActivity extends Activity {
     private ScanForWifiAcessPoints wifiScanReceiver;
 
     private ImageView waitconnect;
+    private String target;
 
 
     @Override
@@ -45,8 +44,9 @@ public class ConnectToCamActivity extends Activity {
         setContentView(R.layout.activity_connect_to_cam);
 
         //initializes necessary components
-        init();
         settings = getSharedPreferences("WifiPrefs", 0);
+        target= getIntent().getExtras().getString("target","none");
+        init();
     }
 
     @Override
@@ -195,7 +195,7 @@ public class ConnectToCamActivity extends Activity {
                 Toast.makeText(this, "Already Connected to: " + mySSID, Toast.LENGTH_SHORT).show();
                 //Already Connectecd switching to camera Activity
                 Log.d(TAG, "Already Connected SwitchingtoCamActivity");
-                startCamActivity(this);
+                startNextActivity(this);
                 return;
             }
 
@@ -242,10 +242,17 @@ public class ConnectToCamActivity extends Activity {
         }
     }
 
-    public  void startCamActivity(Context context) {
-        Intent switchToCamActivtiy = new Intent(context, CameraActivity.class);
-        //switchToCamActivtiy.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(switchToCamActivtiy);
+    public  void startNextActivity(Context context) {
+        Intent switchToNextActivtiy;
+        Log.d(TAG,"starting next Activtiy TARGET: "+ target);
+        if(target.equals("settings") ){
+            switchToNextActivtiy = new Intent(context,CamSettingsActivity.class);
+        }else{
+            switchToNextActivtiy = new Intent(context, CameraActivity.class);
+        }
+
+        //switchToNextActivtiy.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(switchToNextActivtiy);
         finish();
     }
 
@@ -272,7 +279,7 @@ public class ConnectToCamActivity extends Activity {
                     //check if correct network
                     if (credentials != null && connectedSSID.equals("\"" + credentials.get(0) + "\"")) {
                         Log.d(TAG, "starting to connect to cam");
-                        startCamActivity(context);
+                        startNextActivity(context);
                     }
                 }
             }

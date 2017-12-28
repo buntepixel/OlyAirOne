@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.Button;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements View.OnClickListener{
     private static final String TAG = MainActivity.class.getSimpleName();
     private Button btnCamera, btnViewImages, btnCamSettings;
     private BroadcastReceiver mReceiver;
@@ -31,27 +31,11 @@ public class MainActivity extends Activity {
         preferences=getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
         Log.d(TAG,"SET PrefsObj");
         btnCamera = findViewById(R.id.btnCamera);
-        btnCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent connectWifiIntent = new Intent(getBaseContext(), ConnectToCamActivity.class);
-                startActivity(connectWifiIntent);
-            }
-        });
+        btnCamera.setOnClickListener(this);
         btnViewImages = findViewById(R.id.btnViewImages);
-        btnViewImages.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
+        btnViewImages.setOnClickListener(this);
         btnCamSettings = findViewById(R.id.btnCamSettings);
-        btnCamSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            Intent camSettingsIntent = new Intent(getBaseContext(),CamSettingsActivity.class);
-            startActivity(camSettingsIntent);
-            }
-        });
+        btnCamSettings.setOnClickListener(this);
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
     }
 
@@ -62,7 +46,21 @@ public class MainActivity extends Activity {
     }
 
 
+    @Override
+    public void onClick(View view) {
+        Intent intent;
+        if(view==btnCamera){
+            intent = new Intent(getBaseContext(), ConnectToCamActivity.class);
+            intent.putExtra("target","cam");
+            startActivity(intent);
+        }else if(view == btnViewImages){
 
+        }else if(view == btnCamSettings){
+            intent = new Intent(getBaseContext(),ConnectToCamActivity.class);
+            intent.putExtra("target","settings");
+            startActivity(intent);
+        }
+    }
 }
 
 
