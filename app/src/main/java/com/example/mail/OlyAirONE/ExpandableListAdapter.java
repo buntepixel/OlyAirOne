@@ -60,6 +60,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         public Map<String, String> getClipRecordTimeMap();
 
         public Map<String, String> getContinousShootingSpeedMap();
+        public Map<String, String> getSelfTimerMap();
+
 
         public Map<String, String> getEmptyMap();
 
@@ -141,29 +143,17 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 txt = (TextView) convertView.findViewById(R.id.tv_ddch_discription);
                 txt.setText(child);
                 ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(context, android.R.layout.simple_spinner_item);
-
+                int spinnerPosition = -1;
                 //if Image Settings
                 if (groupPosition == 1) {
                     if (childPosition == 0) {
-                        adapter.addAll(listener.getAspectRatioMap().keySet().toArray(new CharSequence[0]));
-                        dropdownVals.putAll(listener.getAspectRatioMap());
+                        spinnerPosition = setAdapterValues(adapter, listener.getAspectRatioMap(), "ASPECT_RATIO", "<ASPECT_RATIO/04_03>");
                     } else if (childPosition == 1) {
-                        adapter.addAll(listener.getImageSizeMap().keySet().toArray(new CharSequence[0]));
-                        dropdownVals.putAll(listener.getImageSizeMap());
-                        String compareValue = listener.getSetting("IMAGESIZE", "1024x768");
-                        Log.d(TAG,"compareVal: "+compareValue);
-                        if (!compareValue.equals(null)) {
-                            int spinnerPosition = adapter.getPosition(compareValue);
-                            Log.d(TAG,"spinnerPos: "+spinnerPosition);
-                            spinner.setSelection(spinnerPosition);
-                        }
+                        spinnerPosition = setAdapterValues(adapter, listener.getImageSizeMap(), "IMAGESIZE", "<IMAGESIZE/4608x3456>");
                     } else if (childPosition == 2) {
-                        //CharSequence[] player_names = players.keySet().toArray(new CharSequence[0]);
-                        adapter.addAll(listener.getJpgCompressionMap().keySet().toArray(new CharSequence[0]));
-                        dropdownVals.putAll(listener.getJpgCompressionMap());
+                        spinnerPosition = setAdapterValues(adapter, listener.getJpgCompressionMap(), "COMPRESSIBILITY_RATIO", "<COMPRESSIBILITY_RATIO/CMP_4>");
                     } else if (childPosition == 3) {
-                        adapter.addAll(listener.getImageSaveDestinationMap().keySet().toArray(new CharSequence[0]));
-                        dropdownVals.putAll(listener.getImageSaveDestinationMap());
+                        spinnerPosition = setAdapterValues(adapter, listener.getImageSaveDestinationMap(), "DESTINATION_FILE", "<DESTINATION_FILE/DESTINATION_FILE_MEDIA>");
                     } else {
                         adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
@@ -171,18 +161,29 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 } //if movie settings
                 else if (groupPosition == 2) {
                     if (childPosition == 0) {
-                        adapter.addAll(listener.getMovieQualityMap().keySet().toArray(new CharSequence[0]));
-                        dropdownVals.putAll(listener.getMovieQualityMap());
+                        spinnerPosition = setAdapterValues(adapter, listener.getMovieQualityMap(), "QUALITY_MOVIE", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_NORMAL>");
                     } else if (childPosition == 1) {
-                        adapter.addAll(listener.getClipRecordTimeMap().keySet().toArray(new CharSequence[0]));
-                        dropdownVals.putAll(listener.getClipRecordTimeMap());
+                        spinnerPosition = setAdapterValues(adapter, listener.getClipRecordTimeMap(), "QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/5>");
+                    } else {
+                        adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
-                }
+                } else if (groupPosition == 4) {
+                    if (childPosition == 0) {
+                        spinnerPosition = setAdapterValues(adapter, listener.getContinousShootingSpeedMap(), "CONTINUOUS_SHOOTING_VELOCITY", "<CONTINUOUS_SHOOTING_VELOCITY/5>");
+                    } else if (childPosition == 1) {
+                        spinnerPosition = setAdapterValues(adapter, listener.getSelfTimerMap(), "SELF_TIMER", "<SELF_TIMER/10>");
+                    } else {
+                        adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
+                    }
 
+                }
                 // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
                 // Apply the adapter to the spinner
                 spinner.setAdapter(adapter);
+                if (spinnerPosition != -1)
+                    spinner.setSelection(spinnerPosition);
+
                 //Define how to render the data on the CHILD_TYPE_3 layout
                 break;
             case CHILD_TYPE_UNDEFINED:
@@ -192,6 +193,26 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         return convertView;
     }
 
+    private int setAdapterValues(ArrayAdapter<CharSequence> adapter, Map<String, String> dropdownVals, String camProperty, String defValue) {
+        int spinnerPosition;
+        adapter.addAll(dropdownVals.keySet().toArray(new CharSequence[0]));
+        this.dropdownVals.putAll(dropdownVals);
+        Log.d(TAG,"dropdownVals: "+dropdownVals.toString() );
+        String settingVal = listener.getSetting(camProperty, defValue);
+        String compareValue =(String) getKeyFromValue(dropdownVals,settingVal);
+        Log.d(TAG,"compareVal: "+compareValue +" settingVal: "+settingVal+"  what:"+adapter.getCount());
+        spinnerPosition = adapter.getPosition(compareValue);
+        Log.d(TAG,"spinnerPos: "+spinnerPosition);
+        return spinnerPosition;
+    }
+    public static Object getKeyFromValue(Map hm, Object value) {
+        for (Object o : hm.keySet()) {
+            if (hm.get(o).equals(value)) {
+                return o;
+            }
+        }
+        return null;
+    }
     @Override
     public int getChildrenCount(int groupPosition) {
         return myChilds.get(myParents.get(groupPosition)).size();
@@ -205,13 +226,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     public int getChildType(int groupPosition, int childPosition) {
         switch (groupPosition) {
             case 0:
-                switch (childPosition) {
+                switch (childPosition) {//AutoExposureBracketing
                     case 0:
                         return CHILD_TYPE_1;
                 }
-                break;
             case 1:
-                switch (childPosition) {
+                switch (childPosition) {//ImageSettings
                     case 0:
                         return CHILD_TYPE_3;//AspectRatio
                     case 1:
@@ -222,14 +242,31 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         return CHILD_TYPE_3;//ImageDestination
                     case 4:
                         return CHILD_TYPE_2;//RawImageSaving
+                    default:
+                        return CHILD_TYPE_UNDEFINED;
                 }
-                break;
             case 2:
-                switch (childPosition) {
+                switch (childPosition) {//MovieSettings
                     case 0:
-                        return CHILD_TYPE_3;//AspectRatio
+                        return CHILD_TYPE_3;//movieQuality
                     case 1:
-                        return CHILD_TYPE_3;//ImageSize
+                        return CHILD_TYPE_3;//ClipRecTime
+                    default:
+                        return CHILD_TYPE_UNDEFINED;
+                }
+            case 3:
+                switch (childPosition) {//Focusing
+                    case 0:
+                        return CHILD_TYPE_2;//touchshutter
+                    default:
+                        return CHILD_TYPE_UNDEFINED;
+                }
+            case 4:
+                switch (childPosition) {//Shooting
+                    case 0:
+                        return CHILD_TYPE_3;//continousShootingVel
+                    case 1:
+                        return CHILD_TYPE_3;//selfTimer
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
@@ -311,10 +348,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Log.d(TAG, "selected: " + parent.getItemAtPosition(position));
         String value = dropdownVals.get(parent.getItemAtPosition(position));
         String prop = CameraActivity.extractProperty(value);
-        Log.d(TAG, "selected: " + value + "  " + prop);
+        Log.d(TAG, "saved: " + value + "  " + prop);
         listener.saveSetting(prop, value);
     }
 

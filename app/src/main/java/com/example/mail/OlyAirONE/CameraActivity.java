@@ -549,11 +549,13 @@ public class CameraActivity extends FragmentActivity
     }
 
     public static String extractProperty(String value) {
+        Log.d(TAG,"prop: "+value);
         String[] myStringArr = value.split("/");
         String extractedString = myStringArr[0].substring(1);
         return extractedString;
     }
     public static String extractValue(String value){
+        Log.d(TAG,"val: "+value);
         String[] myStringArr = value.split("/");
         String extractedString = myStringArr[1].substring(0,myStringArr[1].length()-1);
         return extractedString;

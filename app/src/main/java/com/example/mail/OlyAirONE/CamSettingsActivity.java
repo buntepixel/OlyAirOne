@@ -90,6 +90,12 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         put("9fps", "<CONTINUOUS_SHOOTING_VELOCITY/9>");
         put("10fps", "<CONTINUOUS_SHOOTING_VELOCITY/10>");
     }};
+    private final Map<String, String> selfTimer = new HashMap<String, String>() {{
+        put("3sec", "<SELF_TIMER/3>");
+        put("7sec", "<SELF_TIMER/7>");
+        put("10sec", "<SELF_TIMER/10>");
+        put("15sec", "<SELF_TIMER/15>");
+    }};
     private final Map<String, String> empty = new HashMap<String, String>() {{
         put("empty", "empty");
     }};
@@ -108,9 +114,12 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     public Map<String,String> getClipRecordTimeMap(){return clipRecordTime;}
 
     public Map<String,String> getContinousShootingSpeedMap(){return continousShootingSpeed;}
+    public Map<String,String> getSelfTimerMap(){return selfTimer;}
+
     public Map<String,String> getEmptyMap(){return empty;}
     @Override
     public void saveSetting(String property, String value) {
+        Log.d(TAG, "save: prop: "+property+"  val: "+value);
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(property, value);
@@ -119,7 +128,11 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
     @Override
     public String getSetting(String property, String defvalue) {
-        String value = CameraActivity.extractValue(preferences.getString(property, defvalue )) ;
+        //String value = CameraActivity.extractValue(preferences.getString(property, defvalue )) ;
+        String value = preferences.getString(property, defvalue ) ;
+
+        Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
+
         return  value;
     }
 
@@ -139,9 +152,6 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         final ExpandableListAdapter expListAdapter = new ExpandableListAdapter(
                 this, groupList, categoryColl,this);
         expListView.setAdapter(expListAdapter);
-        Log.d(TAG, "What is it: " + expListAdapter.getChild(1, 2));
-
-
         //setGroupIndicatorToRight();
 
         expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -181,7 +191,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         String[] image = {"AspectRatio", "ImageSize", "jpgComression", "ImageDestination", "RawImageSaving"};
         String[] movie = {"Quality", "ClipRecordTime"};
         String[] focusing = {"Touch shutter"};
-        String[] shooting = {"contShootinvVel", "Self Timer", ""};
+        String[] shooting = {"Continous Shooting Vel","Self Timer"};
 
 
         categoryColl = new LinkedHashMap<String, List<String>>();
