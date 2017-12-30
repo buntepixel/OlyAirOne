@@ -44,7 +44,7 @@ public class ConnectToCamActivity extends Activity {
         setContentView(R.layout.activity_connect_to_cam);
 
         //initializes necessary components
-        settings = getSharedPreferences("WifiPrefs", 0);
+
         target= getIntent().getExtras().getString("target","none");
         init();
     }
@@ -159,7 +159,7 @@ public class ConnectToCamActivity extends Activity {
         try {
             //Log.d(TAG, "Entered checkWifiCredetialsExist");
             //get Log in Data From Pref File if exist
-            SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+            SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
             String ssid = mySettings.getString(getResources().getString(R.string.pref_ssid), null);
             //String pw = mySettings.getString(getResources().getString(R.string.pref_Pw), null);
             List<String> credentials = Arrays.asList(ssid);

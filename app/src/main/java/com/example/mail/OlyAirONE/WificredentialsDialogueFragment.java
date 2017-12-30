@@ -54,7 +54,7 @@ public class WificredentialsDialogueFragment extends DialogFragment {
                         Log.d(TAG, "SSID: " + ssid.getText().toString() );
                         Context context = getActivity();
                         //setting credentials
-                        SharedPreferences mySettings = context.getSharedPreferences(context.getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+                        SharedPreferences mySettings = context.getSharedPreferences(context.getResources().getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = mySettings.edit();
                         editor.putString(getResources().getString(R.string.pref_ssid), ssid.getText().toString());
                         editor.commit();

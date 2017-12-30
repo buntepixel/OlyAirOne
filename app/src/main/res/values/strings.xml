@@ -6,7 +6,7 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="appsettings">AppSettings</string>
     <string name="ssid">NetworkName</string>
-    <string name="pref_wifinetwork">AirOneWifiNetwork</string>
+    <string name="pref_SharedPrefs">AirOnePrefs</string>
     <string name="pref_ssid">SSID</string>
     <string name="pref_Pw">Password</string>
     <string name="pref_enter_network_name">Enter Network Name</string>
@@ -112,7 +112,6 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
-
 
 
 </resources>

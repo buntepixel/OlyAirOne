@@ -23,8 +23,6 @@ import jp.co.olympus.camerakit.OLYCameraConnectionListener;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
-import static com.example.mail.OlyAirONE.MainActivity.PREFS_NAME;
-
 
 public class CameraActivity extends FragmentActivity
         implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
@@ -602,7 +600,7 @@ public class CameraActivity extends FragmentActivity
         // All objects are from android.context.Context
         Log.d(TAG, "SavingCamSettings");
         // SharedPreferences settings = MainActivity.getPreferences();
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
         String value = null;

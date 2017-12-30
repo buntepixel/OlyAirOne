@@ -16,8 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.mail.OlyAirONE.MainActivity.PREFS_NAME;
-
 public class CamSettingsActivity extends AppCompatActivity implements ExpandableListAdapter.CallParentActivtiy {
     private static final String TAG = CamSettingsActivity.class.getSimpleName();
 
@@ -136,24 +134,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     public Map<String,String> getSelfTimerMap(){return selfTimer;}
 
     public Map<String,String> getEmptyMap(){return empty;}
-    @Override
-    public void saveSetting(String property, String value) {
-        Log.d(TAG, "save: prop: "+property+"  val: "+value);
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(property, value);
-        editor.apply();
-    }
 
-    @Override
-    public String getSetting(String property, String defvalue) {
-        //String value = CameraActivity.extractValue(preferences.getString(property, defvalue )) ;
-        String value = preferences.getString(property, defvalue ) ;
-
-        Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
-
-        return  value;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,12 +143,9 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
         createGroupList();
         createCollection();
+        preferences = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
 
-        Boolean rawImageSaving;
-        preferences = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE);
-
-
-        expListView = (ExpandableListView) findViewById(R.id.laptop_list);
+        expListView = (ExpandableListView) findViewById(R.id.elv_settings_list);
         final ExpandableListAdapter expListAdapter = new ExpandableListAdapter(
                 this, groupList, categoryColl,this);
         expListView.setAdapter(expListAdapter);
@@ -184,6 +162,21 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     }
 
 
+    @Override
+    public void saveSetting(String property, String value) {
+        Log.d(TAG, "save: prop: "+property+"  val: "+value);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(property, value);
+        editor.apply();
+    }
+
+    @Override
+    public String getSetting(String property, String defvalue) {
+        String value = preferences.getString(property, defvalue ) ;
+        Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
+        return  value;
+    }
+
 
     //------------------------
     //    listView
@@ -195,6 +188,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         groupList.add("Movie Settings");
         groupList.add("Focusing");
         groupList.add("Shooting");
+        groupList.add("Network");
+
     }
 
     @Override
@@ -211,6 +206,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         String[] movie = {"quality", "clip record time"};
         String[] focusing = {"touch shutter", "face detection"};
         String[] shooting = {"continous shooting vel","self timer"};
+        String[] network = {"SSID(wifi name)"};
+
 
 
         categoryColl = new LinkedHashMap<String, List<String>>();
@@ -226,15 +223,17 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
                 loadChild(focusing);
             else if (group.equals("Shooting"))
                 loadChild(shooting);
+            else if (group.equals("Network"))
+                loadChild(network);
             categoryColl.put(group, childList);
         }
     }
 
-    private void loadChild(String[] laptopModels) {
+    private void loadChild(String[] childArr) {
         childList = new ArrayList<String>();
-        for (String model : laptopModels) {
+        for (String child : childArr) {
 
-            childList.add(model);
+            childList.add(child);
         }
     }
 

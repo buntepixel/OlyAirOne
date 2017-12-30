@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:gravity="center"
-        android:text="@string/pref_wifinetwork"
+        android:text="@string/pref_SharedPrefs"
         />
 
     <RelativeLayout

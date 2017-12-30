@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,14 +24,16 @@ import java.util.Map;
  * Created by mail on 30/11/2017.
  */
 
-public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener,
+        View.OnFocusChangeListener {
     private static final String TAG = ExpandableListAdapter.class.getSimpleName();
 
     // 4 Child types
     private static final int NUMBERPICKER = 0;
     private static final int CHECKBOX = 1;
     private static final int SPINNER = 2;
-    private static final int CHILD_TYPE_UNDEFINED = 3;
+    private static final int TEXTFIELD = 3;
+    private static final int CHILD_TYPE_UNDEFINED = 4;
 
 
     private Activity context;
@@ -50,29 +53,17 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
     public interface CallParentActivtiy {
         public Map<String, String> getAspectRatioMap();
-
         public Map<String, String> getJpgCompressionMap();
-
         public Map<String, String> getImageSizeMap();
-
         public Map<String, String> getImageSaveDestinationMap();
-
         public Map<String, String> getMovieQualityMap();
-
         public Map<String, String> getClipRecordTimeMap();
-
         public Map<String, String> getContinousShootingSpeedMap();
-
         public Map<String, String> getSelfTimerMap();
-
         public Map<String, String> getFaceDetectionMap();
-
         public Map<String, String> getEmptyMap();
-
         public void saveSetting(String property, String value);
-
         public String getSetting(String property, String defvalue);
-
     }
 
     //children----------------
@@ -90,8 +81,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         final String child = (String) getChild(groupPosition, childPosition);
         LayoutInflater inflater = context.getLayoutInflater();
-
         final int childType = getChildType(groupPosition, childPosition);
+        Log.d(TAG,"childType childtype: "+childType);
 
         if (convertView == null) {
         }
@@ -99,7 +90,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         if (convertView == null || !convertView.getTag().equals(childType)) {
             switch (childType) {
                 case NUMBERPICKER:
-                    Log.d(TAG, "ChildType 1");
+                    Log.d(TAG, "NUMBERPICKER");
                     convertView = inflater.inflate(R.layout.childitem_aeb_camsettingsactivity, parent, false);
                     convertView.setTag(childType);
                     break;
@@ -113,13 +104,18 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     convertView = inflater.inflate(R.layout.childitem_dropdownchooser_camsettingsactivity, parent, false);
                     convertView.setTag(childType);
                     break;
+                case TEXTFIELD:
+                    Log.d(TAG, "TEXTFIELD");
+                    convertView = inflater.inflate(R.layout.childiten_textfield_camsettingsactivity, parent, false);
+                    convertView.setTag(childType);
+                    break;
                 case CHILD_TYPE_UNDEFINED:
                     Log.d(TAG, "ChildType 4");
                     convertView = inflater.inflate(R.layout.childitem_bool_camsettingsactivity, parent, false);
                     convertView.setTag(childType);
                     break;
                 default:
-                    // Maybe we should implement a default behaviour but it should be ok we know there are 4 child types right?
+                    // Maybe we should implement a default behaviour but it should be ok we know there are 5 child types right?
                     break;
             }
         }
@@ -128,6 +124,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             // There is nothing to do here really we just need to set the content of view which we do in both cases
         }
         TextView txt;
+        TextView txtcontent;
         switch (childType) {
             case NUMBERPICKER:
                 /*TextView description_child = (TextView) convertView.findViewById(R.id.description_of_ads_expandable_list_child_text_view);
@@ -146,13 +143,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 break;
             case SPINNER:
                 Spinner spinner = (Spinner) convertView.findViewById(R.id.sp_ddch_spinner);
+                Log.d(TAG, "spinner is null: "+(spinner==null));
+
                 spinner.setOnItemSelectedListener(this);
                 txt = (TextView) convertView.findViewById(R.id.tv_ddch_discription);
                 txt.setText(child);
                 ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(context, android.R.layout.simple_spinner_item);
                 int spinnerPosition = -1;
-                //if Image Settings
-                if (groupPosition == 1) {
+                if (groupPosition == 1) {//if Image Settings
                     if (childPosition == 0) {
                         spinnerPosition = setAdapterValues(adapter, listener.getAspectRatioMap(), "ASPECT_RATIO", "<ASPECT_RATIO/04_03>");
                     } else if (childPosition == 1) {
@@ -198,6 +196,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
                 //Define how to render the data on the SPINNER layout
                 break;
+            case TEXTFIELD:
+                txt = (TextView) convertView.findViewById(R.id.tv_tv_discription);
+                txt.setText(child);
+                txtcontent = (EditText) convertView.findViewById(R.id.tv_tv_content);
+                txtcontent.setOnFocusChangeListener(this);
+                Log.d(TAG, "networkName: "+listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
+                txtcontent.setText(listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
+                break;
             case CHILD_TYPE_UNDEFINED:
                 //Define how to render the data on the CHILD_TYPE_UNDEFINED layout
                 break;
@@ -211,7 +217,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     }
 
     public int getChildTypeCount() {
-        return 4; // I defined 4 child types (NUMBERPICKER, CHECKBOX, SPINNER, CHILD_TYPE_UNDEFINED)
+        return 5; // I defined 4 child types (NUMBERPICKER, CHECKBOX, SPINNER,TEXTFIELD CHILD_TYPE_UNDEFINED)
     }
 
     public int getChildType(int groupPosition, int childPosition) {
@@ -263,6 +269,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         return SPINNER;//continousShootingVel
                     case 1:
                         return SPINNER;//selfTimer
+                    default:
+                        return CHILD_TYPE_UNDEFINED;
+                }
+            case 5:
+                switch (childPosition) {//Network
+                    case 0:
+                        return TEXTFIELD;
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
@@ -374,6 +387,17 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     //------------------------
     //    Interaction
     //------------------------
+    @Override
+    public void onFocusChange(View view, boolean b) {
+        //if(view.getTag()== )
+        if (!b){//if lost focus save textfield
+            Log.d(TAG, "focus true");
+            listener.saveSetting(context.getResources().getString(R.string.pref_ssid), ((EditText) view).getText().toString());
+        }
+        else
+            Log.d(TAG, "focus false");
+
+    }
 
 
     @Override

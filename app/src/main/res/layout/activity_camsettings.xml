@@ -6,9 +6,10 @@
                 tools:context=".CamSettingsActivity" >
 
     <ExpandableListView
-        android:id="@+id/laptop_list"
+        android:id="@+id/elv_settings_list"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:descendantFocusability="afterDescendants">
     </ExpandableListView>
 
 </RelativeLayout>

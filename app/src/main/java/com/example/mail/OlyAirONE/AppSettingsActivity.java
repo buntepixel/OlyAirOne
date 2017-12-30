@@ -17,13 +17,13 @@ public class AppSettingsActivity extends Activity {
     private static final String TAG = AppSettingsActivity.class.getSimpleName();
     private EditText mPassword, mSsid;
 
-
+//Todo: Delete this class
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.appsettings_activity);
 
-        SharedPreferences mySettings = this.getSharedPreferences(getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+        SharedPreferences mySettings = this.getSharedPreferences(getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
         Log.d(TAG, "MySetting ScharedPref::" + mySettings);
         mPassword = (EditText) findViewById(R.id.etPw);
         mSsid = (EditText) findViewById(R.id.etSsid);
@@ -39,7 +39,7 @@ public class AppSettingsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferences mySettings = this.getSharedPreferences(getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
+        SharedPreferences mySettings = this.getSharedPreferences(getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySettings.edit();
         mPassword = (EditText) findViewById(R.id.etPw);
         mSsid = (EditText) findViewById(R.id.etSsid);
