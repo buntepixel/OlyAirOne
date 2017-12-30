@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -22,13 +23,13 @@ import java.util.Map;
  * Created by mail on 30/11/2017.
  */
 
-public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener {
+public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     private static final String TAG = ExpandableListAdapter.class.getSimpleName();
 
     // 4 Child types
-    private static final int CHILD_TYPE_1 = 0;
-    private static final int CHILD_TYPE_2 = 1;
-    private static final int CHILD_TYPE_3 = 2;
+    private static final int NUMBERPICKER = 0;
+    private static final int CHECKBOX = 1;
+    private static final int SPINNER = 2;
     private static final int CHILD_TYPE_UNDEFINED = 3;
 
 
@@ -46,6 +47,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         this.listener = listener;
     }
 
+
     public interface CallParentActivtiy {
         public Map<String, String> getAspectRatioMap();
 
@@ -60,8 +62,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         public Map<String, String> getClipRecordTimeMap();
 
         public Map<String, String> getContinousShootingSpeedMap();
+
         public Map<String, String> getSelfTimerMap();
 
+        public Map<String, String> getFaceDetectionMap();
 
         public Map<String, String> getEmptyMap();
 
@@ -94,19 +98,18 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         // We need to create a new "cell container"
         if (convertView == null || !convertView.getTag().equals(childType)) {
             switch (childType) {
-                case CHILD_TYPE_1:
+                case NUMBERPICKER:
                     Log.d(TAG, "ChildType 1");
                     convertView = inflater.inflate(R.layout.childitem_aeb_camsettingsactivity, parent, false);
                     convertView.setTag(childType);
                     break;
-                case CHILD_TYPE_2:
-                    Log.d(TAG, "ChildType 2");
+                case CHECKBOX:
+                    Log.d(TAG, "CHECKBOX");
                     convertView = inflater.inflate(R.layout.childitem_bool_camsettingsactivity, parent, false);
                     convertView.setTag(childType);
                     break;
-                case CHILD_TYPE_3:
-                    Log.d(TAG, "ChildType 3");
-
+                case SPINNER:
+                    Log.d(TAG, "SPINNER");
                     convertView = inflater.inflate(R.layout.childitem_dropdownchooser_camsettingsactivity, parent, false);
                     convertView.setTag(childType);
                     break;
@@ -126,18 +129,22 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         }
         TextView txt;
         switch (childType) {
-            case CHILD_TYPE_1:
+            case NUMBERPICKER:
                 /*TextView description_child = (TextView) convertView.findViewById(R.id.description_of_ads_expandable_list_child_text_view);
                 description_child.setText(incoming_text);*/
                 setup_AEB(convertView);
                 break;
-            case CHILD_TYPE_2:
+            case CHECKBOX:
                 //
                 txt = (TextView) convertView.findViewById(R.id.tv_chbx_discription);
                 txt.setText(child);
-                //Define how to render the data on the CHILD_TYPE_2 layout
+                CheckBox cbx = (CheckBox) convertView.findViewById(R.id.chbx_chbx);
+                cbx.setOnClickListener(this);
+                cbx.setTag(child);//tag used in on click listener
+
+                //Define how to render the data on the CHECKBOX layout
                 break;
-            case CHILD_TYPE_3:
+            case SPINNER:
                 Spinner spinner = (Spinner) convertView.findViewById(R.id.sp_ddch_spinner);
                 spinner.setOnItemSelectedListener(this);
                 txt = (TextView) convertView.findViewById(R.id.tv_ddch_discription);
@@ -158,8 +165,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
 
-                } //if movie settings
-                else if (groupPosition == 2) {
+                } else if (groupPosition == 2) { //if movie settings
                     if (childPosition == 0) {
                         spinnerPosition = setAdapterValues(adapter, listener.getMovieQualityMap(), "QUALITY_MOVIE", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_NORMAL>");
                     } else if (childPosition == 1) {
@@ -167,7 +173,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     } else {
                         adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
-                } else if (groupPosition == 4) {
+
+                } else if (groupPosition == 3) { //if focus settings
+                    if (childPosition == 1) {
+                        spinnerPosition = setAdapterValues(adapter, listener.getFaceDetectionMap(), "FACE_SCAN", "<FACE_SCAN/FACE_SCAN_ON>");
+                    } else {
+                        adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
+                    }
+                } else if (groupPosition == 4) { //if movie settings
                     if (childPosition == 0) {
                         spinnerPosition = setAdapterValues(adapter, listener.getContinousShootingSpeedMap(), "CONTINUOUS_SHOOTING_VELOCITY", "<CONTINUOUS_SHOOTING_VELOCITY/5>");
                     } else if (childPosition == 1) {
@@ -175,7 +188,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     } else {
                         adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
-
                 }
                 // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
@@ -184,7 +196,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 if (spinnerPosition != -1)
                     spinner.setSelection(spinnerPosition);
 
-                //Define how to render the data on the CHILD_TYPE_3 layout
+                //Define how to render the data on the SPINNER layout
                 break;
             case CHILD_TYPE_UNDEFINED:
                 //Define how to render the data on the CHILD_TYPE_UNDEFINED layout
@@ -193,34 +205,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         return convertView;
     }
 
-    private int setAdapterValues(ArrayAdapter<CharSequence> adapter, Map<String, String> dropdownVals, String camProperty, String defValue) {
-        int spinnerPosition;
-        adapter.addAll(dropdownVals.keySet().toArray(new CharSequence[0]));
-        this.dropdownVals.putAll(dropdownVals);
-        Log.d(TAG,"dropdownVals: "+dropdownVals.toString() );
-        String settingVal = listener.getSetting(camProperty, defValue);
-        String compareValue =(String) getKeyFromValue(dropdownVals,settingVal);
-        Log.d(TAG,"compareVal: "+compareValue +" settingVal: "+settingVal+"  what:"+adapter.getCount());
-        spinnerPosition = adapter.getPosition(compareValue);
-        Log.d(TAG,"spinnerPos: "+spinnerPosition);
-        return spinnerPosition;
-    }
-    public static Object getKeyFromValue(Map hm, Object value) {
-        for (Object o : hm.keySet()) {
-            if (hm.get(o).equals(value)) {
-                return o;
-            }
-        }
-        return null;
-    }
     @Override
     public int getChildrenCount(int groupPosition) {
         return myChilds.get(myParents.get(groupPosition)).size();
     }
 
-
     public int getChildTypeCount() {
-        return 4; // I defined 4 child types (CHILD_TYPE_1, CHILD_TYPE_2, CHILD_TYPE_3, CHILD_TYPE_UNDEFINED)
+        return 4; // I defined 4 child types (NUMBERPICKER, CHECKBOX, SPINNER, CHILD_TYPE_UNDEFINED)
     }
 
     public int getChildType(int groupPosition, int childPosition) {
@@ -228,45 +219,50 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             case 0:
                 switch (childPosition) {//AutoExposureBracketing
                     case 0:
-                        return CHILD_TYPE_1;
+                        return NUMBERPICKER;
                 }
             case 1:
                 switch (childPosition) {//ImageSettings
                     case 0:
-                        return CHILD_TYPE_3;//AspectRatio
+                        return SPINNER;//AspectRatio
                     case 1:
-                        return CHILD_TYPE_3;//ImageSize
+                        return SPINNER;//ImageSize
                     case 2:
-                        return CHILD_TYPE_3;//jpgCompression
+                        return SPINNER;//jpgCompression
                     case 3:
-                        return CHILD_TYPE_3;//ImageDestination
+                        return SPINNER;//ImageDestination
                     case 4:
-                        return CHILD_TYPE_2;//RawImageSaving
+                        return CHECKBOX;//RawImageSaving
+                    case 5:
+                        return CHECKBOX;//Create preview image
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
             case 2:
                 switch (childPosition) {//MovieSettings
                     case 0:
-                        return CHILD_TYPE_3;//movieQuality
+                        return SPINNER;//movieQuality
                     case 1:
-                        return CHILD_TYPE_3;//ClipRecTime
+                        return SPINNER;//ClipRecTime
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
             case 3:
                 switch (childPosition) {//Focusing
                     case 0:
-                        return CHILD_TYPE_2;//touchshutter
+                        return CHECKBOX;//touchshutter
+
+                    case 1:
+                        return SPINNER;//faceDetection
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
             case 4:
                 switch (childPosition) {//Shooting
                     case 0:
-                        return CHILD_TYPE_3;//continousShootingVel
+                        return SPINNER;//continousShootingVel
                     case 1:
-                        return CHILD_TYPE_3;//selfTimer
+                        return SPINNER;//selfTimer
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
@@ -306,10 +302,39 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         return convertView;
     }
 
+    //------------------------
+    //    Helpers
+    //------------------------
+    private int setAdapterValues(ArrayAdapter<CharSequence> adapter, Map<String, String> dropdownVals, String camProperty, String defValue) {
+        int spinnerPosition;
+        adapter.addAll(dropdownVals.keySet().toArray(new CharSequence[0]));
+        this.dropdownVals.putAll(dropdownVals);
+        Log.d(TAG, "dropdownVals: " + dropdownVals.toString());
+        String settingVal = listener.getSetting(camProperty, defValue);
+        String compareValue = (String) getKeyFromValue(dropdownVals, settingVal);
+        Log.d(TAG, "compareVal: " + compareValue + " settingVal: " + settingVal + "  what:" + adapter.getCount());
+        spinnerPosition = adapter.getPosition(compareValue);
+        Log.d(TAG, "spinnerPos: " + spinnerPosition);
+        return spinnerPosition;
+    }
+
+    public static Object getKeyFromValue(Map hm, Object value) {
+        for (Object o : hm.keySet()) {
+            if (hm.get(o).equals(value)) {
+                return o;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean hasStableIds() {
         return true;
     }
+    //------------------------
+    //    Setups
+    //------------------------
+
 
     private void setup_AEB(View convertView) {
         NumberPicker np_nbImagesVal = (NumberPicker) convertView.findViewById(R.id.np_nbImagesVal);
@@ -344,6 +369,39 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    //------------------------
+    //    Interaction
+    //------------------------
+
+
+    @Override
+    public void onClick(View view) {
+        // Is the view now checked?
+        boolean checked = ((CheckBox) view).isChecked();
+        //tag gets set in getChildView()....
+        if (view.getTag() == "touch shutter") {
+            Log.d(TAG, "click touch");
+            if (checked)
+                listener.saveSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
+            else
+                listener.saveSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/OFF>");
+
+        } else if (view.getTag() == "save raw image") {
+            Log.d(TAG, "click rawImage");
+            if (checked)
+                listener.saveSetting("RAW", "<RAW/ON>");
+            else
+                listener.saveSetting("RAW", "<RAW/OFF>");
+
+        } else if (view.getTag() == "generate preview image") {
+            Log.d(TAG, "click PreviewImage");
+            if (checked)
+                listener.saveSetting("RECVIEW", "<RECVIEW/ON>");
+            else
+                listener.saveSetting("RECVIEW", "<RECVIEW/OFF>");
+        }
     }
 
     @Override

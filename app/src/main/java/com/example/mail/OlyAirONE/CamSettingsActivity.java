@@ -27,6 +27,18 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     ExpandableListView expListView;
     SharedPreferences preferences;
 
+    private final Map<String, String> aeb_NbPic = new HashMap<String, String>() {{
+        put("3 Pictures", "<NBPIC/3>");
+        put("5 Pictures", "<NBPIC/5>");
+        put("7 Pictures", "<NBPIC/7>");
+        put("9 Pictures", "<NBPIC/9>");
+        put("11 Pictures", "<NBPIC/11>");
+    }};
+    private final Map<String, String> aeb_spread = new HashMap<String, String>() {{
+        put("1 EV", "<SPREAD/1>");
+        put("2 EV", "<SPREAD/2>");
+        put("3 EV", "<SPREAD/3>");
+    }};
 
     private final Map<String, String> aspectRatio = new HashMap<String, String>() {{
         put("4:3 ", "<ASPECT_RATIO/04_03>");
@@ -96,6 +108,11 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         put("10sec", "<SELF_TIMER/10>");
         put("15sec", "<SELF_TIMER/15>");
     }};
+    private final Map<String, String> faceDetection = new HashMap<String, String>() {{
+        put("Face Priority Off", "<FACE_SCAN/FACE_SCAN_OFF>");
+        put("Face Priority On", "<FACE_SCAN/FACE_SCAN_ON>");
+        put("Closest Eye Priority", "<FACE_SCAN/FACE_SCAN_NEAR>");
+    }};
     private final Map<String, String> empty = new HashMap<String, String>() {{
         put("empty", "empty");
     }};
@@ -112,6 +129,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     public Map<String,String> getMovieQualityMap(){return movieQuality;}
 
     public Map<String,String> getClipRecordTimeMap(){return clipRecordTime;}
+    public Map<String,String> getFaceDetectionMap(){return faceDetection;}
+
 
     public Map<String,String> getContinousShootingSpeedMap(){return continousShootingSpeed;}
     public Map<String,String> getSelfTimerMap(){return selfTimer;}
@@ -188,10 +207,10 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     private void createCollection() {
         // preparing laptops collection(child)
         String[] AEB = {"setup"};
-        String[] image = {"AspectRatio", "ImageSize", "jpgComression", "ImageDestination", "RawImageSaving"};
-        String[] movie = {"Quality", "ClipRecordTime"};
-        String[] focusing = {"Touch shutter"};
-        String[] shooting = {"Continous Shooting Vel","Self Timer"};
+        String[] image = {"aspect ratio", "image size", "jpg compression", "image destination", "save raw image","generate preview image"};
+        String[] movie = {"quality", "clip record time"};
+        String[] focusing = {"touch shutter", "face detection"};
+        String[] shooting = {"continous shooting vel","self timer"};
 
 
         categoryColl = new LinkedHashMap<String, List<String>>();
