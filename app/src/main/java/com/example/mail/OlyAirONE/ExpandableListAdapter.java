@@ -20,9 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by mail on 30/11/2017.
- */
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener,
         View.OnFocusChangeListener {
@@ -39,8 +36,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private Activity context;
     private Map<String, List<String>> myChilds;
     private List<String> myParents;
-    private final Map<String, String> dropdownVals = new HashMap<String, String>();
-    CallParentActivtiy listener;
+    private final Map<String, String> dropdownVals = new HashMap<>();
+    private CallParentActivtiy listener;
 
 
     public ExpandableListAdapter(Activity context, List<String> parent, Map<String, List<String>> childs, CallParentActivtiy listener) {
@@ -52,18 +49,29 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
 
     public interface CallParentActivtiy {
-        public Map<String, String> getAspectRatioMap();
-        public Map<String, String> getJpgCompressionMap();
-        public Map<String, String> getImageSizeMap();
-        public Map<String, String> getImageSaveDestinationMap();
-        public Map<String, String> getMovieQualityMap();
-        public Map<String, String> getClipRecordTimeMap();
-        public Map<String, String> getContinousShootingSpeedMap();
-        public Map<String, String> getSelfTimerMap();
-        public Map<String, String> getFaceDetectionMap();
-        public Map<String, String> getEmptyMap();
-        public void saveSetting(String property, String value);
-        public String getSetting(String property, String defvalue);
+        Map<String, String> getAspectRatioMap();
+
+        Map<String, String> getJpgCompressionMap();
+
+        Map<String, String> getImageSizeMap();
+
+        Map<String, String> getImageSaveDestinationMap();
+
+        Map<String, String> getMovieQualityMap();
+
+        Map<String, String> getClipRecordTimeMap();
+
+        Map<String, String> getContinousShootingSpeedMap();
+
+        Map<String, String> getSelfTimerMap();
+
+        Map<String, String> getFaceDetectionMap();
+
+        Map<String, String> getEmptyMap();
+
+        void saveSetting(String property, String value);
+
+        String getSetting(String property, String defvalue);
     }
 
     //children----------------
@@ -82,10 +90,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         final String child = (String) getChild(groupPosition, childPosition);
         LayoutInflater inflater = context.getLayoutInflater();
         final int childType = getChildType(groupPosition, childPosition);
-        Log.d(TAG,"childType childtype: "+childType);
+        Log.d(TAG, "childType childtype: " + childType);
 
-        if (convertView == null) {
-        }
         // We need to create a new "cell container"
         if (convertView == null || !convertView.getTag().equals(childType)) {
             switch (childType) {
@@ -133,22 +139,24 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 break;
             case CHECKBOX:
                 //
-                txt = (TextView) convertView.findViewById(R.id.tv_chbx_discription);
+                txt = convertView.findViewById(R.id.tv_chbx_discription);
                 txt.setText(child);
-                CheckBox cbx = (CheckBox) convertView.findViewById(R.id.chbx_chbx);
-                cbx.setOnClickListener(this);
-                cbx.setTag(child);//tag used in on click listener
+                CheckBox cbx = convertView.findViewById(R.id.chbx_chbx);
+                if (cbx != null) {
+                    cbx.setOnClickListener(this);
+                    cbx.setTag(child);//tag used in on click listener
+                }
 
                 //Define how to render the data on the CHECKBOX layout
                 break;
             case SPINNER:
-                Spinner spinner = (Spinner) convertView.findViewById(R.id.sp_ddch_spinner);
-                Log.d(TAG, "spinner is null: "+(spinner==null));
-
-                spinner.setOnItemSelectedListener(this);
-                txt = (TextView) convertView.findViewById(R.id.tv_ddch_discription);
+                Spinner spinner = convertView.findViewById(R.id.sp_ddch_spinner);
+                Log.d(TAG, "spinner is null: " + (spinner == null));
+                if (spinner != null)
+                    spinner.setOnItemSelectedListener(this);
+                txt = convertView.findViewById(R.id.tv_ddch_discription);
                 txt.setText(child);
-                ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(context, android.R.layout.simple_spinner_item);
+                ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
                 int spinnerPosition = -1;
                 if (groupPosition == 1) {//if Image Settings
                     if (childPosition == 0) {
@@ -190,18 +198,19 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
                 // Apply the adapter to the spinner
-                spinner.setAdapter(adapter);
+                if (spinner != null)
+                    spinner.setAdapter(adapter);
                 if (spinnerPosition != -1)
                     spinner.setSelection(spinnerPosition);
 
                 //Define how to render the data on the SPINNER layout
                 break;
             case TEXTFIELD:
-                txt = (TextView) convertView.findViewById(R.id.tv_tv_discription);
+                txt =convertView.findViewById(R.id.tv_tv_discription);
                 txt.setText(child);
-                txtcontent = (EditText) convertView.findViewById(R.id.tv_tv_content);
+                txtcontent = convertView.findViewById(R.id.tv_tv_content);
                 txtcontent.setOnFocusChangeListener(this);
-                Log.d(TAG, "networkName: "+listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
+                Log.d(TAG, "networkName: " + listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
                 txtcontent.setText(listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
                 break;
             case CHILD_TYPE_UNDEFINED:
@@ -309,7 +318,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             LayoutInflater infalInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.groupitem_camsettingsactivtiy, null);
         }
-        TextView item = (TextView) convertView.findViewById(R.id.tv_parent);
+        TextView item = convertView.findViewById(R.id.tv_parent);
         item.setTypeface(null, Typeface.BOLD);
         item.setText(itemName);
         return convertView;
@@ -331,7 +340,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         return spinnerPosition;
     }
 
-    public static Object getKeyFromValue(Map hm, Object value) {
+    private static Object getKeyFromValue(Map hm, Object value) {
         for (Object o : hm.keySet()) {
             if (hm.get(o).equals(value)) {
                 return o;
@@ -350,12 +359,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
 
     private void setup_AEB(View convertView) {
-        NumberPicker np_nbImagesVal = (NumberPicker) convertView.findViewById(R.id.np_nbImagesVal);
+        NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
         final int[] values = {3, 5, 7, 9};
         final String[] strVal = {"3", "5", "7", "9", "11"};
         setupNumberPicker(np_nbImagesVal, strVal);
 
-        NumberPicker np_exposureSpreadVal = (NumberPicker) convertView.findViewById(R.id.np_exposureSpreadVal);
+        NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
         final String[] expSprVal = {"1", "2", "3"};
         setupNumberPicker(np_exposureSpreadVal, expSprVal);
     }
@@ -390,11 +399,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     @Override
     public void onFocusChange(View view, boolean b) {
         //if(view.getTag()== )
-        if (!b){//if lost focus save textfield
+        if (!b) {//if lost focus save textfield
             Log.d(TAG, "focus true");
             listener.saveSetting(context.getResources().getString(R.string.pref_ssid), ((EditText) view).getText().toString());
-        }
-        else
+        } else
             Log.d(TAG, "focus false");
 
     }
