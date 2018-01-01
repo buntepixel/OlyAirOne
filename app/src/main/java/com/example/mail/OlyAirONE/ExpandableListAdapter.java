@@ -3,6 +3,7 @@ package com.example.mail.OlyAirONE;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,7 @@ import java.util.Map;
 
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener,
-        View.OnFocusChangeListener {
+        View.OnFocusChangeListener, NumberPicker.OnValueChangeListener {
     private static final String TAG = ExpandableListAdapter.class.getSimpleName();
 
     // 4 Child types
@@ -31,7 +32,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private static final int SPINNER = 2;
     private static final int TEXTFIELD = 3;
     private static final int CHILD_TYPE_UNDEFINED = 4;
+    private static final String AEB_IMAGETAG = "aebimage";
+    private static final String AEB_SPREADTAG = "aebspread";
+   final String[] strVal = {"3", "5", "7", "9", "11"};
+    //final String[] strVal = {"10", "5", "7", "9", "11"};
 
+    final String[] expSprVal = {"1", "2", "3"};
 
     private Activity context;
     private Map<String, List<String>> myChilds;
@@ -206,7 +212,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 //Define how to render the data on the SPINNER layout
                 break;
             case TEXTFIELD:
-                txt =convertView.findViewById(R.id.tv_tv_discription);
+                txt = convertView.findViewById(R.id.tv_tv_discription);
                 txt.setText(child);
                 txtcontent = convertView.findViewById(R.id.tv_tv_content);
                 txtcontent.setOnFocusChangeListener(this);
@@ -359,33 +365,40 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
 
     private void setup_AEB(View convertView) {
+
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
-        final int[] values = {3, 5, 7, 9};
-        final String[] strVal = {"3", "5", "7", "9", "11"};
-        setupNumberPicker(np_nbImagesVal, strVal);
+        setupNumberPicker(np_nbImagesVal, strVal, AEB_IMAGETAG);
+        Log.d(TAG,"savedVal: "+listener.getSetting(AEB_IMAGETAG, "default"));
+        int tmp= getArrIdFromValue(strVal,listener.getSetting(AEB_IMAGETAG, strVal[0]));
+
+        Log.d(TAG,"savedArrVal: "+tmp);
+        np_nbImagesVal.setValue(getArrIdFromValue(strVal,listener.getSetting(AEB_IMAGETAG, strVal[0])));
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        final String[] expSprVal = {"1", "2", "3"};
-        setupNumberPicker(np_exposureSpreadVal, expSprVal);
+        setupNumberPicker(np_exposureSpreadVal, expSprVal, AEB_SPREADTAG);
+        np_exposureSpreadVal.setValue(getArrIdFromValue(expSprVal,listener.getSetting(AEB_SPREADTAG, strVal[0])));
+
+        //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, expSprVal[0])));
     }
 
+    private int getArrIdFromValue(String[] arr, String val){
+        int counter = 0;
+        for (String item  :arr) {
+            if(item.equals(val)){
+                return counter;
+            }
+            counter++;
+        }
+        return -1;
+    }
 
-    private void setupNumberPicker(NumberPicker np, String[] strVal) {
+    private void setupNumberPicker(NumberPicker np, String[] strVal, String tag) {
         np.setMinValue(0); //from array first value
         np.setMaxValue(strVal.length - 1); //to array last value
-
-        //Specify the NumberPicker data source as array elements
+        np.setTag(tag);
         np.setDisplayedValues(strVal);
-        //np.setWrapSelectorWheel(true); //wrap.
-
-        //Set a value change listener for NumberPicker
-        np.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                //Display the newly selected value from picker
-                Log.d(TAG, "New NuberPicerVal: " + newVal);
-            }
-        });
+        np.setWrapSelectorWheel(false); //wrap.
+        np.setOnValueChangedListener(this);
     }
 
     @Override
@@ -402,11 +415,28 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         if (!b) {//if lost focus save textfield
             Log.d(TAG, "focus true");
             listener.saveSetting(context.getResources().getString(R.string.pref_ssid), ((EditText) view).getText().toString());
-        } else
-            Log.d(TAG, "focus false");
-
+        }
     }
 
+    @Override
+    public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal) {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                if (newVal == numberPicker.getValue()) {//make sure picker scroll stopped
+                    if (numberPicker.getTag() == AEB_IMAGETAG) {
+                        listener.saveSetting(AEB_IMAGETAG, strVal[numberPicker.getValue()]);
+                        Log.d(TAG, "numberpicker changed to val: " + strVal[numberPicker.getValue()]);
+
+                    } else if (numberPicker.getTag() == AEB_SPREADTAG) {
+                        listener.saveSetting(AEB_SPREADTAG, expSprVal[numberPicker.getValue()]);
+                        Log.d(TAG, "numberpicker changed to val: " + expSprVal[numberPicker.getValue()]);
+                    }
+                    Log.d(TAG, "Arrval changed to val: " + numberPicker.getValue());
+                }
+            }
+        }, 500);//set time
+    }
 
     @Override
     public void onClick(View view) {

@@ -4,6 +4,7 @@ package com.example.mail.OlyAirONE;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.media.MediaPlayer;
@@ -717,6 +718,12 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             return;
         }
         Log.d(TAG, "Autobracketing");
+        //get Settings
+        SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_SharedPrefs),Context.MODE_PRIVATE);
+       // preferences.getString(R.string.)
+        //create interval
+        //set Interval
+        //start
         try {
             OLYCamera.ActionType actionType = camera.getActionType();
             Log.d(TAG, "ActionTpe: " + actionType);

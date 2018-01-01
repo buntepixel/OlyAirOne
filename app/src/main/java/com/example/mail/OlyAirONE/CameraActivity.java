@@ -660,7 +660,11 @@ public class CameraActivity extends FragmentActivity
                     "DESTINATION_FILE",
                     "QUALITY_MOVIE",
                     "QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME",
-                    "CONTINUOUS_SHOOTING_VELOCITY"
+                    "CONTINUOUS_SHOOTING_VELOCITY",
+                    "FACE_SCAN",
+                    "TOUCHSHUTTER",
+                    "RAW",
+                    "RECVIEW"
             )) {
                 String value = preferences.getString(name, null);
                 if (value != null) {
@@ -668,11 +672,12 @@ public class CameraActivity extends FragmentActivity
                     values.put(name, value);
                 }
             }
+            Log.d(TAG,"camvalues to set: "+values.size());
             if (values.size() > 0) {
                 try {
                     camera.setCameraPropertyValues(values);
                 } catch (OLYCameraKitException e) {
-                    Log.w(TAG, "To change the camera properties is failed: " + e.getMessage());
+                    Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
                 }
             }
         }
