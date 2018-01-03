@@ -42,19 +42,24 @@ import jp.co.olympus.camerakit.OLYCameraStatusListener;
  * A simple {@link Fragment} subclass.
  */
 public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener,
-        OLYCameraStatusListener, OLYCameraPropertyListener, OLYCameraRecordingListener, OLYCameraRecordingSupportsListener, View.OnClickListener, View.OnTouchListener {
+        OLYCameraStatusListener, OLYCameraPropertyListener, OLYCameraRecordingListener, OLYCameraRecordingSupportsListener,
+        View.OnClickListener, View.OnTouchListener {
     private static final String TAG = LiveViewFragment.class.getSimpleName();
 
     int[] shootingModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
             R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
 
 
-    private ImageView batteryLevelImageView;
+    private ImageView iv_batteryLevelImageView;
     private TextView remainingRecordableImagesTextView;
     private TextView focusModeTextView;
     private ImageButton ib_shootingMode;
-    private TextView tv_AEB;
-    private Boolean AEB = true;
+    private ImageView iv_AEB;
+    private TextView tv_RecordType;
+
+    private Boolean AEB = false;
+    String[] aebSettingsArr;
+    int aebCounter = 0;
     // private List<String> focusModesList;
     private TextView takemodeTextView;
     private TextView shutterSpeedTextView;
@@ -114,7 +119,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
         void updateDriveModeImage(String propValue);
 
-        void onEnabledTouchShutter(Boolean touchShutterState);
+        void updateAllFragments();
     }
 
     //----------------------
@@ -132,10 +137,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
        /* if (savedInstanceState != null)
             return;*/
         camera = CameraActivity.getCamera();
-        Log.d(TAG, " camera Conntected: camera set:" + camera.isConnected());
-
-        //setRetainInstance(true);
-
+        Log.d(TAG, " camera Conntected: " + camera.isConnected());
     }
 
     @Override
@@ -146,17 +148,17 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         view.setId(View.generateViewId());
         imageView = view.findViewById(R.id.cameraLiveImageView);
 
-        batteryLevelImageView = view.findViewById(R.id.batteryLevelImageView);
+        iv_batteryLevelImageView = view.findViewById(R.id.batteryLevelImageView);
         remainingRecordableImagesTextView = view.findViewById(R.id.tv_SdCardSpaceRemain);
         focusModeTextView = view.findViewById(R.id.tv_focusMode);
         ib_shootingMode = view.findViewById(R.id.ib_RecordMode);
-        tv_AEB = view.findViewById(R.id.tv_Bracketing);
-
+        iv_AEB = view.findViewById(R.id.iv_Bracketing);
+        tv_RecordType = view.findViewById(R.id.tv_RecordType);
 
         focusModeTextView.setOnClickListener(this);
         ib_shootingMode.setOnClickListener(this);
         imageView.setOnTouchListener(this);
-        tv_AEB.setOnClickListener(this);
+        iv_AEB.setOnClickListener(this);
         return view;
     }
 
@@ -169,26 +171,14 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         camera.setCameraStatusListener(this);
         /*camera.setRecordingListener(this);
         camera.setRecordingSupportsListener(this);*/
+        Log.d(TAG, "RecordType: " + tv_RecordType.getText());
 
-        // updateDrivemodeImageView();
-//        updateTakemodeTextView();
-//        updateShutterSpeedTextView();
-//        updateApertureValueTextView();
-//        updateExposureCompensationTextView();
-//        updateIsoSensitivityTextView();
-        //updateWhiteBalanceImageView();
         if (camera.isConnected()) {
             updateBatteryLevelImageView();
             updateRemainingRecordableImagesTextView();
             updateTakeModeImageView();
-            updateAEBTextView();
+            updateRecordTypeText();
         }
-//        try {
-//            camera.clearAutoFocusPoint();
-//            camera.UnlockAutoFocus();
-//        } catch (OLYCameraKitException ee) {
-//        }
-//        enabledFocusLock = false;
     }
 
     @Override
@@ -202,16 +192,34 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     @Override
+    public void onClick(View v) {
+        Log.d(TAG, "onClick");
+        if (v == focusModeTextView) {
+            focusModeTextViewDidTap();
+        } else if (v == ib_shootingMode) {
+            shootingModeDidTap();
+        } else if (v == iv_AEB) {
+            AEBracketingDidTap();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        focusModeTextView.setOnClickListener(null);
+        ib_shootingMode.setOnClickListener(null);
+        imageView.setOnTouchListener(null);
+        iv_AEB.setOnClickListener(null);
+    }
+
+    @Override
     public void onAttach(Context context) {
         Log.d(TAG, "onAttach");
-
         super.onAttach(context);
         try {
             focusedSoundPlayer = MediaPlayer.create(getActivity(), R.raw.focusedsound);
             shutterSoundPlayer = MediaPlayer.create(getActivity(), R.raw.shuttersound);
             mOnLiveViewInteractionListener = (OnLiveViewInteractionListener) context;
-
-            Log.d(TAG, "finished onAttatch");
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnTriggerFragmInteractionListener");
         }
@@ -223,6 +231,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (mOnLiveViewInteractionListener != null)
             mOnLiveViewInteractionListener = null;
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -235,9 +244,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (camera == null)
-            camera = CameraActivity.getCamera();
         Log.d(TAG, "onActivityCreated");
+        if (camera == null) {
+            camera = CameraActivity.getCamera();
+        }
         Log.d(TAG, "ActivtiyCreated ISCONNECTED " + camera.isConnected());
         if (savedInstanceState != null) {
             Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("SliderValIndex"));
@@ -257,32 +267,17 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 // Log.d(TAG, "updateCameraProp: "+ name);
                 switch (name) {
                     case CameraActivity.CAMERA_PROPERTY_BATTERY_LEVEL:
-                        //todo: check why not working
-                        Log.d(TAG, "BATERY LEVEL,onUpdateCameraProperty: " + name);
                         updateBatteryLevelImageView();
                         break;
                     case CameraActivity.CAMERA_PROPERTY_FOCUS_STILL:
                         //Log.d(TAG, "FOCUS_STILL,onUpdateCameraProperty: " + name);
                         //Log.d(TAG,  "PropVal: "+ property);
                         updateFocusModeTextView(name);
-
+                        break;
                     case CameraActivity.CAMERA_PROPERTY_FOCUS_MOVIE:
                         updateFocusModeTextView(name);
                         break;
                 }
-
-               /* if (name.equals(CAMERA_PROPERTY_TAKE_MODE)) {
-                    Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_TAKE_MODE updated:::::::::::::::");
-                    //updateTakemodeTextView();
-                } else if (name.equals(CAMERA_PROPERTY_DRIVE_MODE)) {
-                    Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_DRIVE_MODE updated:::::::::::::::");
-                    //updateDrivemodeImageView();
-                } else if (name.equals(CAMERA_PROPERTY_WHITE_BALANCE)) {
-                    Log.d(TAG, "::::::::::::::::::CAMERA_PROPERTY_WHITE_BALANCE:::::::::::::::");
-                    //updateWhiteBalanceImageView();
-                } else if (name.equals(CAMERA_PROPERTY_BATTERY_LEVEL)) {
-
-                }*/
             }
         });
     }
@@ -305,21 +300,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                             Toast.makeText(getActivity(), "Camera is getting to hot, please turn it off and let it cool down.", Toast.LENGTH_LONG).show();
                         break;
                     case "LevelGauge":
+                        //todo: implement level gauge
                         //Log.d(TAG, "LevelGauge: "+name);
                         break;
-
                 }
-               /* if (name.equals("ActualApertureValue")) {
-                    updateApertureValueTextView();
-                } else if (name.equals("ActualShutterSpeed")) {
-                    updateShutterSpeedTextView();
-                } else if (name.equals("ActualExposureCompensation")) {
-                    updateExposureCompensationTextView();
-                } else if (name.equals("ActualIsoSensitivity")) {
-                    updateIsoSensitivityTextView();
-                } else if (name.equals("RemainingRecordableImages") || name.equals("MediaBusy")) {
-                    updateRemainingRecordableImagesTextView();
-                }*/
             }
         });
     }
@@ -415,20 +399,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             shutterImageViewDidTouchUp();
         }
     }
-
-    @Override
-    public void onClick(View v) {
-        Log.d(TAG, "onClick");
-
-        if (v == focusModeTextView) {
-            focusModeTextViewDidTap();
-        } else if (v == ib_shootingMode) {
-            shootingModeDidTap();
-        } else if (v == tv_AEB) {
-            autoExposureBracketingDidTap();
-        }
-    }
-
 
 
     // -------------------------------------------------------------------------
@@ -526,7 +496,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             return;
         }
-
         // Display a provisional focus frame at the touched point.
         final RectF preFocusFrameRect;
         {
@@ -543,7 +512,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f);
         }
         imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
-
         // Set auto-focus point.
         try {
             camera.setAutoFocusPoint(point);
@@ -638,7 +606,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             return;
         }
-
         // Unlock auto-focus.
         try {
             camera.unlockAutoFocus();
@@ -651,18 +618,19 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         imageView.hideFocusFrame();
     }
 
-
     // shutter control (still)
 
     private void takePicture() {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            Log.d(TAG, "returning as is busy");
             return;
         }
-
         HashMap<String, Object> options = new HashMap<String, Object>();
+        Log.d(TAG, "taking pic");
+
         camera.takePicture(options, new OLYCamera.TakePictureCallback() {
             @Override
-            public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
+            public void onProgress(OLYCamera olyCamera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
                 if (progress == TakingProgress.EndFocusing) {
                     if (!enabledFocusLock) {
                         if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
@@ -681,6 +649,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
             @Override
             public void onCompleted() {
+                if (AEB) {
+                    takeAEBBracket();
+                    return;
+                }
                 if (!enabledFocusLock) {
                     try {
                         camera.clearAutoFocusPoint();
@@ -715,88 +687,154 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private void takeAEBPicture() {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            Log.d(TAG, "returning as is busy");
             return;
         }
         Log.d(TAG, "Autobracketing");
-        //get Settings
-        SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_SharedPrefs),Context.MODE_PRIVATE);
-       // preferences.getString(R.string.)
-        //create interval
-        //set Interval
-        //start
         try {
             OLYCamera.ActionType actionType = camera.getActionType();
             Log.d(TAG, "ActionTpe: " + actionType);
             if (actionType != OLYCamera.ActionType.Single) {
                 String mode = "<TAKE_DRIVE/DRIVE_NORMAL>";
                 camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE, mode);
-                Log.d(TAG, "NewActionTpe: " + camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
+                //Log.d(TAG, "NewActionTpe: " + camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
                 mOnLiveViewInteractionListener.updateDriveModeImage(mode);
+            }
+
+            //get Settings
+            SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
+            int images = Integer.parseInt(preferences.getString(CamSettingsActivity.AEB_IMAGETAG, "3"));
+            int spread = Integer.parseInt(preferences.getString(CamSettingsActivity.AEB_SPREADTAG, "1"));
+
+            List<String> valuesList = camera.getCameraPropertyValueList(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED);
+            String shutterSp = camera.getActualShutterSpeed();
+            String aparture = camera.getActualApertureValue();
+            int listId = valuesList.indexOf(shutterSp);
+            int nbOffExp = (images - 1) / 2;
+
+            //set interval
+            aebSettingsArr = calcBracketing(shutterSp, spread, images);
+            if(aebSettingsArr!=null){
+                enabledFocusLock = true;
+                takeAEBBracket();
             }
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        HashMap<String, Object> options = new HashMap<String, Object>();
-        camera.takePicture(options, new OLYCamera.TakePictureCallback() {
-            @Override
-            public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
-                if (progress == TakingProgress.EndFocusing) {
-                    if (!enabledFocusLock) {
-                        if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
-                            RectF postFocusFrameRect = autoFocusResult.getRect();
-                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
-                        } else if (autoFocusResult.getResult().equals("none")) {
-                            imageView.hideFocusFrame();
-                        } else {
-                            imageView.hideFocusFrame();
-                        }
-                    }
-                } else if (progress == TakingProgress.BeginCapturing) {
-                    shutterSoundPlayer.start();
-                }
-            }
+    }
 
-            @Override
-            public void onCompleted() {
-                if (!enabledFocusLock) {
-                    try {
-                        camera.clearAutoFocusPoint();
-                    } catch (OLYCameraKitException ee) {
-                        ee.printStackTrace();
-                    }
-                    imageView.hideFocusFrame();
-                }
+    private String[] calcBracketing(String shutterSpeed, int evOffset, int nbImages) {
+        //generate arrays
+        String[] brackets = new String[nbImages];
+        float[] floatBr = new float[nbImages];
+        // Log.d(TAG, "_________________shutterSpeed: " + shutterSpeed+"evoffset: "+evOffset+"______________");
+        int nbOffExp = (nbImages - 1) / 2;//nb pics neg/pos
+        //convert shutter String into millsec float
+        floatBr[nbOffExp] = convertShutterStringToMillSec(shutterSpeed);
+        for (int i = nbOffExp - 1; i >= 0; i--) {//get neg offset
+            floatBr[i] = floatBr[i + 1] / (2 * evOffset);
+        }
+        for (int i = nbOffExp + 1; i < nbImages; i++) {//get pos offset
+            floatBr[i] = floatBr[i - 1] * (2 * evOffset);
+        }
+        List<String> shutterVals = ShutterFragment.getPossibleShutterValues();
+        /*Log.d(TAG, "shutterValsSize: " + shutterVals.size());
+        Log.d(TAG, "shutterVals: " + shutterVals.toString());*/
+        int k = 0;
+        int kk = 0;
+        int counter =0;
+        for (int i = 0; i < floatBr.length; i++) {
+            float val = floatBr[i];
+            float delta = Float.MAX_VALUE;
+            float deltaPrev = Float.MAX_VALUE;
+            //Log.d(TAG,"________________________________________________");
+            for (k = 0; k < shutterVals.size(); k++) {//we dont reinitialize k since we go from the largest val to the
+                //Log.d(TAG,"ShutterVal: "+shutterVals.get(k) );
+                float shVal = convertShutterStringToMillSec(shutterVals.get(k));
+                float deltaNew = Math.abs(shVal - val);
+                if (deltaNew < delta) {//if we get closer to correct number
+                    deltaPrev = delta;
+                    delta = deltaNew;
+                    // Log.d(TAG,"k: "+k+" delta: "+delta+" deltaNew: "+deltaNew+" shVal: "+shVal+" val: "+val);
+                } else //if we get bigger again go back
+                    break;
             }
-
-            @Override
-            public void onErrorOccurred(Exception e) {
-                if (!enabledFocusLock) {
-                    try {
-                        camera.clearAutoFocusPoint();
-                    } catch (OLYCameraKitException ee) {
-                        ee.printStackTrace();
-                    }
-                    imageView.hideFocusFrame();
-                }
-
-                final String message = e.getMessage();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        presentMessage("Take failed", message);
-                    }
-                });
+            if(kk==k){
+                counter++;
+                Log.d(TAG,"not enough Space");
             }
-        });
+            kk=k;
+            Log.d(TAG, "k: " + k);
+            brackets[i] = shutterVals.get(k - 1);
+        }
+        for (String value : brackets) {
+            Log.d(TAG, "exposure: " + value);
+        }
+        if(counter>0){
+            presentMessage("ooops, something ain't right", "you have not enough range for propper under/over exposure.\n" +
+                    "You will have "+counter+" pictures with the same exposure.\nchange your Aperture or Iso value");
+            return null;
+        }
+        return brackets;
+    }
+
+    private float convertShutterStringToMillSec(String inVal) {
+        String valueString = CameraActivity.extractValue(inVal);
+        float tv = 0;
+        try {
+            if (valueString.contains("\""))
+                tv = Float.parseFloat(valueString.split("\"")[0]);
+            else
+                tv = 1 / Float.parseFloat(valueString);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Log.d(TAG, ex.getMessage());
+        }
+        return tv;
+    }
+
+    private void takeAEBBracket() {
+        Log.d(TAG, "camMediaBusy: " + camera.isMediaBusy() + " istakingPicture: " + camera.isTakingPicture() + " is media error: " + camera.isMediaError());
+   /*   try{
+          Thread.sleep(500);
+      }catch (Exception ex){
+          ex.printStackTrace();
+      }*/
+        while (camera.isMediaBusy()) {
+            // Log.d(TAG,"medibusy");
+        }
+        Log.d(TAG, "camMediaBusy: " + camera.isMediaBusy() + " istakingPicture: " + camera.isTakingPicture() + " is media error: " + camera.isMediaError());
+
+        if (aebCounter < aebSettingsArr.length) {
+            try {
+                Log.d(TAG, "aebCounter: " + aebCounter + "  aebSettingsArr: " + aebSettingsArr.length + " propval: " + aebSettingsArr[aebCounter]);
+                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED, aebSettingsArr[aebCounter]);
+                Log.d(TAG, "getActualShutter: " + camera.getActualShutterSpeed());
+            } catch (OLYCameraKitException e) {
+                e.printStackTrace();
+                Log.d(TAG, "Message: " + e.getMessage());
+            }
+            aebCounter++;
+            takePicture();
+        } else {
+            try {
+                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED, aebSettingsArr[(aebCounter - 1) / 2]);//set Shutter backto where it was
+            } catch (OLYCameraKitException e) {
+                e.printStackTrace();
+                Log.d(TAG, "Message: " + e.getMessage());
+            }
+            aebCounter = 0;
+            //unlockAutoFocus();
+            Log.d(TAG, "Reset aebCounter to: " + aebCounter + " AEBBool: " + AEB);
+        }
     }
 
     private void takePictureWithPoint(PointF point) {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             return;
         }
-
         // Display a provisional focus frame at the touched point.
         final RectF preFocusFrameRect;
         {
@@ -1186,13 +1224,22 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-    private void autoExposureBracketingDidTap() {
+    private void AEBracketingDidTap() {
         if (AEB) {
             AEB = false;
-            tv_AEB.setTextColor(getActivity().getResources().getColor(R.color.LiveView_Text_deactivated));
+            iv_AEB.setImageResource(R.drawable.ic_no_aeb);
         } else {
-            AEB = true;
-            tv_AEB.setTextColor(getActivity().getResources().getColor(R.color.button_text_states));
+            try {
+                if (camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_TAKE_MODE).equals("<TAKEMODE/M>")) {
+                    AEB = true;
+                    iv_AEB.setImageResource(R.drawable.ic_aeb);
+                } else {
+                    Log.d(TAG, "can't AEB");
+                    presentMessage("Auto Exposure not Possible", "you need to be in M (ManualMode) to do Exposure Bracketing");
+                }
+            } catch (OLYCameraKitException e) {
+                e.printStackTrace();
+            }
         }
         Log.d(TAG, "AEB did Tap: " + AEB);
     }
@@ -1200,11 +1247,27 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     // -------------------------------------------------------------------------
     // Updates
     // -------------------------------------------------------------------------
-    public void refresh(){
-        Log.d(TAG,"refresh");
+    public void refresh() {
+        Log.d(TAG, "refresh");
         getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
 
+    public void setEnabledTouchShutter(Boolean bool) {
+        enabledTouchShutter = bool;
+    }
+
+    public void updateRecordTypeText() {
+        String val = "";
+        try {
+            val = camera.getCameraPropertyValue("RAW");
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+        }
+        if ("ON".equals(CameraActivity.extractValue(val)))
+            tv_RecordType.setText("RAW");
+        else
+            tv_RecordType.setText("JPG");
+    }
 
     private void updateTakeModeImageView() {
         Log.d(TAG, "updateTakeModeImageView");
@@ -1231,18 +1294,17 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (batteryIconList.containsKey(value)) {
             int resId = batteryIconList.get(value);
             if (resId != 0) {
-                batteryLevelImageView.setImageResource(resId);
+                iv_batteryLevelImageView.setImageResource(resId);
             } else {
-                batteryLevelImageView.setImageDrawable(null);
+                iv_batteryLevelImageView.setImageDrawable(null);
             }
         } else {
-            batteryLevelImageView.setImageDrawable(null);
+            iv_batteryLevelImageView.setImageDrawable(null);
         }
     }
 
     private void updateRemainingRecordableImagesTextView() {
-        Log.d(TAG, "updateRemainingRecordableImagesTextView");
-
+        //Log.d(TAG, "updateRemainingRecordableImagesTextView");
         final String text;
         if (camera.isConnected() || camera.getRunMode() == OLYCamera.RunMode.Recording) {
             if (camera.isMediaBusy()) {
@@ -1263,17 +1325,16 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         try {
             String txt = camera.getCameraPropertyValueTitle(camera.getCameraPropertyValue(propName));
             Log.d(TAG, "new FocusValues:  " + txt);
-
             focusModeTextView.setText(txt);
         } catch (OLYCameraKitException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void updateAEBTextView() {
+   /* private void updateAEBTextView() {
         Log.d(TAG, "updateAEBTextView");
-        tv_AEB.setEnabled(AEB);
-    }
+        iv_AEB.setEnabled(AEB);
+    }*/
 
     // -------------------------------------------------------------------------
     // Helpers

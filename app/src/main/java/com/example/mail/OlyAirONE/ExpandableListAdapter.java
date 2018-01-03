@@ -32,11 +32,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private static final int SPINNER = 2;
     private static final int TEXTFIELD = 3;
     private static final int CHILD_TYPE_UNDEFINED = 4;
-    private static final String AEB_IMAGETAG = "aebimage";
-    private static final String AEB_SPREADTAG = "aebspread";
-   final String[] strVal = {"3", "5", "7", "9", "11"};
-    //final String[] strVal = {"10", "5", "7", "9", "11"};
 
+    final String[] strVal = {"3", "5", "7", "9", "11"};
     final String[] expSprVal = {"1", "2", "3"};
 
     private Activity context;
@@ -149,8 +146,26 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 txt.setText(child);
                 CheckBox cbx = convertView.findViewById(R.id.chbx_chbx);
                 if (cbx != null) {
+                    String setting="";
+                    if (groupPosition == 1) {
+                        if (childPosition == 4) {
+                            setting = listener.getSetting("RAW", "<RAW/ON>");
+                            cbx.setTag("RAW");//tag used in on click listener
+                        } else if (childPosition == 5) {
+                            setting = listener.getSetting("RECVIEW", "<RECVIEW/ON>");
+                            cbx.setTag("RECVIEW");//tag used in on click listener
+                        }
+                    }else if (groupPosition == 3){
+                        if(childPosition==0){
+                            setting = listener.getSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
+                            cbx.setTag("TOUCHSHUTTER");//tag used in on click listener
+                        }
+                    }
                     cbx.setOnClickListener(this);
-                    cbx.setTag(child);//tag used in on click listener
+                    if( !setting.equals("") &&"ON".equals(CameraActivity.extractValue(setting))){
+                        cbx.setChecked(true);
+                    }else
+                        cbx.setChecked(false);
                 }
 
                 //Define how to render the data on the CHECKBOX layout
@@ -367,24 +382,24 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private void setup_AEB(View convertView) {
 
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
-        setupNumberPicker(np_nbImagesVal, strVal, AEB_IMAGETAG);
-        Log.d(TAG,"savedVal: "+listener.getSetting(AEB_IMAGETAG, "default"));
-        int tmp= getArrIdFromValue(strVal,listener.getSetting(AEB_IMAGETAG, strVal[0]));
+        setupNumberPicker(np_nbImagesVal, strVal, CamSettingsActivity.AEB_IMAGETAG);
+        Log.d(TAG, "savedVal: " + listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, "default"));
+        int tmp = getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0]));
 
-        Log.d(TAG,"savedArrVal: "+tmp);
-        np_nbImagesVal.setValue(getArrIdFromValue(strVal,listener.getSetting(AEB_IMAGETAG, strVal[0])));
+        Log.d(TAG, "savedArrVal: " + tmp);
+        np_nbImagesVal.setValue(getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])));
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        setupNumberPicker(np_exposureSpreadVal, expSprVal, AEB_SPREADTAG);
-        np_exposureSpreadVal.setValue(getArrIdFromValue(expSprVal,listener.getSetting(AEB_SPREADTAG, strVal[0])));
+        setupNumberPicker(np_exposureSpreadVal, expSprVal, CamSettingsActivity.AEB_SPREADTAG);
+        np_exposureSpreadVal.setValue(getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])));
 
         //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, expSprVal[0])));
     }
 
-    private int getArrIdFromValue(String[] arr, String val){
+    private int getArrIdFromValue(String[] arr, String val) {
         int counter = 0;
-        for (String item  :arr) {
-            if(item.equals(val)){
+        for (String item : arr) {
+            if (item.equals(val)) {
                 return counter;
             }
             counter++;
@@ -424,12 +439,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         handler.postDelayed(new Runnable() {
             public void run() {
                 if (newVal == numberPicker.getValue()) {//make sure picker scroll stopped
-                    if (numberPicker.getTag() == AEB_IMAGETAG) {
-                        listener.saveSetting(AEB_IMAGETAG, strVal[numberPicker.getValue()]);
+                    if (numberPicker.getTag() == CamSettingsActivity.AEB_IMAGETAG) {
+                        listener.saveSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[numberPicker.getValue()]);
                         Log.d(TAG, "numberpicker changed to val: " + strVal[numberPicker.getValue()]);
 
-                    } else if (numberPicker.getTag() == AEB_SPREADTAG) {
-                        listener.saveSetting(AEB_SPREADTAG, expSprVal[numberPicker.getValue()]);
+                    } else if (numberPicker.getTag() == CamSettingsActivity.AEB_SPREADTAG) {
+                        listener.saveSetting(CamSettingsActivity.AEB_SPREADTAG, expSprVal[numberPicker.getValue()]);
                         Log.d(TAG, "numberpicker changed to val: " + expSprVal[numberPicker.getValue()]);
                     }
                     Log.d(TAG, "Arrval changed to val: " + numberPicker.getValue());
@@ -443,21 +458,21 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         // Is the view now checked?
         boolean checked = ((CheckBox) view).isChecked();
         //tag gets set in getChildView()....
-        if (view.getTag() == "touch shutter") {
+        if (view.getTag() == "TOUCHSHUTTER") {
             Log.d(TAG, "click touch");
             if (checked)
                 listener.saveSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
             else
                 listener.saveSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/OFF>");
 
-        } else if (view.getTag() == "save raw image") {
+        } else if (view.getTag() == "RAW") {
             Log.d(TAG, "click rawImage");
             if (checked)
                 listener.saveSetting("RAW", "<RAW/ON>");
             else
                 listener.saveSetting("RAW", "<RAW/OFF>");
 
-        } else if (view.getTag() == "generate preview image") {
+        } else if (view.getTag() == "RECVIEW") {
             Log.d(TAG, "click PreviewImage");
             if (checked)
                 listener.saveSetting("RECVIEW", "<RECVIEW/ON>");

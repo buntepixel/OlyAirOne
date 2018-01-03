@@ -89,22 +89,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Raw"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:textColor="@color/button_text_states"
             android:textSize="@dimen/Icon_discription_txt"/>
 
-        <TextView
-            android:id="@+id/tv_Bracketing"
+        <ImageView
+            android:id="@+id/iv_Bracketing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="AEB"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:textColor="@color/button_text_states"
-            android:textSize="@dimen/Icon_discription_txt"/>
-
-
+            android:cropToPadding="false"
+            android:scaleType="center"
+            android:src="@drawable/ic_no_aeb"/>
     </LinearLayout>
 
 

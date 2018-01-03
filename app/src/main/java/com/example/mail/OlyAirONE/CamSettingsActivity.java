@@ -24,6 +24,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     Map<String, List<String>> categoryColl;
     ExpandableListView expListView;
     SharedPreferences preferences;
+    public static final String AEB_IMAGETAG = "aebimage";
+    public static final String AEB_SPREADTAG = "aebspread";
 
     private final Map<String, String> aeb_NbPic = new HashMap<String, String>() {{
         put("3 Pictures", "<NBPIC/3>");
@@ -119,7 +121,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     //    Getters
     //------------------------
 
-
+//Todo: implement sound off and volume
     public Map<String,String> getAspectRatioMap(){return aspectRatio;}
     public Map<String,String> getJpgCompressionMap(){return jpgCompression;}
     public Map<String,String> getImageSizeMap(){return imageSize;}
@@ -172,6 +174,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
     @Override
     public String getSetting(String property, String defvalue) {
+        //todo: do initialisation on first connect ever
         String value = preferences.getString(property, defvalue ) ;
         Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
         return  value;

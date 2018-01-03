@@ -76,8 +76,10 @@ public class CameraActivity extends FragmentActivity
     ShutterFragment shutterSpeedFragment;
     ExposureCorrFragment exposureCorrFragment;
 
-     static OLYCamera camera = null;
-
+    static OLYCamera camera = null;
+    //todo: implement movies
+    //todo: implement pic preview
+    //todo: implement turn cam off
     //-----------------
     //   Setup
     //-----------------
@@ -216,8 +218,10 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
-    public void onEnabledTouchShutter(Boolean touchShutterState) {
-
+    public void updateAllFragments() {
+     /*   fTrigger.refresh();
+        fLiveView.refresh();
+        fSettings.refresh();*/
     }
 
     @Override
@@ -373,7 +377,6 @@ public class CameraActivity extends FragmentActivity
                 takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
                 currTakeMode = takeModeStrings.indexOf(camera.getCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE));
                 fLiveView.triggerTakeModeUpdate(currTakeMode);
-               // fTrigger.updateAfterCamConnection();
             } catch (OLYCameraKitException e) {
                 e.printStackTrace();
                 return;
@@ -547,15 +550,16 @@ public class CameraActivity extends FragmentActivity
     }
 
     public static String extractProperty(String value) {
-        Log.d(TAG,"prop: "+value);
+        //Log.d(TAG, "prop: " + value);
         String[] myStringArr = value.split("/");
         String extractedString = myStringArr[0].substring(1);
         return extractedString;
     }
-    public static String extractValue(String value){
-        Log.d(TAG,"val: "+value);
+
+    public static String extractValue(String value) {
+        //Log.d(TAG, "val: " + value);
         String[] myStringArr = value.split("/");
-        String extractedString = myStringArr[1].substring(0,myStringArr[1].length()-1);
+        String extractedString = myStringArr[1].substring(0, myStringArr[1].length() - 1);
         return extractedString;
     }
 
@@ -662,7 +666,6 @@ public class CameraActivity extends FragmentActivity
                     "QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME",
                     "CONTINUOUS_SHOOTING_VELOCITY",
                     "FACE_SCAN",
-                    "TOUCHSHUTTER",
                     "RAW",
                     "RECVIEW"
             )) {
@@ -670,15 +673,29 @@ public class CameraActivity extends FragmentActivity
                 if (value != null) {
                     Log.d(TAG, "Name: " + name + "  Value: " + value);
                     values.put(name, value);
+                   /* try {
+                        Log.d(TAG, "setting: " + name);
+                        camera.setCameraPropertyValue(name, value);
+                    } catch (OLYCameraKitException e) {
+                        Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
+                    }*/
                 }
             }
-            Log.d(TAG,"camvalues to set: "+values.size());
+            Log.d(TAG, "camvalues to set: " + values.size());
             if (values.size() > 0) {
                 try {
                     camera.setCameraPropertyValues(values);
                 } catch (OLYCameraKitException e) {
                     Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
                 }
+                //setTouchShutter
+                Log.d(TAG,"touchShutter: "+CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "")));
+                if("ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", ""))))
+                    fLiveView.setEnabledTouchShutter(true);
+                else
+                    fLiveView.setEnabledTouchShutter(false);
+
+
             }
         }
     }

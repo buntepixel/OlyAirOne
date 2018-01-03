@@ -123,7 +123,7 @@ public class TriggerFragment extends Fragment
     }
 
     public void refresh() {
-        Log.d(TAG,"refresh");
+        Log.d(TAG, "refresh");
         updateDrivemodeImageView();
         updateMeteringImageView();
         getFragmentManager().beginTransaction().detach(this).attach(this).commit();
@@ -142,8 +142,8 @@ public class TriggerFragment extends Fragment
     }
 
     private void drivemodeImageViewDidTap() {
-
-        updateImageView(iv_driveMode, drivemodeIconList, cameraPropertyDidTab(iv_driveMode, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE) );
+        Log.d(TAG, "update Drivemode");
+        updateImageView(iv_driveMode, drivemodeIconList, cameraPropertyDidTab(iv_driveMode, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
        /* getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -198,6 +198,8 @@ public class TriggerFragment extends Fragment
     }
 
     private void updateImageView(ImageView imageView, Map<String, Integer> iconList, String propValue) {
+        Log.d(TAG, "update imageView: "+ propValue);
+
         try {
             if (iconList.containsKey(propValue)) {
                 int resId = iconList.get(propValue);
@@ -239,7 +241,7 @@ public class TriggerFragment extends Fragment
             int moduloIndex = index % listSize;
             Log.d(TAG, "Property: " + inPropertyName + " Value: " + valueList.get(moduloIndex));
             retVal = valueList.get(moduloIndex);
-            camera.setCameraPropertyValue(inPropertyName,retVal );
+            camera.setCameraPropertyValue(inPropertyName, retVal);
             return retVal;
         } catch (Exception e) {
             e.printStackTrace();

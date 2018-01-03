@@ -11,20 +11,23 @@ import java.util.List;
 
 public class ShutterFragment extends MasterSlidebarFragment {
     private static final String TAG = ShutterFragment.class.getSimpleName();
+    private static List<String> expValues;
 
-    public  static ShutterFragment newInstance(List<String> myString,String value) {
+    public static ShutterFragment newInstance(List<String> myString, String value) {
         ShutterFragment myFragment = new ShutterFragment();
 
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
         myArrList.addAll(myString);
-        args.putStringArrayList("myString",myArrList );
+        args.putStringArrayList("myString", myArrList);
         args.putString("value", value);
         myFragment.setArguments(args);
-
+        expValues = myString;
         return myFragment;
     }
-
+    public static List<String> getPossibleShutterValues(){
+        return expValues;
+    }
 
 
 }

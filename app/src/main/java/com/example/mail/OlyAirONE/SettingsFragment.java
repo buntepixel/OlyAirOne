@@ -32,7 +32,8 @@ public class SettingsFragment extends Fragment
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
-    private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
+    private  String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
+    private String [] expVals;
     private int takeMode;
     OLYCamera camera;
 
@@ -93,7 +94,7 @@ public class SettingsFragment extends Fragment
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         view.setId(View.generateViewId());
-        CreateSettings(settingsArr, view);
+        CreateSettings( view);
         return view;
     }
 
@@ -141,7 +142,7 @@ public class SettingsFragment extends Fragment
 
     }
 
-    private RelativeLayout CreateSettings(String[] inputStringArr, View rootView) {
+    private RelativeLayout CreateSettings( View rootView) {
         RelativeLayout relativeLayout = rootView.findViewById(R.id.rl_settings);
 
         SetupButtons(relativeLayout);
@@ -373,59 +374,7 @@ public class SettingsFragment extends Fragment
         }
     }
 
-    //RESTORE
-/*
-    private void restoreCamSettings() {
-        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
-        String driveMode = settings.getString(CAMERA_PROPERTY_DRIVE_MODE, null);
-        String meteringMode = settings.getString(CAMERA_PROPERTY_METERING_MODE, null);
-        try {
-            if (driveMode != null) {
-                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED, driveMode);
-                updateShutterSpTextView();
-            }
-            if (meteringMode != null) {
-                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY, meteringMode);
-                updateIsoTxtView();
-            }
 
-        } catch (OLYCameraKitException ex) {
-            ex.printStackTrace();
-        }
-
-    }
-
-
-    private void saveCamSettings() {
-        // We need an Editor object to make preference changes.
-        // All objects are from android.context.Context
-        SharedPreferences settings = getActivity().getSharedPreferences(CameraActivity.CAMERA_SETTINGS, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        String shutter = null;
-        String iso = null;
-        String wb = null;
-        String aparture = null;
-        String expComp = null;
-        try {
-            shutter = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED);
-            iso = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY);
-            wb = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE);
-            aparture = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_APERTURE_VALUE);
-            expComp = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
-
-        } catch (OLYCameraKitException ex) {
-            ex.printStackTrace();
-        }
-        editor.putString(CameraActivity.CAMERA_PROPERTY_SHUTTER_SPEED, shutter);
-        editor.putString(CameraActivity.CAMERA_PROPERTY_ISO_SENSITIVITY, iso);
-        editor.putString(CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE, wb);
-        editor.putString(CameraActivity.CAMERA_PROPERTY_APERTURE_VALUE, aparture);
-        editor.putString(CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION, expComp);
-
-        // Commit the edits!
-        editor.commit();
-
-    }*/
 
     private LinearLayout CreateExpTFstop(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
         LinearLayout root_linearLayout = new LinearLayout(getActivity());
