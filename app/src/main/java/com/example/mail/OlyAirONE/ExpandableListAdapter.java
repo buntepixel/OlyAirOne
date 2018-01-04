@@ -431,6 +431,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             Log.d(TAG, "focus true");
             listener.saveSetting(context.getResources().getString(R.string.pref_ssid), ((EditText) view).getText().toString());
         }
+        //Todo: also implement hide keyboard
     }
 
     @Override

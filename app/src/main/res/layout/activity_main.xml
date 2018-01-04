@@ -1,54 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="60dp"
     android:orientation="vertical"
-    android:weightSum="1"
-
+    android:weightSum="10"
     >
-    <RelativeLayout
+    <TextView
+        android:id="@+id/tv_Title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/tv_Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Olympus Air One"
-            android:layout_centerInParent="true"
-            />
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_settings_white_48dp"
-           android:layout_alignParentEnd="true"
-            android:layout_marginRight="10dp" />
-    </RelativeLayout>
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"
+        android:layout_weight="0.5"
+        android:text="Olympus Air One"
+        android:textAlignment="center"/>
+
     <Button
         android:id="@+id/btnCamera"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Camera"
-        android:layout_weight="0.2"
-        android:elevation="4dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:elevation="4dp"
+        android:text="Camera"/>
 
     <Button
         android:id="@+id/btnViewImages"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View Pictures"
-        android:layout_weight="0.2"
-        android:elevation="4dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:elevation="4dp"
+        android:text="View Pictures"/>
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_weight="1"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btn_turnOn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Turn Cam On"/>
+        <Button
+            android:id="@+id/btn_turnOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Turn Cam off"/>
+
+    </LinearLayout>
     <Button
         android:id="@+id/btnCamSettings"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Camera Settings"
-        android:layout_weight="0.2"
-        android:elevation="4dp"/>
-
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:elevation="4dp"
+        android:text="Camera Settings"/>
 </LinearLayout>

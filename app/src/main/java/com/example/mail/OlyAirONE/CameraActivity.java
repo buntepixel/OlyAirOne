@@ -77,9 +77,9 @@ public class CameraActivity extends FragmentActivity
     ExposureCorrFragment exposureCorrFragment;
 
     static OLYCamera camera = null;
+
     //todo: implement movies
     //todo: implement pic preview
-    //todo: implement turn cam off
     //-----------------
     //   Setup
     //-----------------
@@ -184,7 +184,12 @@ public class CameraActivity extends FragmentActivity
     public void onBackPressed() {
         super.onBackPressed();
         finish();
-        startActivity(new Intent(this, MainActivity.class));
+        Intent intent = new Intent(this, MainActivity.class);
+        if (camera.isConnected())
+            intent.putExtra("correctNetwork", false);
+        else
+            intent.putExtra("correctNetwork", true);
+        startActivity(intent);
     }
 
     //-----------------
@@ -689,8 +694,8 @@ public class CameraActivity extends FragmentActivity
                     Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
                 }
                 //setTouchShutter
-                Log.d(TAG,"touchShutter: "+CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "")));
-                if("ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", ""))))
+                Log.d(TAG, "touchShutter: " + CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "")));
+                if ("ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", ""))))
                     fLiveView.setEnabledTouchShutter(true);
                 else
                     fLiveView.setEnabledTouchShutter(false);
