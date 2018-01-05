@@ -258,7 +258,14 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         return (int) (pixels * scale + 0.5f);
     }
 
-
+    public static Object getKeyFromValue(Map hm, Object value) {
+        for (Object o : hm.keySet()) {
+            if (hm.get(o).equals(value)) {
+                return o;
+            }
+        }
+        return null;
+    }
 
 
    /* @Override

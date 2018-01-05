@@ -23,7 +23,7 @@ import static com.example.mail.OlyAirONE.CameraActivity.camera;
  * Created by mail on 13/10/2016.
  */
 
-public class ScrollingValuePicker extends FrameLayout  {
+public class ScrollingValuePicker extends FrameLayout implements View.OnClickListener {
     private static final String TAG = ScrollingValuePicker.class.getSimpleName();
     private View mLeftSpacer;
     private View mRightSpacer;
@@ -91,9 +91,24 @@ public class ScrollingValuePicker extends FrameLayout  {
 
     public ScrollingValueInteraction mValueInteractionListener;
 
+    @Override
+    public void onClick(View view) {
+        if(view instanceof TextView)
+            Log.d(TAG,"click textview: "+((TextView) view).getText());
+        else if(view instanceof ImageView){
+            String tag = CameraActivity.extractValue((String)((ImageView) view).getTag());
+            Log.d(TAG, "Tag: "+tag);
+
+        }
+//todo: remove Listeners
+    }
+
+
     public interface ScrollingValueInteraction {
         void onScrollEnd(int currentIndex);
+        //todo:implement
 
+        void onClick(String value);
     }
 
     public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener) {
@@ -236,7 +251,7 @@ public class ScrollingValuePicker extends FrameLayout  {
                 }
                 //textView.setTextSize(40);
                 textView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.SrlBar_Bg));
-
+                textView.setOnClickListener(this);
                 textView.setTextColor(getResources().getColorStateList(R.color.button_text_states));
                 textView.setPaddingRelative(txtPadding, 0, txtPadding, 0);
                 textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -260,7 +275,8 @@ public class ScrollingValuePicker extends FrameLayout  {
                 ImageView imageView = new ImageView(getContext());
                 int viewId = whiteBalanceIconList.get(stringArr.get(i));
                 imageView.setImageResource(viewId);
-
+                imageView.setTag(stringArr.get(i));//setTag with CameraValue,so we can later recover value on click
+                imageView.setOnClickListener(this);
                 imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
                 imageView.setPaddingRelative(txtPadding / 2, 0, txtPadding / 2, 0);

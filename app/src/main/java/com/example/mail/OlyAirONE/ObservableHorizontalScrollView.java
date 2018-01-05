@@ -3,7 +3,6 @@ package com.example.mail.OlyAirONE;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
 /**
@@ -52,23 +51,6 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
         mOnScrollChangedListener = listener;
     }
 
-    //todo: remove override
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-
-        Boolean myBool = super.onTouchEvent(ev);
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            touch = true;
-        } else if (ev.getAction() == MotionEvent.ACTION_UP) {
-            touch = false;
-            if (mOnScrollChangedListener != null) {
-                Log.d(TAG, "OnTouchUpAction: " + scrollPos);
-                //mOnScrollChangedListener.onTouchUpAction(this, scrollPos, scrollBarWidth);
-            }
-        }
-        return myBool;
-    }
-    
 
     @Override
     protected void onScrollChanged(int scrollValue, int t, int oldl, int oldt) {
