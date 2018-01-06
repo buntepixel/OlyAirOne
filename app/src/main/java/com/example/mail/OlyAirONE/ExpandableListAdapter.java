@@ -162,7 +162,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         }
                     }
                     cbx.setOnClickListener(this);
-                    if( !setting.equals("") &&"ON".equals(CameraActivity.extractValue(setting))){
+                    Boolean cbxEnabled = setting.equals("") &&"ON".equals(CameraActivity.extractValue(setting));
+                    if( !cbxEnabled){
                         cbx.setChecked(true);
                     }else
                         cbx.setChecked(false);

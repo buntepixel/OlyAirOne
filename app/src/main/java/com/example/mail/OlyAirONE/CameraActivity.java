@@ -562,10 +562,15 @@ public class CameraActivity extends FragmentActivity
     }
 
     public static String extractValue(String value) {
-        //Log.d(TAG, "val: " + value);
-        String[] myStringArr = value.split("/");
-        String extractedString = myStringArr[1].substring(0, myStringArr[1].length() - 1);
-        return extractedString;
+        try{
+            //Log.d(TAG, "val: " + value);
+            String[] myStringArr = value.split("/");
+            String extractedString = myStringArr[1].substring(0, myStringArr[1].length() - 1);
+            return extractedString;
+        }catch(Exception ex){
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     private List<String> getCamPropertyValues(String propertyName) {
@@ -651,6 +656,7 @@ public class CameraActivity extends FragmentActivity
     }
 
     private void restoreCamSettings(SharedPreferences preferences) {
+
         if (camera.isConnected()) {
             Map<String, String> values = new HashMap<String, String>();
             for (String name : Arrays.asList(
@@ -694,8 +700,9 @@ public class CameraActivity extends FragmentActivity
                     Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
                 }
                 //setTouchShutter
-                Log.d(TAG, "touchShutter: " + CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "")));
-                if ("ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", ""))))
+                Log.d(TAG, "touchShutter: " + CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "OFF")));
+                Boolean touchShutterEnabled="ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "OFF")));
+                if (touchShutterEnabled)
                     fLiveView.setEnabledTouchShutter(true);
                 else
                     fLiveView.setEnabledTouchShutter(false);

@@ -52,17 +52,16 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
                     currContentIndex = getCurrIndex(scrollValue);
                     Log.d(TAG, "index" + currContentIndex);
                     mValueInteractionListener.onScrollEnd(currContentIndex);
-
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
                     Log.d(TAG, stackTrace);
                 }
             }
-
             @Override
             public void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth) {
                 try {
                     //onScrollChanged(view, scrollValue, scrollBarWidth);
+                    Log.d(TAG,"tochUP");
 
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
@@ -91,24 +90,10 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
 
     public ScrollingValueInteraction mValueInteractionListener;
 
-    @Override
-    public void onClick(View view) {
-        if(view instanceof TextView)
-            Log.d(TAG,"click textview: "+((TextView) view).getText());
-        else if(view instanceof ImageView){
-            String tag = CameraActivity.extractValue((String)((ImageView) view).getTag());
-            Log.d(TAG, "Tag: "+tag);
-
-        }
-//todo: remove Listeners
-    }
-
-
     public interface ScrollingValueInteraction {
         void onScrollEnd(int currentIndex);
-        //todo:implement
 
-        void onClick(String value);
+        void onClick(int currentIndex, String value);
     }
 
     public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener) {
@@ -140,7 +125,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         return sum;
     }
 
-    public void updateContentList(List<String> myStringBarValues){
+    public void updateContentList(List<String> myStringBarValues) {
         content = myStringBarValues;
     }
 
@@ -185,9 +170,15 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         setSelScrollBarValSelected(index);
     }
 
-    public void setBarToValue(int index){
+    public void setBarToValue(int index) {
         int tmp = getScrollPos(index);
-        obsScrollView.setScrollX(tmp);
+        obsScrollView.setScrollX(tmp);//move to value
+        setSelScrollBarValSelected(index);//highlight selection
+    }
+    public void smoothScrollTo(int index){
+        int tmp = getScrollPos(index);
+        //Log.d(TAG,"index: "+index+"scrollpos: "+tmp);
+        obsScrollView.smoothScrollTo(tmp,0);
         setSelScrollBarValSelected(index);
     }
 
@@ -233,6 +224,22 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        String tag = "";
+        if (view instanceof TextView){
+            tag = (String) ((TextView) view).getTag();
+            Log.d(TAG, "click textview: " + tag);
+            mValueInteractionListener.onClick(0, tag);
+        }
+        else if (view instanceof ImageView) {
+            tag = (String) ((ImageView) view).getTag();
+            Log.d(TAG, "click imageview: " + tag);
+            mValueInteractionListener.onClick(0,tag);
+        }
+//todo: remove Listeners
+    }
+
     // do stuff with the scroll listener we created early to make our values usable.
     private void AddTextViewContent(Context context, List<String> stringArr, LinearLayout linearLayout) {
         //Adding Textview
@@ -252,6 +259,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
                 //textView.setTextSize(40);
                 textView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.SrlBar_Bg));
                 textView.setOnClickListener(this);
+                textView.setTag(stringArr.get(i));
                 textView.setTextColor(getResources().getColorStateList(R.color.button_text_states));
                 textView.setPaddingRelative(txtPadding, 0, txtPadding, 0);
                 textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -269,7 +277,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         try {
             //Adding ImageView
             Collection<Integer> myValues = whiteBalanceIconList.values();
-            Log.d(TAG, "StringArrLength: " + stringArr.size() + "Iconlist" + myValues.size());
+            //Log.d(TAG, "StringArrLength: " + stringArr.size() + "Iconlist" + myValues.size());
 
             for (int i = 0; i < stringArr.size(); i++) {
                 ImageView imageView = new ImageView(getContext());
@@ -282,7 +290,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
                 imageView.setPaddingRelative(txtPadding / 2, 0, txtPadding / 2, 0);
 
                 linearLayout.addView(imageView);
-                Log.d(TAG, "ChildCount Nr:  " + i + " count:" + linearLayout.getChildCount());
+                //Log.d(TAG, "ChildCount Nr:  " + i + " count:" + linearLayout.getChildCount());
             }
         } catch (Error e) {
             String stackTrace = Log.getStackTraceString(e);

@@ -46,6 +46,7 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
         camera = CameraActivity.getCamera();
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         try {
@@ -85,7 +86,6 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
     @Override
     public boolean onPreDraw() {
         Log.d(TAG, "OnPreeDraw");
-
         if (mySliderValIndex == -1)
             mySliderValIndex = myString.size() / 2;
 
@@ -157,12 +157,12 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
     //-----------------
     //   Updates
     //-----------------
-    public void updateBundle( List<String> myString,String value){
-        Log.d(TAG,"Updating Bundle");
+    public void updateBundle(List<String> myString, String value) {
+        Log.d(TAG, "Updating Bundle");
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
         myArrList.addAll(myString);
-        args.putStringArrayList("myString",myArrList );
+        args.putStringArrayList("myString", myArrList);
         args.putString("value", value);
         setArguments(args);
     }
@@ -181,6 +181,14 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
             Log.d(TAG, "CurrSTring: " + myString.get(currIndex) + "mysliderValIdx: " + mySliderValIndex);
             mScrollingValuePicker.snapBarToValue(mySliderValIndex);
         }
+    }
+
+    @Override
+    public void onClick(int currentIndex, String value) {
+        int clickedIndex = myString.indexOf(value);
+        Log.d(TAG,"mySTring: "+ myString.toString());
+        Log.d(TAG,"StringValue: "+value+"clickedIndex: "+clickedIndex);
+        mScrollingValuePicker.smoothScrollTo(clickedIndex);
     }
 
     @Override

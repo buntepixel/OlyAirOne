@@ -3,6 +3,7 @@ package com.example.mail.OlyAirONE;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
 /**
@@ -37,7 +38,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
          * @param scrollBarWidth width of scroll bar.
          */
         void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue,  int scrollBarWidth);
-
+        //todo: remove below
         void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth);
     }
 
@@ -57,7 +58,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
         super.onScrollChanged(scrollValue, t, oldl, oldt);
         Log.d(TAG, "ScrollChanged: " + scrollValue);
         scrollPos = scrollValue;
-        if (Math.abs(oldl - scrollValue) <= 1 ) {// && !touch
+        if (!touch && Math.abs(oldl - scrollValue) <= 1 ) {// && !touch
             //  Log.d(TAG, "ScrollChanged = scrollVal: " + scrollValue);
             if (mOnScrollChangedListener != null) {
                 Log.d(TAG, "onScrollChanged: " + scrollValue);
@@ -65,6 +66,17 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
             }
             scrollPos = scrollValue;
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if(ev.getAction()== MotionEvent.ACTION_DOWN){
+            touch= true;
+        }
+        else if(ev.getAction()==MotionEvent.ACTION_UP){
+            touch= false;
+        }
+        return super.onTouchEvent(ev);
     }
 
     @Override
