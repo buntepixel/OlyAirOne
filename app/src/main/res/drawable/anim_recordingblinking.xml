@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <animation-list android:id="@+id/selected" android:oneshot="false">
+        <item android:drawable="@drawable/ic_recording_on" android:duration="1000" />
+        <item android:drawable="@drawable/ic_recording_off" android:duration="1000" />
+    </animation-list>
+</selector>

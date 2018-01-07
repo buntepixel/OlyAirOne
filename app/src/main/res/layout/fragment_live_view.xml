@@ -9,10 +9,10 @@
         android:id="@+id/cameraLiveImageView"
         class="com.example.mail.OlyAirONE.CameraLiveImageView"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_weight="1"
-
-        android:gravity="center"/>
+        />
 
     <ImageButton
         android:id="@+id/ib_RecordMode"
@@ -21,16 +21,17 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:src="@drawable/ic_iautomode"/>
-
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_toStartOf="@id/ib_RecordMode">
     <LinearLayout
         android:id="@+id/ll_topBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:layout_toStartOf="@id/ib_RecordMode"
         android:orientation="horizontal">
-
-
         <TextView
             android:id="@+id/tv_focusMode"
             android:layout_width="wrap_content"
@@ -41,7 +42,6 @@
             android:text="S-AF"
             android:textColor="@color/button_text_states"
             android:textSize="@dimen/Icon_discription_txt"/>
-
         <ImageView
             android:id="@+id/iv_sdCardIcon"
             android:layout_width="wrap_content"
@@ -52,7 +52,6 @@
             android:scaleX="0.7"
             android:scaleY="0.7"
             android:src="@drawable/ic_sdcard"/>
-
         <TextView
             android:id="@+id/tv_SdCardSpaceRemain"
             android:layout_width="wrap_content"
@@ -64,14 +63,41 @@
             android:textColor="@color/button_text_states"
             android:textSize="@dimen/Icon_discription_txt"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/button_text_states"
+            android:text="Timelapse: "/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/button_text_states"
+            android:text="3/100"
+            />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_recording"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_recording_on"
+        android:layout_gravity="end"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:layout_marginEnd="@dimen/CamSetting_horizMargin"/>
+</LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="@dimen/LiveViewTopMarg"
+        android:orientation="vertical"
         >
 
         <ImageView
@@ -84,6 +110,7 @@
             android:scaleX="0.5"
             android:scaleY="0.5"
             android:src="@drawable/tt_icn_battery_charge"/>
+
         <TextView
             android:id="@+id/tv_RecordType"
             android:layout_width="wrap_content"
