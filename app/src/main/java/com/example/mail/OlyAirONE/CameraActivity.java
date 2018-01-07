@@ -216,6 +216,11 @@ public class CameraActivity extends FragmentActivity
             Log.d(TAG, stackTrace);
         }
     }
+    @Override
+    public void onRecordVideoPressed(Boolean bool) {
+            if(true)
+                fTrigger.setTriggerButtonSelected(bool);
+    }
 
     @Override
     public void onEnabledFocusLock(Boolean focusLockState) {
@@ -654,6 +659,8 @@ public class CameraActivity extends FragmentActivity
         // Commit the edits!
         editor.apply();
     }
+
+
 
     private void restoreCamSettings(SharedPreferences preferences) {
 

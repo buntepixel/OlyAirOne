@@ -110,6 +110,9 @@ public class TriggerFragment extends Fragment
         }
         return true;
     }
+    public void setTriggerButtonSelected(boolean bool){
+        iv_shutter.setSelected(bool);
+    }
 
     @Override
     public void onResume() {
