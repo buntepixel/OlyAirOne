@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -187,12 +186,12 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     private void createGroupList() {
         groupList = new ArrayList<String>();
         groupList.add("Auto Exposure Bracketing");
+        groupList.add("Time Lapse");
         groupList.add("Image Settings");
         groupList.add("Movie Settings");
         groupList.add("Focusing");
         groupList.add("Shooting");
         groupList.add("Network");
-
     }
 
     @Override
@@ -205,6 +204,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     private void createCollection() {
         // preparing laptops collection(child)
         String[] AEB = {"setup"};
+        String[] TL = {"setup"};
         String[] image = {"aspect ratio", "image size", "jpg compression", "image destination", "save raw image","generate preview image"};
         String[] movie = {"quality", "clip record time"};
         String[] focusing = {"touch shutter", "face detection"};
@@ -218,6 +218,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         for (String group : groupList) {
             if (group.equals("Auto Exposure Bracketing"))
                 loadChild(AEB);
+            else if (group.equals("Time Lapse"))
+                loadChild(TL);
             else if (group.equals("Image Settings"))
                 loadChild(image);
             else if (group.equals("Movie Settings"))
@@ -238,16 +240,6 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
             childList.add(child);
         }
-    }
-
-    private void setGroupIndicatorToRight() {
-        /* Get the screen width */
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int width = dm.widthPixels;
-
-        expListView.setIndicatorBounds(width - getDipsFromPixel(35), width
-                - getDipsFromPixel(5));
     }
 
     // Convert pixel to dip

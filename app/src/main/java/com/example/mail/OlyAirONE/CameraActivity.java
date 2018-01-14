@@ -560,10 +560,15 @@ public class CameraActivity extends FragmentActivity
     }
 
     public static String extractProperty(String value) {
-        //Log.d(TAG, "prop: " + value);
-        String[] myStringArr = value.split("/");
-        String extractedString = myStringArr[0].substring(1);
-        return extractedString;
+        try{
+            //Log.d(TAG, "prop: " + value);
+            String[] myStringArr = value.split("/");
+            String extractedString = myStringArr[0].substring(1);
+            return extractedString;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return "";
+        }
     }
 
     public static String extractValue(String value) {

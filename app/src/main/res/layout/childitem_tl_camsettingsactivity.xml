@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="@dimen/CamSetting_horizMargin"
+              android:layout_marginStart="@dimen/CamSetting_horizMargin"
+              android:layout_marginTop="@dimen/CamSetting_vertMargin"
+              android:orientation="vertical"
+              >
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal">
+    <TextView
+        android:id="@+id/tv_nbImagesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.4"
+        android:gravity="end"
+        android:text="@string/timelapse_total_number_images"/>
+
+    <NumberPicker
+        android:id="@+id/np_nbTotalImg100"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:paddingEnd="@dimen/CamSetting_vertMargin"
+        android:paddingStart="@dimen/CamSetting_vertMargin"
+        android:text="5"/>
+    <NumberPicker
+        android:id="@+id/np_nbTotalImg10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:paddingEnd="@dimen/CamSetting_vertMargin"
+        android:paddingStart="@dimen/CamSetting_vertMargin"
+        android:text="5"/>
+    <NumberPicker
+        android:id="@+id/np_nbTotalImg1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:paddingEnd="@dimen/CamSetting_vertMargin"
+        android:paddingStart="@dimen/CamSetting_vertMargin"
+        android:text="5"/>
+
+
+</LinearLayout>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    >
+    <TextView
+        android:id="@+id/tv_exposureSpreadText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="end"
+        android:text="Intervall time"/>
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center"
+        android:gravity="end"
+        android:text="hrs:"/>
+    <NumberPicker
+        android:id="@+id/np_intervallTime_Hrs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="@dimen/CamSetting_vertMargin"
+        android:paddingStart="@dimen/CamSetting_vertMargin"
+        android:text="1"/>
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="end"
+        android:text="min:"/>
+    <NumberPicker
+        android:id="@+id/np_intervallTime_Min"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="@dimen/CamSetting_vertMargin"
+        android:paddingStart="@dimen/CamSetting_vertMargin"
+        android:text="1"/>
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="end"
+        android:text="sec:"/>
+    <NumberPicker
+        android:id="@+id/np_intervallTime_Sec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="@dimen/CamSetting_vertMargin"
+        android:paddingStart="@dimen/CamSetting_vertMargin"
+        android:text="1"/>
+
+</LinearLayout>
+
+
+</LinearLayout>
