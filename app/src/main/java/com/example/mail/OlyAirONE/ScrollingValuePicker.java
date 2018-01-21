@@ -247,6 +247,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
             for (int i = 0; i < stringArr.size(); i++) {
                 TextView textView = new TextView(context);
                 textView.setId(View.generateViewId());
+                textView.setTextSize(22);
                 //Log.d(TAG, "textView " + i + " id: " + textView.getId());
                 //Log.d(TAG, "mystring:  " + i);
                 if (camera != null) {

@@ -16,55 +16,40 @@
         android:background="@color/BgPrim_HalfTransp_Grey"
         />
 
-    <LinearLayout
+
+    <FrameLayout
+        android:id="@+id/fl_FragCont_cameraLiveImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/fl_FragCont_Trigger"
-        android:orientation="vertical"
-        android:weightSum="1"
-        >
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/fl_FragCont_Trigger"
+        android:contentDescription="main screen"
+        android:src="@drawable/common_full_open_on_phone"/>
 
-        <FrameLayout
-            android:id="@+id/fl_FragCont_cameraLiveImageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
 
-            android:contentDescription="main screen"
-            android:src="@drawable/common_full_open_on_phone"/>
+    <FrameLayout
+        android:id="@+id/fl_FragCont_Settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@id/fl_FragCont_Trigger"
+        android:background="@color/BgPrim_HalfTransp_Grey"/>
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:minHeight="100dp"
-            >
+    <FrameLayout
+        android:id="@+id/fl_FragCont_ExpApart1"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_toLeftOf="@id/fl_FragCont_Trigger"
+        android:layout_above="@+id/fl_FragCont_Settings"
+        />
 
-            <FrameLayout
-                android:id="@+id/fl_FragCont_Settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:background="@color/BgPrim_HalfTransp_Grey"
-                />
-
-            <FrameLayout
-                android:id="@+id/fl_FragCont_ExpApart1"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_above="@+id/fl_FragCont_Settings"
-                />
-
-            <FrameLayout
-                android:id="@+id/fl_FragCont_ExpApart2"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_above="@id/fl_FragCont_ExpApart1"
-                />
-        </RelativeLayout>
-
-    </LinearLayout>
-
+    <FrameLayout
+        android:id="@+id/fl_FragCont_ExpApart2"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_toLeftOf="@id/fl_FragCont_Trigger"
+        android:layout_above="@id/fl_FragCont_ExpApart1"
+        />
 
 </RelativeLayout>
 

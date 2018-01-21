@@ -196,6 +196,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         iv_AEB.setOnClickListener(this);
         return view;
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -204,6 +205,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         imageView.setOnTouchListener(null);
         iv_AEB.setOnClickListener(null);
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -266,7 +268,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
         return true;
     }
-
 
 
     @Override
@@ -416,9 +417,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     @Override
     public void onReceiveCapturedImagePreview(OLYCamera camera, byte[] data, Map<String, Object> metadata) {
-        if (camera.getActionType() == OLYCamera.ActionType.Single) {
+        if (!AEB && camera.getActionType() == OLYCamera.ActionType.Single) {
             RecviewFragment fragment = new RecviewFragment();
-            fragment.setCamera(camera);
             fragment.setImageData(data, metadata);
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(getId(), fragment);
@@ -1332,7 +1332,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private void updateTakeModeImageView() {
         Log.d(TAG, "updateTakeModeImageView");
-        CameraActivity.updatePropertyImageView(ib_TakeMode,takeModeIconsList,CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
+        CameraActivity.updatePropertyImageView(ib_TakeMode, takeModeIconsList, CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
        /* try {
             String takeMode = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
             takeModeCounter = CameraActivity.getTakeModeStrings().indexOf(takeMode);

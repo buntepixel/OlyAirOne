@@ -29,32 +29,34 @@ public class RecviewFragment extends android.support.v4.app.Fragment implements 
 	
 	private ImageView imageView;
 	
-	private OLYCamera camera;
 	private byte[] data;
 	private Map<String, Object> metadata;
-	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setRetainInstance(true);
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_recview, container, false);
-		
 		imageView = view.findViewById(R.id.iv_capturedImage);
-		
 		view.findViewById(R.id.ib_backToCam).setOnTouchListener(this);
+
 		return view;
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
-		
-		camera.setRecordingSupportsListener(this);
+		CameraActivity.camera.setRecordingSupportsListener(this);
 		imageView.setImageBitmap(createRotatedBitmap(data, metadata));
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		camera.setRecordingSupportsListener(null);
+		CameraActivity.camera.setRecordingSupportsListener(null);
 	}
 
 	@Override
@@ -66,9 +68,9 @@ public class RecviewFragment extends android.support.v4.app.Fragment implements 
 		return false;
 	}
 	
-	public void setCamera(OLYCamera camera) {
+	/*public void setCamera(OLYCamera camera) {
 		this.camera = camera;
-	}
+	}*/
 	
 	public void setImageData(byte[] data, Map<String, Object> metadata) {
 		this.data = data;
