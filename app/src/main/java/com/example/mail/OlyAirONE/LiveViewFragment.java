@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCamera.TakingProgress;
@@ -47,18 +50,20 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         View.OnClickListener, View.OnTouchListener {
     private static final String TAG = LiveViewFragment.class.getSimpleName();
 
-    int[] shootingModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
+    int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
             R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
 
 
     private ImageView iv_batteryLevelImageView;
     private TextView remainingRecordableImagesTextView;
     private TextView focusModeTextView;
-    private ImageButton ib_shootingMode;
+    private ImageButton ib_TakeMode;
     private ImageView iv_AEB;
     private ImageView iv_recording;
+    private LinearLayout ll_recording;
     private TextView tv_RecordType;
-
+    private LinearLayout ll_timeLapse;
+    private TextView tv_timelapseContent;
 
 
     private Boolean AEB = false;
@@ -81,8 +86,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     private Boolean enabledFocusLock = false;
     private CameraLiveImageView imageView;
     private OLYCamera camera;
-    private int shootingModeCounter = 0;
+    private int takeModeCounter = 0;
     private OnLiveViewInteractionListener mOnLiveViewInteractionListener;
+    Executor connectionExecutor = Executors.newFixedThreadPool(1);
 
 
     @SuppressWarnings("serial")
@@ -96,6 +102,18 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
             put("<WB/MWB_WATER_1>", R.drawable.icn_wb_setting_64);
             put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
+        }
+    };
+    @SuppressWarnings("serial")
+    private static final Map<String, Integer> takeModeIconsList = new HashMap<String, Integer>() {
+        {
+            put("<TAKEMODE/iAuto>", R.drawable.ic_iautomode);
+            put("<TAKEMODE/P>", R.drawable.ic_programmmode);
+            put("<TAKEMODE/A>", R.drawable.ic_aparturemode);
+            put("<TAKEMODE/S>", R.drawable.ic_shuttermode);
+            put("<TAKEMODE/M>", R.drawable.ic_manualmode);
+            put("<TAKEMODE/ART>", R.drawable.ic_artmode);
+            put("<TAKEMODE/movie>", R.drawable.ic_videomode);
         }
     };
 
@@ -117,14 +135,14 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     public interface OnLiveViewInteractionListener {
 
-        void onShootingModeButtonPressed(int currDriveMode);
+        void onTakeModeButtonPressed(int currDriveMode);
 
         void onEnabledFocusLock(Boolean focusLockState);
 
-        void updateDriveModeImage(String propValue);
+        void updateDriveModeImage();
+
         void onRecordVideoPressed(Boolean bool);
 
-        void updateAllFragments();
     }
 
     //----------------------
@@ -156,18 +174,36 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         iv_batteryLevelImageView = view.findViewById(R.id.batteryLevelImageView);
         remainingRecordableImagesTextView = view.findViewById(R.id.tv_SdCardSpaceRemain);
         focusModeTextView = view.findViewById(R.id.tv_focusMode);
-        ib_shootingMode = view.findViewById(R.id.ib_RecordMode);
+        ib_TakeMode = view.findViewById(R.id.ib_RecordMode);
         iv_AEB = view.findViewById(R.id.iv_Bracketing);
         tv_RecordType = view.findViewById(R.id.tv_RecordType);
-        iv_recording = view.findViewById(R.id.iv_recording);
 
+        ll_recording = view.findViewById(R.id.ll_recording);
+        iv_recording = view.findViewById(R.id.iv_recording);
+        ll_recording.setVisibility(View.INVISIBLE);
+
+        ll_timeLapse = view.findViewById(R.id.ll_timeLapse);
+        tv_timelapseContent = view.findViewById(R.id.tv_timelapsecontent);
+        ll_timeLapse.setVisibility(View.INVISIBLE);
+        if (savedInstanceState != null) {
+            Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("CurrTakeMode"));
+            takeModeCounter = savedInstanceState.getInt("CurrTakeMode");
+            ib_TakeMode.setImageResource(takeModeDrawablesArr[takeModeCounter]);
+        }
         focusModeTextView.setOnClickListener(this);
-        ib_shootingMode.setOnClickListener(this);
+        ib_TakeMode.setOnClickListener(this);
         imageView.setOnTouchListener(this);
         iv_AEB.setOnClickListener(this);
         return view;
     }
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        focusModeTextView.setOnClickListener(null);
+        ib_TakeMode.setOnClickListener(null);
+        imageView.setOnTouchListener(null);
+        iv_AEB.setOnClickListener(null);
+    }
     @Override
     public void onResume() {
         super.onResume();
@@ -175,16 +211,25 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         camera.setLiveViewListener(this);
         camera.setCameraPropertyListener(this);
         camera.setCameraStatusListener(this);
-        /*camera.setRecordingListener(this);
-        camera.setRecordingSupportsListener(this);*/
+        camera.setRecordingListener(this);
+        camera.setRecordingSupportsListener(this);
         Log.d(TAG, "RecordType: " + tv_RecordType.getText());
 
-        if (camera.isConnected()) {
-            updateBatteryLevelImageView();
-            updateRemainingRecordableImagesTextView();
-            updateTakeModeImageView();
-            updateRecordTypeText();
-        }
+        //wait for camera to get in to recording mode so we get correct updates
+        connectionExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                while (!camera.isConnected() && !(camera.getRunMode() == OLYCamera.RunMode.Recording)) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                updateImageViews();
+            }
+        });
+
     }
 
     @Override
@@ -193,8 +238,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         camera.setLiveViewListener(null);
         camera.setCameraPropertyListener(null);
         camera.setCameraStatusListener(null);
-       /* camera.setRecordingListener(null);
-        camera.setRecordingSupportsListener(null);*/
+        camera.setRecordingListener(null);
+        camera.setRecordingSupportsListener(null);
     }
 
     @Override
@@ -202,8 +247,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         Log.d(TAG, "onClick");
         if (v == focusModeTextView) {
             focusModeTextViewDidTap();
-        } else if (v == ib_shootingMode) {
-            shootingModeDidTap();
+        } else if (v == ib_TakeMode) {
+            takeModeDidTap();
         } else if (v == iv_AEB) {
             AEBracketingDidTap();
         }
@@ -222,14 +267,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         return true;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        focusModeTextView.setOnClickListener(null);
-        ib_shootingMode.setOnClickListener(null);
-        imageView.setOnTouchListener(null);
-        iv_AEB.setOnClickListener(null);
-    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -255,8 +293,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         {
-            Log.d(TAG, "SavedInt: " + shootingModeCounter);
-            outState.putInt("SliderValIndex", shootingModeCounter);
+            Log.d(TAG, "SavedInt: " + takeModeCounter);
+            outState.putInt("CurrTakeMode", takeModeCounter);
         }
     }
 
@@ -268,11 +306,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (camera == null) {
             camera = CameraActivity.getCamera();
         }
-        Log.d(TAG, "ActivtiyCreated ISCONNECTED " + camera.isConnected());
-        if (savedInstanceState != null) {
-            Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("SliderValIndex"));
-            shootingModeCounter = savedInstanceState.getInt("SliderValIndex");
-        }
+
     }
 
     //----------------------
@@ -342,24 +376,20 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     // Video-------------------
+
     @Override
     public void onStartRecordingVideo(OLYCamera camera) {
+        Log.d("TAG", "onStartRecordingVideo");
         mOnLiveViewInteractionListener.onRecordVideoPressed(true);
-        AnimationDrawable blink = (AnimationDrawable)iv_recording.getDrawable();
-        blink.start();
-        /* runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                shutterImageView.setSelected(true);
-            }
-        });*/
     }
 
     @Override
     public void onStopRecordingVideo(OLYCamera camera) {
+        Log.d("TAG", "onStopRecordingVideo");
+
         mOnLiveViewInteractionListener.onRecordVideoPressed(true);
-        AnimationDrawable blink = (AnimationDrawable)iv_recording.getDrawable();
-        blink.stop();
+
+
         /*runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -369,6 +399,16 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     //-------------------------
+    //    Interaction
+    //------------------------
+
+    public void onShutterTouched(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            shutterImageViewDidTouchDown();
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            shutterImageViewDidTouchUp();
+        }
+    }
 
     @Override
     public void onReadyToReceiveCapturedImage(OLYCamera camera) {
@@ -407,14 +447,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     public void onStopDrivingZoomLens(OLYCamera camera) {
     }
 
-    public void onShutterTouched(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            shutterImageViewDidTouchDown();
-        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            shutterImageViewDidTouchUp();
-        }
-    }
-
 
     // -------------------------------------------------------------------------
     // Camera actions
@@ -449,10 +481,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 startTakingPictureWithPoint(point);
             } else if (actionType == OLYCamera.ActionType.Movie) {
                 if (camera.isRecordingVideo()) {
-                    Log.d(TAG,"stopRecording");
+                    Log.d(TAG, "stopRecording");
                     stopRecordingVideo();
                 } else {
-                    Log.d(TAG,"startRecording");
+                    Log.d(TAG, "startRecording");
                     startRecordingVideo();
                 }
             }
@@ -715,7 +747,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 String mode = "<TAKE_DRIVE/DRIVE_NORMAL>";
                 camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE, mode);
                 //Log.d(TAG, "NewActionTpe: " + camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
-                mOnLiveViewInteractionListener.updateDriveModeImage(mode);
+                mOnLiveViewInteractionListener.updateDriveModeImage();
             }
 
             //get Settings
@@ -731,7 +763,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
             //set interval
             aebSettingsArr = calcBracketing(shutterSp, spread, images);
-            if(aebSettingsArr!=null){
+            if (aebSettingsArr != null) {
                 enabledFocusLock = true;
                 takeAEBBracket();
             }
@@ -761,7 +793,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         Log.d(TAG, "shutterVals: " + shutterVals.toString());*/
         int k = 0;
         int kk = 0;
-        int counter =0;
+        int counter = 0;
         for (int i = 0; i < floatBr.length; i++) {
             float val = floatBr[i];
             float delta = Float.MAX_VALUE;
@@ -778,20 +810,20 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 } else //if we get bigger again go back
                     break;
             }
-            if(kk==k){
+            if (kk == k) {
                 counter++;
-                Log.d(TAG,"not enough Space");
+                Log.d(TAG, "not enough Space");
             }
-            kk=k;
+            kk = k;
             Log.d(TAG, "k: " + k);
             brackets[i] = shutterVals.get(k - 1);
         }
         for (String value : brackets) {
             Log.d(TAG, "exposure: " + value);
         }
-        if(counter>0){
+        if (counter > 0) {
             presentMessage("ooops, something ain't right", "you have not enough range for propper under/over exposure.\n" +
-                    "You will have "+counter+" pictures with the same exposure.\nchange your Aperture or Iso value");
+                    "You will have " + counter + " pictures with the same exposure.\nchange your Aperture or Iso value");
             return null;
         }
         return brackets;
@@ -1129,7 +1161,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             return;
         }
-
+        AnimationDrawable blink = (AnimationDrawable) iv_recording.getDrawable();
+        blink.start();
         HashMap<String, Object> options = new HashMap<String, Object>();
         camera.startRecordingVideo(options, new OLYCamera.CompletedCallback() {
             @Override
@@ -1159,7 +1192,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (!camera.isRecordingVideo()) {
             return;
         }
-
+        AnimationDrawable blink = (AnimationDrawable) iv_recording.getDrawable();
+        blink.stop();
         camera.stopRecordingVideo(new OLYCamera.CompletedCallback() {
             @Override
             public void onCompleted() {
@@ -1193,7 +1227,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         Log.d(TAG, "Click focusmode");
         String propName, propVal, newPropVal = "";
         List<String> propValues;
-        if (shootingModeCounter == CameraActivity.SHOOTING_MODE_MOVIE)
+        if (takeModeCounter == CameraActivity.SHOOTING_MODE_MOVIE)
             propName = CameraActivity.CAMERA_PROPERTY_FOCUS_MOVIE;
         else
             propName = CameraActivity.CAMERA_PROPERTY_FOCUS_STILL;
@@ -1219,25 +1253,22 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-    private void shootingModeDidTap() {
-        Log.d(TAG, "shootingModeDidTap");
-        updateTakeModeImageView();
-        Log.d(TAG, "ISCONNECTED " + camera.isConnected());
-        Log.d(TAG, "shootingmodeCounter: " + shootingModeCounter);
-        shootingModeCounter = (shootingModeCounter + 1) % shootingModeDrawablesArr.length;
-        Log.d(TAG, "shootingmodeCounter: " + shootingModeCounter);
-
-        ib_shootingMode.setImageResource(shootingModeDrawablesArr[shootingModeCounter]);
-        triggerTakeModeUpdate(shootingModeCounter);
-
+    private void takeModeDidTap() {
+        Log.d(TAG, "takeModeDidTap");
+        //updateTakeModeImageView();
+        takeModeCounter = (takeModeCounter + 1) % takeModeDrawablesArr.length;
+        ib_TakeMode.setImageResource(takeModeDrawablesArr[takeModeCounter]);
+        updateRecordingLayoutVisibility();
+        triggerTakeModeUpdate(takeModeCounter);
     }
 
-    public void triggerTakeModeUpdate(int shootingModeCounter) {
-        if (shootingModeCounter != CameraActivity.SHOOTING_MODE_MOVIE)
+    public void triggerTakeModeUpdate(int takeModeCounter) {
+        if (takeModeCounter != CameraActivity.SHOOTING_MODE_MOVIE)
             updateFocusModeTextView(CameraActivity.CAMERA_PROPERTY_FOCUS_STILL);
+
         if (mOnLiveViewInteractionListener != null) {
-            mOnLiveViewInteractionListener.onShootingModeButtonPressed(shootingModeCounter);
-            Log.d(TAG, "mOnliveView... shootingmodeCounter: " + shootingModeCounter);
+            mOnLiveViewInteractionListener.onTakeModeButtonPressed(takeModeCounter);
+            Log.d(TAG, "mOnliveView... shootingmodeCounter: " + takeModeCounter);
         }
     }
 
@@ -1269,6 +1300,19 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
 
+    private void updateImageViews() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //updateTakeModeImageView();
+                updateBatteryLevelImageView();
+                updateRemainingRecordableImagesTextView();
+                updateRecordTypeText();
+                updateRecordingLayoutVisibility();
+            }
+        });
+    }
+
     public void setEnabledTouchShutter(Boolean bool) {
         enabledTouchShutter = bool;
     }
@@ -1288,14 +1332,15 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private void updateTakeModeImageView() {
         Log.d(TAG, "updateTakeModeImageView");
-        try {
+        CameraActivity.updatePropertyImageView(ib_TakeMode,takeModeIconsList,CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
+       /* try {
             String takeMode = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
-            shootingModeCounter = CameraActivity.getTakeModeStrings().indexOf(takeMode);
-            Log.d(TAG, "updateTakeModeIv shootingModecounter: " + shootingModeCounter);
+            takeModeCounter = CameraActivity.getTakeModeStrings().indexOf(takeMode);
+            Log.d(TAG, "updateTakeModeIv shootingModecounter: " + takeModeCounter);
         } catch (OLYCameraKitException ex) {
             ex.printStackTrace();
         }
-        ib_shootingMode.setImageResource(shootingModeDrawablesArr[shootingModeCounter]);
+        ib_TakeMode.setImageResource(takeModeDrawablesArr[takeModeCounter]);*/
     }
 
     private void updateBatteryLevelImageView() {
@@ -1321,7 +1366,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void updateRemainingRecordableImagesTextView() {
-        //Log.d(TAG, "updateRemainingRecordableImagesTextView");
+        Log.d(TAG, "updateRemainingRecordableImagesTextView");
         final String text;
         if (camera.isConnected() || camera.getRunMode() == OLYCamera.RunMode.Recording) {
             if (camera.isMediaBusy()) {
@@ -1337,7 +1382,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private void updateFocusModeTextView(String propName) {
         Log.d(TAG, "updateFocusModeTextView");
-
         Log.d(TAG, "New FocusMode: " + propName);
         try {
             String txt = camera.getCameraPropertyValueTitle(camera.getCameraPropertyValue(propName));
@@ -1352,6 +1396,20 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         Log.d(TAG, "updateAEBTextView");
         iv_AEB.setEnabled(AEB);
     }*/
+
+    //---------------------------------------------------------------
+    //  update Helpers
+    //--------------------------------------------------------------
+
+    private void updateRecordingLayoutVisibility() {
+        if (takeModeCounter == 6) {
+            Log.d(TAG, "TRUE Recording Layout: " + takeModeCounter);
+            ll_recording.setVisibility(View.VISIBLE);
+        } else {
+            Log.d(TAG, "FALSE Recording Layout: " + takeModeCounter);
+            ll_recording.setVisibility(View.INVISIBLE);
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Helpers

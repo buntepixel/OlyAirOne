@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.Arrays;
@@ -25,7 +27,7 @@ import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
 
 public class CameraActivity extends FragmentActivity
-        implements TriggerFragment.OnTriggerFragmInteractionListener, LiveViewFragment.OnLiveViewInteractionListener,
+        implements LiveViewFragment.OnLiveViewInteractionListener, TriggerFragment.OnTriggerFragmInteractionListener,
         MasterSlidebarFragment.sliderValue, SettingsFragment.OnSettingsFragmInteractionListener,
         OLYCameraConnectionListener, OLYCameraPropertyListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
@@ -195,13 +197,10 @@ public class CameraActivity extends FragmentActivity
     //-----------------
     //   Interaction
     //-----------------
-    @Override
-    public void onShutterTouched(MotionEvent event) {
-        fLiveView.onShutterTouched(event);
-    }
 
+    //liveViewInteraction
     @Override
-    public void onShootingModeButtonPressed(int currDriveMode) {
+    public void onTakeModeButtonPressed(int currDriveMode) {
         try {
             try {
                 camera.setCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE, takeModeStrings.get(currDriveMode));
@@ -209,17 +208,18 @@ public class CameraActivity extends FragmentActivity
                 e.printStackTrace();
             }
             this.currTakeMode = currDriveMode;
-            setShootingModeButtons(currDriveMode);
+            setTakeModeInFragments(currDriveMode);
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);
             System.err.println(TAG + e.getMessage());
             Log.d(TAG, stackTrace);
         }
     }
+
     @Override
     public void onRecordVideoPressed(Boolean bool) {
-            if(true)
-                fTrigger.setTriggerButtonSelected(bool);
+        if (true)
+            fTrigger.setTriggerButtonSelected(bool);
     }
 
     @Override
@@ -228,17 +228,16 @@ public class CameraActivity extends FragmentActivity
     }
 
     @Override
-    public void updateAllFragments() {
-     /*   fTrigger.refresh();
-        fLiveView.refresh();
-        fSettings.refresh();*/
+    public void updateDriveModeImage() {
+        fTrigger.updateDrivemodeImageView();
     }
 
+    //triggerInteraction
     @Override
-    public void updateDriveModeImage(String propValue) {
-        fTrigger.updateDrivemodeImageView(propValue);
+    public void onShutterTouched(MotionEvent event) {
+        fLiveView.onShutterTouched(event);
     }
-
+    //triggerInteraction end
 
     @Override
     public void onButtonsInteraction(int settingsType) {
@@ -411,7 +410,7 @@ public class CameraActivity extends FragmentActivity
     //------------------------
     //     Helpers
     //------------------------
-    private void setShootingModeButtons(int mode) {
+    private void setTakeModeInFragments(int mode) {
         Log.d(TAG, "Mode: " + mode);
         fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
 
@@ -466,9 +465,9 @@ public class CameraActivity extends FragmentActivity
         ft.detach(frgTrigger);
         ft.attach(frgTrigger);
         ft.commit();*/
-        fLiveView.refresh();
-        fSettings.refresh();
-        fTrigger.refresh();
+        //fLiveView.refresh();
+        /*fSettings.refresh();
+        fTrigger.refresh();*/
 
     }
 
@@ -560,24 +559,24 @@ public class CameraActivity extends FragmentActivity
     }
 
     public static String extractProperty(String value) {
-        try{
+        try {
             //Log.d(TAG, "prop: " + value);
             String[] myStringArr = value.split("/");
             String extractedString = myStringArr[0].substring(1);
             return extractedString;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return "";
         }
     }
 
     public static String extractValue(String value) {
-        try{
+        try {
             //Log.d(TAG, "val: " + value);
             String[] myStringArr = value.split("/");
             String extractedString = myStringArr[1].substring(0, myStringArr[1].length() - 1);
             return extractedString;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
@@ -614,6 +613,81 @@ public class CameraActivity extends FragmentActivity
             return OLYCamera.LiveViewSize.XGA;
 
         return OLYCamera.LiveViewSize.QVGA;
+    }
+
+    public static String setCameraProperty(View inView, String inPropertyName) {
+        final List<String> valueList;
+        String retVal = "";
+        try {//get List of values
+            valueList = camera.getCameraPropertyValueList(inPropertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return "";
+        }
+        if (valueList == null || valueList.size() == 0) return retVal;
+
+        String value;
+        try {//get actual Value
+            value = camera.getCameraPropertyValue(inPropertyName);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return retVal;
+        }
+        if (value == null) return retVal;
+        inView.setSelected(true);//todo: can be deleted?????
+
+        try {
+            int index = valueList.indexOf(value) + 1;//get Index of current value and increment
+            //Log.d(TAG, "Index: " + index);
+            int listSize = valueList.size();
+            //Log.d(TAG, "listSize: " + listSize);
+            int moduloIndex = index % listSize;//wrap around if index out of range
+            Log.d(TAG, "Property: " + inPropertyName + " Value: " + valueList.get(moduloIndex));
+            retVal = valueList.get(moduloIndex);//get correct value of List of possibel values and set in camera
+            camera.setCameraPropertyValue(inPropertyName, retVal);
+            return retVal;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return retVal;
+    }
+
+    public static void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
+        try {
+            imageView.setEnabled(camera.canSetCameraProperty(propertyName));
+            Log.d(TAG, "Update: " + propertyName);
+            String propValue;
+            try {
+                propValue = camera.getCameraPropertyValue(propertyName);
+                Log.d(TAG, "PropVal: " + propValue);
+
+            } catch (OLYCameraKitException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            if (propValue == null) {
+                return;
+            }
+            CameraActivity.updateImageView(imageView, iconList, propValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void updateImageView(ImageView imageView, Map<String, Integer> iconList, String propValue) {
+        Log.d(TAG, "update imageView: " + propValue);
+        try {
+            if (iconList.containsKey(propValue)) {
+                int resId = iconList.get(propValue);
+                imageView.setImageResource(resId);
+            } else {
+                imageView.setImageDrawable(null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //------------------------
@@ -666,7 +740,6 @@ public class CameraActivity extends FragmentActivity
     }
 
 
-
     private void restoreCamSettings(SharedPreferences preferences) {
 
         if (camera.isConnected()) {
@@ -713,7 +786,7 @@ public class CameraActivity extends FragmentActivity
                 }
                 //setTouchShutter
                 Log.d(TAG, "touchShutter: " + CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "OFF")));
-                Boolean touchShutterEnabled="ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "OFF")));
+                Boolean touchShutterEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "OFF")));
                 if (touchShutterEnabled)
                     fLiveView.setEnabledTouchShutter(true);
                 else
@@ -723,6 +796,8 @@ public class CameraActivity extends FragmentActivity
             }
         }
     }
+
+
 }
 
 

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
-import jp.co.olympus.camerakit.OLYCameraKitException;
 
 /**
  * Created by mail on 14/06/2017.
@@ -39,6 +38,7 @@ public class TriggerFragment extends Fragment
     private ImageView iv_shutter;
 
     private Boolean enabledFocusLock;
+    private Boolean updateMetering;
 
     private OnTriggerFragmInteractionListener triggerFragmListener;
 
@@ -110,7 +110,8 @@ public class TriggerFragment extends Fragment
         }
         return true;
     }
-    public void setTriggerButtonSelected(boolean bool){
+
+    public void setTriggerButtonSelected(boolean bool) {
         iv_shutter.setSelected(bool);
     }
 
@@ -118,139 +119,44 @@ public class TriggerFragment extends Fragment
     public void onResume() {
         super.onResume();
         Log.d(TAG, "takemode on resume: " + takeMode);
-        if (takeMode < 1 || takeMode > 5)
-            iv_meteringMode.setVisibility(View.INVISIBLE);
-        else
-            iv_meteringMode.setVisibility(View.VISIBLE);
-        // updateMeteringImageView();
+
+        updateMeteringImageView();
     }
 
-    public void refresh() {
-        Log.d(TAG, "refresh");
-        updateDrivemodeImageView();
-        updateMeteringImageView();
-        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
-    }
- /*   public void updateAfterCamConnection() {
-        updateDrivemodeImageView();
-    }*/
 //----------------
 
     public void SetTakeMode(int takeMode) {
         this.takeMode = takeMode;
+        updateMeteringImageView();
+        updateDrivemodeImageView();
     }
 
-    public void updateDrivemodeImageView(String value) {
-        updateImageView(iv_driveMode, drivemodeIconList, value);
+    private void meteringImageViewDidTap() {
+        CameraActivity.updateImageView(iv_meteringMode, meteringIconList, CameraActivity.setCameraProperty(iv_meteringMode, CameraActivity.CAMERA_PROPERTY_METERING_MODE));
     }
 
     private void drivemodeImageViewDidTap() {
         Log.d(TAG, "update Drivemode");
-        updateImageView(iv_driveMode, drivemodeIconList, cameraPropertyDidTab(iv_driveMode, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
-       /* getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });*/
+        CameraActivity.updateImageView(iv_driveMode, drivemodeIconList, CameraActivity.setCameraProperty(iv_driveMode, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
     }
 
-    private void updateDrivemodeImageView() {
-        updatePropertyImageView(iv_driveMode, drivemodeIconList, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE);
+    public void updateDrivemodeImageView() {
+        CameraActivity.updatePropertyImageView(iv_driveMode, drivemodeIconList, CameraActivity.CAMERA_PROPERTY_DRIVE_MODE);
     }
 
     private void updateMeteringImageView() {
-        updatePropertyImageView(iv_meteringMode, meteringIconList, CameraActivity.CAMERA_PROPERTY_METERING_MODE);
-    }
-
-    private void meteringImageViewDidTap() {
-        final View view = iv_meteringMode;
-        if (takeMode < 1 || takeMode > 5)
-            view.setVisibility(View.INVISIBLE);
-        else
-            cameraPropertyDidTab(view, CameraActivity.CAMERA_PROPERTY_METERING_MODE);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateMeteringImageView();
-            }
-        });
-    }
-
-    private void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
-        try {
-            imageView.setEnabled(camera.canSetCameraProperty(propertyName));
-            Log.d(TAG, "Update: " + propertyName);
-            String propValue;
-            try {
-                propValue = camera.getCameraPropertyValue(propertyName);
-                Log.d(TAG, "PropVal: " + propValue);
-
-            } catch (OLYCameraKitException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            if (propValue == null) {
-                return;
-            }
-            updateImageView(imageView, iconList, propValue);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (takeMode < 1 || takeMode > 5) {
+            iv_meteringMode.setVisibility(View.INVISIBLE);
+        } else {
+            iv_meteringMode.setVisibility(View.VISIBLE);
+             CameraActivity.updatePropertyImageView(iv_meteringMode, meteringIconList, CameraActivity.CAMERA_PROPERTY_METERING_MODE);
         }
     }
 
-    private void updateImageView(ImageView imageView, Map<String, Integer> iconList, String propValue) {
-        Log.d(TAG, "update imageView: "+ propValue);
 
-        try {
-            if (iconList.containsKey(propValue)) {
-                int resId = iconList.get(propValue);
-                imageView.setImageResource(resId);
-            } else {
-                imageView.setImageDrawable(null);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    private String cameraPropertyDidTab(View inView, String inPropertyName) {
-        final List<String> valueList;
-        String retVal = "";
-        try {
-            valueList = camera.getCameraPropertyValueList(inPropertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return "";
-        }
-        if (valueList == null || valueList.size() == 0) return retVal;
 
-        String value;
-        try {
-            value = camera.getCameraPropertyValue(inPropertyName);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return retVal;
-        }
-        if (value == null) return retVal;
-        inView.setSelected(true);
 
-        try {
-            int index = valueList.indexOf(value) + 1;
-            //Log.d(TAG, "Index: " + index);
-            int listSize = valueList.size();
-            //Log.d(TAG, "listSize: " + listSize);
-            int moduloIndex = index % listSize;
-            Log.d(TAG, "Property: " + inPropertyName + " Value: " + valueList.get(moduloIndex));
-            retVal = valueList.get(moduloIndex);
-            camera.setCameraPropertyValue(inPropertyName, retVal);
-            return retVal;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return retVal;
-    }
 
     @Override
     public void onAttach(Context context) {

@@ -37,12 +37,9 @@ public class RecviewFragment extends android.support.v4.app.Fragment implements 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_recview, container, false);
 		
-		imageView = view.findViewById(R.id.imageView1);
+		imageView = view.findViewById(R.id.iv_capturedImage);
 		
-		view.findViewById(R.id.view1).setOnTouchListener(this);
-		view.findViewById(R.id.view2).setOnTouchListener(this);
-		view.findViewById(R.id.view3).setOnTouchListener(this);
-		
+		view.findViewById(R.id.ib_backToCam).setOnTouchListener(this);
 		return view;
 	}
 	
@@ -57,7 +54,6 @@ public class RecviewFragment extends android.support.v4.app.Fragment implements 
 	@Override
 	public void onPause() {
 		super.onPause();
-
 		camera.setRecordingSupportsListener(null);
 	}
 
@@ -67,7 +63,6 @@ public class RecviewFragment extends android.support.v4.app.Fragment implements 
 			getFragmentManager().popBackStack();
 			return true;
 		}
-		
 		return false;
 	}
 	

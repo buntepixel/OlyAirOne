@@ -100,10 +100,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             switch (childType) {
                 case NUMBERPICKER:
                     Log.d(TAG, "NUMBERPICKER");
-                    if(groupPosition==0){
+                    if (groupPosition == 0) {
                         convertView = inflater.inflate(R.layout.childitem_aeb_camsettingsactivity, parent, false);
-                    }else if(groupPosition==1){
-                        convertView= inflater.inflate(R.layout.childitem_tl_camsettingsactivity,parent,false);
+                    } else if (groupPosition == 1) {
+                        convertView = inflater.inflate(R.layout.childitem_tl_camsettingsactivity, parent, false);
                     }
                     convertView.setTag(childType);
                     break;
@@ -155,7 +155,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 CheckBox cbx = convertView.findViewById(R.id.chbx_chbx);
                 if (cbx != null) {
                     String setting = "";
-                    if (groupPosition == 2) {
+                    if (groupPosition == 1) {
+                        if (childPosition == 0) {
+                            setting = listener.getSetting("TIMELAPSE", "<TIMELAPSE/OFF>");
+                            cbx.setTag("TIMELAPSE");//tag used in on click listener
+                        }
+                    } else if (groupPosition == 2) {
                         if (childPosition == 4) {
                             setting = listener.getSetting("RAW", "<RAW/ON>");
                             cbx.setTag("RAW");//tag used in on click listener
@@ -269,6 +274,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             case 1:
                 switch (childPosition) {//Timelapse
                     case 0:
+                        return CHECKBOX;
+                    case 1:
                         return NUMBERPICKER;
                 }
             case 2:
@@ -397,14 +404,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private void setup_AEB(View convertView) {
 
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
-        setupNumberPicker(np_nbImagesVal, strVal, CamSettingsActivity.AEB_IMAGETAG);
+        setupNumberPicker(np_nbImagesVal, strVal,false, CamSettingsActivity.AEB_IMAGETAG);
         Log.d(TAG, "savedVal: " + listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, "default"));
         int tmp = getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0]));
         Log.d(TAG, "savedArrVal: " + tmp);
         np_nbImagesVal.setValue(getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])));
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        setupNumberPicker(np_exposureSpreadVal, expSprVal, CamSettingsActivity.AEB_SPREADTAG);
+        setupNumberPicker(np_exposureSpreadVal, expSprVal,false, CamSettingsActivity.AEB_SPREADTAG);
         np_exposureSpreadVal.setValue(getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])));
 
         //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, expSprVal[0])));
@@ -436,23 +443,20 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         }
         return -1;
     }
-
-    private void setupNumberPicker(NumberPicker np, String[] strVal, String tag) {
-        np.setMinValue(0); //from array first value
-        np.setMaxValue(strVal.length - 1); //to array last value
-        np.setTag(tag);
-        np.setDisplayedValues(strVal);
-        np.setWrapSelectorWheel(false); //wrap.
-        np.setOnValueChangedListener(this);
-    }
-
-    private void setupNumberPicker(NumberPicker np, Integer maxVal, Integer minVal, Integer startVal, Boolean wrap, String tag) {
+    private void setupNumberPicker(NumberPicker np,  Integer minVal,Integer maxVal, Integer startVal, Boolean wrap, String tag) {
         np.setMinValue(minVal); //from array first value
         np.setMaxValue(maxVal); //to array last value
         np.setTag(tag);
         np.setWrapSelectorWheel(wrap); //wrap.
         np.setOnValueChangedListener(this);
     }
+
+    private void setupNumberPicker(NumberPicker np, String[] strVal,Boolean wrap, String tag) {
+        setupNumberPicker(np,0,strVal.length - 1,0,wrap,tag);
+        np.setDisplayedValues(strVal);
+    }
+
+
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
@@ -512,11 +516,17 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 listener.saveSetting("RAW", "<RAW/OFF>");
 
         } else if (view.getTag() == "RECVIEW") {
-            Log.d(TAG, "click PreviewImage");
+            Log.d(TAG, "click Recview");
             if (checked)
                 listener.saveSetting("RECVIEW", "<RECVIEW/ON>");
             else
                 listener.saveSetting("RECVIEW", "<RECVIEW/OFF>");
+        } else if (view.getTag()=="TIMELAPSE"){
+            Log.d(TAG, "click Timelapse");
+            if (checked)
+                listener.saveSetting("TIMELAPSE", "<TIMELAPSE/ON>");
+            else
+                listener.saveSetting("TIMELAPSE", "<TIMELAPSE/OFF>");
         }
     }
 

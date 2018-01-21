@@ -197,14 +197,13 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
         startActivity(new Intent(this, MainActivity.class));
     }
 
     private void createCollection() {
         // preparing laptops collection(child)
         String[] AEB = {"setup"};
-        String[] TL = {"setup"};
+        String[] TL = {"Enable","setup"};
         String[] image = {"aspect ratio", "image size", "jpg compression", "image destination", "save raw image","generate preview image"};
         String[] movie = {"quality", "clip record time"};
         String[] focusing = {"touch shutter", "face detection"};

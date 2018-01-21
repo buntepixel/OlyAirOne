@@ -94,6 +94,9 @@ public class SettingsFragment extends Fragment
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         view.setId(View.generateViewId());
+        if (savedInstanceState != null) {
+            takeMode = savedInstanceState.getInt("takeMode", 0);
+        }
         CreateSettings( view);
         return view;
     }
@@ -123,9 +126,7 @@ public class SettingsFragment extends Fragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            takeMode = savedInstanceState.getInt("takeMode", 0);
-        }
+
         //update values and set onclickListeners
         updateAllValues();
     }

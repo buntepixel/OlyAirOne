@@ -22,46 +22,75 @@
         android:layout_alignParentTop="true"
         android:src="@drawable/ic_iautomode"/>
 
-
     <LinearLayout
-        android:id="@+id/ll_topBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/CamSetting_horizMargin"
+        android:orientation="vertical"
         android:layout_marginTop="@dimen/LiveViewTopMarg"
         android:layout_toStartOf="@id/ib_RecordMode"
-
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tv_focusMode"
+        android:gravity="end"
+        >
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="S-AF"
-            android:textColor="@color/button_text_states"
-            android:textSize="@dimen/Icon_discription_txt"/>
+            android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/iv_sdCardIcon"
+            <TextView
+                android:id="@+id/tv_focusMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="S-AF"
+                android:textColor="@color/button_text_states"
+                android:textSize="@dimen/Icon_discription_txt"/>
+
+            <ImageView
+                android:id="@+id/iv_sdCardIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:scaleType="center"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:src="@drawable/ic_sdcard"/>
+
+            <TextView
+                android:id="@+id/tv_SdCardSpaceRemain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="0002"
+                android:textColor="@color/button_text_states"
+                android:textSize="@dimen/Icon_discription_txt"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_timeLapse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@null"
-            android:scaleType="center"
-            android:scaleX="0.7"
-            android:scaleY="0.7"
-            android:src="@drawable/ic_sdcard"/>
+            android:layout_toRightOf="@id/ll_batteryAndStuff"
+            android:gravity="bottom">
 
-        <TextView
-            android:id="@+id/tv_SdCardSpaceRemain"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="0002"
-            android:textColor="@color/button_text_states"
-            android:textSize="@dimen/Icon_discription_txt"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Timelapse: "
+                android:textAlignment="gravity"
+                android:textColor="@color/button_text_states"
+                android:textSize="13dp"/>
+
+            <TextView
+                android:id="@+id/tv_timelapsecontent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="300/100"
+                android:textColor="@color/button_text_states"
+                android:textSize="13dp"
+                />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -71,7 +100,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/LiveViewTopMarg"
-        android:layout_toRightOf="@id/ll_batteryAndStuff">
+        android:layout_toRightOf="@id/ll_batteryAndStuff"
+        >
 
         <TextView
             android:layout_width="wrap_content"
@@ -88,34 +118,9 @@
             android:layout_gravity="top"
             android:scaleX="0.5"
             android:scaleY="0.5"
-            android:src="@drawable/ic_recording_on"/>
+           android:src="@drawable/anim_recordingblinking"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_timeLapse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:layout_toRightOf="@id/ll_batteryAndStuff"
-        android:gravity="bottom">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Timelapse: "
-            android:textAlignment="gravity"
-            android:textColor="@color/button_text_states"
-            android:textSize="13dp"/>
-
-        <TextView
-            android:id="@+id/tv_timelapsecontent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="300/100"
-            android:textColor="@color/button_text_states"
-            android:textSize="13dp"
-            />
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_batteryAndStuff"
