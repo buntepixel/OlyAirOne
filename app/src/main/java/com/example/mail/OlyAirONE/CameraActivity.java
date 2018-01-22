@@ -784,16 +784,12 @@ public class CameraActivity extends FragmentActivity
                 } catch (OLYCameraKitException e) {
                     Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
                 }
-                //setTouchShutter
-                Log.d(TAG, "touchShutter: " + CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "OFF")));
-                Boolean touchShutterEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "OFF")));
-                if (touchShutterEnabled)
-                    fLiveView.setEnabledTouchShutter(true);
-                else
-                    fLiveView.setEnabledTouchShutter(false);
-
-
             }
+            //setTouchShutter
+            Boolean touchShutterEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "ON")));
+            fLiveView.setEnabledTouchShutter(!touchShutterEnabled);
+            Boolean timeLapseEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TIMELAPSE", "ON")));
+            fLiveView.setEnabledTimeLapse(timeLapseEnabled);
         }
     }
 

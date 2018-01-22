@@ -35,6 +35,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
     final String[] strVal = {"3", "5", "7", "9", "11"};
     final String[] expSprVal = {"1", "2", "3"};
+    NumberPicker[] npNbImgArr;
+    NumberPicker[] npIntervArr;
 
     private Activity context;
     private Map<String, List<String>> myChilds;
@@ -175,8 +177,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         }
                     }
                     cbx.setOnClickListener(this);
-                    Boolean cbxEnabled = setting.equals("") && "ON".equals(CameraActivity.extractValue(setting));
-                    if (!cbxEnabled) {
+                    Log.d(TAG, "setting Value: " + setting);
+                    Boolean cbxEnabled = !setting.equals("") && "ON".equals(CameraActivity.extractValue(setting));
+                    if (cbxEnabled) {
                         cbx.setChecked(true);
                     } else
                         cbx.setChecked(false);
@@ -404,33 +407,42 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private void setup_AEB(View convertView) {
 
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
-        setupNumberPicker(np_nbImagesVal, strVal,false, CamSettingsActivity.AEB_IMAGETAG);
+        setupNumberPicker(np_nbImagesVal, strVal, false, CamSettingsActivity.AEB_IMAGETAG);
         Log.d(TAG, "savedVal: " + listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, "default"));
         int tmp = getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0]));
         Log.d(TAG, "savedArrVal: " + tmp);
         np_nbImagesVal.setValue(getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])));
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        setupNumberPicker(np_exposureSpreadVal, expSprVal,false, CamSettingsActivity.AEB_SPREADTAG);
+        setupNumberPicker(np_exposureSpreadVal, expSprVal, false, CamSettingsActivity.AEB_SPREADTAG);
         np_exposureSpreadVal.setValue(getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])));
 
         //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, expSprVal[0])));
     }
 
     private void setup_TL(View convertView) {
+        npNbImgArr = new NumberPicker[3];
         NumberPicker np_total_100 = convertView.findViewById(R.id.np_nbTotalImg100);
-        setupNumberPicker(np_total_100, 9, 0, 0, true, "np_total_100");
+        setupNumberPicker(np_total_100, 0, 9, 0, true, "np_total_100");
+        npNbImgArr[0] = np_total_100;
         NumberPicker np_total_10 = convertView.findViewById(R.id.np_nbTotalImg10);
-        setupNumberPicker(np_total_10, 9, 0, 3, true, "np_total_10");
+        setupNumberPicker(np_total_10, 0, 9, 3, true, "np_total_10");
+        npNbImgArr[1] = np_total_10;
         NumberPicker np_total_1 = convertView.findViewById(R.id.np_nbTotalImg1);
-        setupNumberPicker(np_total_1, 9, 0, 5, true, "np_total_1");
+        setupNumberPicker(np_total_1, 0, 9, 5, true, "np_total_1");
+        npNbImgArr[2] = np_total_1;
 
+        npIntervArr = new NumberPicker[3];
         NumberPicker np_intervall_hrs = convertView.findViewById(R.id.np_intervallTime_Hrs);
-        setupNumberPicker(np_intervall_hrs, 23, 0, 0, true, "np_intervall_hrs");
+        setupNumberPicker(np_intervall_hrs, 0, 23, 0, true, "np_intervall_hrs");
+        npIntervArr[0] = np_intervall_hrs;
         NumberPicker np_intervall_min = convertView.findViewById(R.id.np_intervallTime_Min);
-        setupNumberPicker(np_intervall_min, 59, 0, 1, true, "np_intervall_min");
+        setupNumberPicker(np_intervall_min, 0, 59, 1, true, "np_intervall_min");
+        npIntervArr[1] = np_intervall_min;
         NumberPicker np_intervall_sec = convertView.findViewById(R.id.np_intervallTime_Sec);
-        setupNumberPicker(np_intervall_sec, 59, 0, 0, true, "np_intervall_sec");
+        setupNumberPicker(np_intervall_sec, 0, 59, 0, true, "np_intervall_sec");
+        npIntervArr[2] = np_intervall_sec;
+
     }
 
     private int getArrIdFromValue(String[] arr, String val) {
@@ -443,19 +455,20 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         }
         return -1;
     }
-    private void setupNumberPicker(NumberPicker np,  Integer minVal,Integer maxVal, Integer startVal, Boolean wrap, String tag) {
+
+    private void setupNumberPicker(NumberPicker np, Integer minVal, Integer maxVal, Integer startVal, Boolean wrap, String tag) {
         np.setMinValue(minVal); //from array first value
         np.setMaxValue(maxVal); //to array last value
         np.setTag(tag);
         np.setWrapSelectorWheel(wrap); //wrap.
+        np.setValue(startVal);
         np.setOnValueChangedListener(this);
     }
 
-    private void setupNumberPicker(NumberPicker np, String[] strVal,Boolean wrap, String tag) {
-        setupNumberPicker(np,0,strVal.length - 1,0,wrap,tag);
+    private void setupNumberPicker(NumberPicker np, String[] strVal, Boolean wrap, String tag) {
+        setupNumberPicker(np, 0, strVal.length - 1, 0, wrap, tag);
         np.setDisplayedValues(strVal);
     }
-
 
 
     @Override
@@ -484,13 +497,22 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 if (newVal == numberPicker.getValue()) {//make sure picker scroll stopped
                     if (numberPicker.getTag() == CamSettingsActivity.AEB_IMAGETAG) {
                         listener.saveSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[numberPicker.getValue()]);
-                        Log.d(TAG, "numberpicker changed to val: " + strVal[numberPicker.getValue()]);
-
                     } else if (numberPicker.getTag() == CamSettingsActivity.AEB_SPREADTAG) {
                         listener.saveSetting(CamSettingsActivity.AEB_SPREADTAG, expSprVal[numberPicker.getValue()]);
                         Log.d(TAG, "numberpicker changed to val: " + expSprVal[numberPicker.getValue()]);
+                    } else if (numberPicker.getTag() == "np_total_100" || numberPicker.getTag() == "np_total_10" || numberPicker.getTag() == "np_total_1") {
+                        String nb ="";
+                        for (NumberPicker nbp : npNbImgArr) {
+                           nb= nb+String.valueOf(nbp.getValue());
+                        }
+                        Log.d(TAG, "TimeLapse NbOf Images: " + nb);
+                        listener.saveSetting("TimelapseNbImages", nb);
+                    } else if(numberPicker.getTag() =="np_intervall_hrs"||numberPicker.getTag() =="np_intervall_min"||numberPicker.getTag() =="np_intervall_sec"){
+                       long intervallSec= (((npIntervArr[0].getValue()*60)+npIntervArr[1].getValue())*60)+npIntervArr[2].getValue();
+                        Log.d(TAG, "intervallSec: " + String.valueOf(intervallSec));
+                        listener.saveSetting("TimelapseIntervall", String.valueOf(intervallSec));
                     }
-                    Log.d(TAG, "Arrval changed to val: " + numberPicker.getValue());
+
                 }
             }
         }, 500);//set time
@@ -521,7 +543,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 listener.saveSetting("RECVIEW", "<RECVIEW/ON>");
             else
                 listener.saveSetting("RECVIEW", "<RECVIEW/OFF>");
-        } else if (view.getTag()=="TIMELAPSE"){
+        } else if (view.getTag() == "TIMELAPSE") {
             Log.d(TAG, "click Timelapse");
             if (checked)
                 listener.saveSetting("TIMELAPSE", "<TIMELAPSE/ON>");

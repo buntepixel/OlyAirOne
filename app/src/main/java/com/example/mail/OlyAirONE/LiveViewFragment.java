@@ -67,6 +67,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
 
     private Boolean AEB = false;
+    private Boolean timelapse = false;
     String[] aebSettingsArr;
     int aebCounter = 0;
     // private List<String> focusModesList;
@@ -307,7 +308,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (camera == null) {
             camera = CameraActivity.getCamera();
         }
-
     }
 
     //----------------------
@@ -1317,6 +1317,20 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         enabledTouchShutter = bool;
     }
 
+    public void setEnabledTimeLapse(Boolean bool) {
+        timelapse = bool;
+        Log.d(TAG, "TimeLapse: " + timelapse);
+       runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+               if (timelapse)
+                   ll_timeLapse.setVisibility(View.VISIBLE);
+               else
+                   ll_timeLapse.setVisibility(View.INVISIBLE);
+           }
+       });
+    }
+
     public void updateRecordTypeText() {
         String val = "";
         try {
@@ -1403,10 +1417,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private void updateRecordingLayoutVisibility() {
         if (takeModeCounter == 6) {
-            Log.d(TAG, "TRUE Recording Layout: " + takeModeCounter);
+            //Log.d(TAG, "TRUE Recording Layout: " + takeModeCounter);
             ll_recording.setVisibility(View.VISIBLE);
         } else {
-            Log.d(TAG, "FALSE Recording Layout: " + takeModeCounter);
+            //Log.d(TAG, "FALSE Recording Layout: " + takeModeCounter);
             ll_recording.setVisibility(View.INVISIBLE);
         }
     }
