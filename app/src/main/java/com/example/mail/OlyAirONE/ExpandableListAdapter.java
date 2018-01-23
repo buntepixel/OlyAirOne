@@ -506,11 +506,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                            nb= nb+String.valueOf(nbp.getValue());
                         }
                         Log.d(TAG, "TimeLapse NbOf Images: " + nb);
-                        listener.saveSetting("TimelapseNbImages", nb);
+                        listener.saveSetting(CamSettingsActivity.TL_NBIMAGES, nb);
                     } else if(numberPicker.getTag() =="np_intervall_hrs"||numberPicker.getTag() =="np_intervall_min"||numberPicker.getTag() =="np_intervall_sec"){
                        long intervallSec= (((npIntervArr[0].getValue()*60)+npIntervArr[1].getValue())*60)+npIntervArr[2].getValue();
                         Log.d(TAG, "intervallSec: " + String.valueOf(intervallSec));
-                        listener.saveSetting("TimelapseIntervall", String.valueOf(intervallSec));
+                        listener.saveSetting(CamSettingsActivity.TL_INTERVALL, String.valueOf(intervallSec));
                     }
 
                 }

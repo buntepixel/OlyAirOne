@@ -66,8 +66,6 @@ public class ConnectToCamActivity extends Activity {
                 mWifiManager.startScan(); //getting the result in a broadcast receiver
             } else {
                 goToWifiSettingsDialogue("Wifi NOT enabled!\ngo to Wifi settings?\n", "Yes", "No");
-            /*Toast.makeText(this, R.string.ToastEnableWifi, Toast.LENGTH_SHORT).show();
-            finish();*/
             }
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);

@@ -25,6 +25,9 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     SharedPreferences preferences;
     public static final String AEB_IMAGETAG = "aebimage";
     public static final String AEB_SPREADTAG = "aebspread";
+    public static final String TL_INTERVALL = "intervall";
+    public static final String TL_NBIMAGES = "nbImages";
+
 
     private final Map<String, String> aeb_NbPic = new HashMap<String, String>() {{
         put("3 Pictures", "<NBPIC/3>");

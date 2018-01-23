@@ -20,78 +20,165 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/LiveViewTopMarg"
         android:src="@drawable/ic_iautomode"/>
 
+
     <LinearLayout
+        android:id="@+id/ll_remainingPicAndStuff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginTop="@dimen/LiveViewTopMarg"
         android:layout_toStartOf="@id/ib_RecordMode"
         android:gravity="end"
-        >
-        <LinearLayout
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_focusMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="S-AF"
+            android:textColor="@color/button_text_states"
+            android:textSize="@dimen/Icon_discription_txt"/>
 
-            <TextView
-                android:id="@+id/tv_focusMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="S-AF"
-                android:textColor="@color/button_text_states"
-                android:textSize="@dimen/Icon_discription_txt"/>
-
-            <ImageView
-                android:id="@+id/iv_sdCardIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@null"
-                android:scaleType="center"
-                android:scaleX="0.7"
-                android:scaleY="0.7"
-                android:src="@drawable/ic_sdcard"/>
-
-            <TextView
-                android:id="@+id/tv_SdCardSpaceRemain"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="0002"
-                android:textColor="@color/button_text_states"
-                android:textSize="@dimen/Icon_discription_txt"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_timeLapse"
+        <ImageView
+            android:id="@+id/iv_sdCardIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/ll_batteryAndStuff"
-            android:gravity="bottom">
+            android:contentDescription="@null"
+            android:scaleType="center"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:src="@drawable/ic_sdcard"/>
+
+        <TextView
+            android:id="@+id/tv_SdCardSpaceRemain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="0002"
+            android:textColor="@color/button_text_states"
+            android:textSize="@dimen/Icon_discription_txt"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_timeLapse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_remainingPicAndStuff"
+        android:layout_toLeftOf="@id/ib_RecordMode"
+        android:gravity="right"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Timelapse: "
+                android:text="Timelapse:"
+                android:layout_marginRight="@dimen/textspacer_smalltxt"
                 android:textAlignment="gravity"
                 android:textColor="@color/button_text_states"
-                android:textSize="13dp"/>
+                android:textSize="@dimen/small_txt"/>
 
             <TextView
-                android:id="@+id/tv_timelapsecontent"
+                android:id="@+id/tv_tl_doneImages"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="300/100"
+                android:text="0"
                 android:textColor="@color/button_text_states"
-                android:textSize="13dp"
+                android:textSize="@dimen/small_txt"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/"
+                android:textColor="@color/button_text_states"
+                android:textSize="@dimen/small_txt"
+                />
+
+            <TextView
+                android:id="@+id/tv_tl_totalImages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="300"
+                android:textColor="@color/button_text_states"
+                android:textSize="@dimen/small_txt"
                 />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="interval:"
+                android:layout_marginRight="@dimen/textspacer_smalltxt"
+                android:textColor="@color/button_text_states"
+                android:textSize="@dimen/small_txt"/>
+
+            <TextView
+                android:id="@+id/tv_tl_interval"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/button_text_states"
+                android:textSize="@dimen/small_txt"
+                android:text="120"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/textspacer_smalltxt"
+                android:textColor="@color/button_text_states"
+                android:textSize="@dimen/small_txt"
+                android:text="sec"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_tl_nextCapture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="@dimen/textspacer_smalltxt"
+        android:layout_marginTop="@dimen/textspacer_smalltxt"
+        android:background="@color/BgPrim_HalfTransp_Grey">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/textspacer_smalltxt"
+            android:layout_marginRight="@dimen/textspacer_smalltxt"
+            android:textColor="@color/button_text_states"
+            android:textSize="@dimen/small_txt"
+            android:text="next capture in:"/>
+
+        <TextView
+            android:id="@+id/tv_tl_nextCapture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/button_text_states"
+            android:textSize="@dimen/small_txt"
+            android:text="50"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/textspacer_smalltxt"
+            android:layout_marginRight="@dimen/textspacer_smalltxt"
+            android:textColor="@color/button_text_states"
+            android:textSize="@dimen/small_txt"
+            android:text="sec"/>
     </LinearLayout>
 
 
@@ -118,7 +205,7 @@
             android:layout_gravity="top"
             android:scaleX="0.5"
             android:scaleY="0.5"
-           android:src="@drawable/anim_recordingblinking"/>
+            android:src="@drawable/anim_recordingblinking"/>
     </LinearLayout>
 
 
@@ -160,6 +247,5 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_no_aeb"/>
     </LinearLayout>
-
 
 </RelativeLayout>

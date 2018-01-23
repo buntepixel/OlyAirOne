@@ -4,6 +4,7 @@ package com.example.mail.OlyAirONE;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -62,8 +63,15 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     private ImageView iv_recording;
     private LinearLayout ll_recording;
     private TextView tv_RecordType;
-    private LinearLayout ll_timeLapse;
-    private TextView tv_timelapseContent;
+
+    private LinearLayout ll_tl_timeLapse;
+    private LinearLayout ll_tl_nextCapture;
+    private TextView tv_tl_totalImages;
+    private TextView tv_tl_doneImages;
+    private TextView tv_tl_intervall;
+    private TextView tv_tl_nextCapture;
+    private int tl_nbImages;
+    private int tl_intervall;
 
 
     private Boolean AEB = false;
@@ -183,9 +191,20 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         iv_recording = view.findViewById(R.id.iv_recording);
         ll_recording.setVisibility(View.INVISIBLE);
 
-        ll_timeLapse = view.findViewById(R.id.ll_timeLapse);
-        tv_timelapseContent = view.findViewById(R.id.tv_timelapsecontent);
-        ll_timeLapse.setVisibility(View.INVISIBLE);
+        ll_tl_timeLapse = view.findViewById(R.id.ll_timeLapse);
+        ll_tl_timeLapse.setVisibility(View.INVISIBLE);
+        ll_tl_nextCapture = view.findViewById(R.id.ll_tl_nextCapture);
+        ll_tl_nextCapture.setVisibility(View.INVISIBLE);
+        tv_tl_totalImages = view.findViewById(R.id.tv_tl_totalImages);
+        tv_tl_doneImages = view.findViewById(R.id.tv_tl_doneImages);
+        tv_tl_intervall = view.findViewById(R.id.tv_tl_interval);
+        tv_tl_nextCapture = view.findViewById(R.id.tv_tl_nextCapture);
+
+        SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
+        tl_nbImages = Integer.parseInt(preferences.getString(CamSettingsActivity.TL_NBIMAGES, "35"));
+        tl_intervall = Integer.parseInt(preferences.getString(CamSettingsActivity.TL_INTERVALL, "60"));
+        tv_tl_intervall.setText(String.valueOf(tl_intervall));
+        tv_tl_totalImages.setText(String.valueOf(tl_nbImages));
         if (savedInstanceState != null) {
             Log.d(TAG, "restoredInt: " + savedInstanceState.getInt("CurrTakeMode"));
             takeModeCounter = savedInstanceState.getInt("CurrTakeMode");
@@ -253,6 +272,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         } else if (v == ib_TakeMode) {
             takeModeDidTap();
         } else if (v == iv_AEB) {
+            if (timelapse) {
+                Toast.makeText(this.getContext(), "Bracketing not possible in combination with timelapse. Go to your settings and disable timelapse", Toast.LENGTH_LONG).show();
+                return;
+            }
             AEBracketingDidTap();
         }
     }
@@ -417,7 +440,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     @Override
     public void onReceiveCapturedImagePreview(OLYCamera camera, byte[] data, Map<String, Object> metadata) {
-        if (!AEB && camera.getActionType() == OLYCamera.ActionType.Single) {
+        if (timelapse || AEB)
+            return;
+        if (camera.getActionType() == OLYCamera.ActionType.Single) {
             RecviewFragment fragment = new RecviewFragment();
             fragment.setImageData(data, metadata);
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
@@ -510,8 +535,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     private void shutterImageViewDidTouchDown() {
         OLYCamera.ActionType actionType = camera.getActionType();
         //if Autobracketing is active
-        if (AEB) {
-            takeAEBPicture();
+        if (timelapse) {
+            startTimelapse();
+            return;
+        } else if (AEB) {
+            takeAEBSequence();
             return;
         }
         //ifNot
@@ -734,7 +762,127 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         });
     }
 
-    private void takeAEBPicture() {
+    //-------------------
+    // Timelapse
+    //-------------------
+    private void takeTimelapse() {
+
+        if (camera.isTakingPicture() || camera.isRecordingVideo()) {
+            Log.d(TAG, "returning as is busy");
+            return;
+        }
+        Log.d(TAG, "takeTimelapse");
+        try {
+            OLYCamera.ActionType actionType = camera.getActionType();
+            Log.d(TAG, "ActionTpe: " + actionType);
+            if (actionType != OLYCamera.ActionType.Single) {
+                String mode = "<TAKE_DRIVE/DRIVE_NORMAL>";
+                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE, mode);
+                //Log.d(TAG, "NewActionTpe: " + camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
+                mOnLiveViewInteractionListener.updateDriveModeImage();
+            }
+            connectionExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    int counter = 0;
+                    nextCaptureVisible(true);
+                    while (counter < tl_nbImages) {
+                        takePicture();
+                        counter++;
+                        updateTimelapseStats(String.valueOf(counter));
+                        if(counter==tl_nbImages){//exit if we are done
+                            nextCaptureVisible(false);
+                            return;
+                        }
+                        int countdown = tl_intervall;
+                        while (countdown>0){
+                            updateNextCaptureCounter(String.valueOf(countdown));
+                            countdown--;
+                            try {
+                                Thread.sleep(1000);
+                            }catch (InterruptedException ex){
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            });
+
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void updateTimelapseStats(final String donePic) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tv_tl_doneImages.setText(donePic);
+            }
+        });
+    }
+    private void updateNextCaptureCounter(final String nextCapture){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tv_tl_nextCapture.setText(nextCapture);
+            }
+        });
+    }
+    private void nextCaptureVisible(final boolean bool){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(bool)
+                    ll_tl_nextCapture.setVisibility(View.VISIBLE);
+                else
+                    ll_tl_nextCapture.setVisibility(View.INVISIBLE);
+
+
+            }
+        });
+    }
+
+    private void startTimelapse() {
+        //get Settings
+       /* SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
+        tl_nbImages = Integer.parseInt(preferences.getString(CamSettingsActivity.TL_NBIMAGES, "35"));
+        tl_intervall = Integer.parseInt(preferences.getString(CamSettingsActivity.TL_INTERVALL, "60"));*/
+
+        timeLapseDialogue("you're doing " + tl_nbImages + " images with a \ninterval of " + tl_intervall + " seconds", "Start Timelapse", "Cancel");
+    }
+
+    private void timeLapseDialogue(String text, String btn_Pos, String btn_Neg) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(getContext());
+        builder1.setMessage(text);
+        builder1.setCancelable(true);
+
+        builder1.setPositiveButton(
+                btn_Pos,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        takeTimelapse();
+                        dialog.dismiss();
+                    }
+                });
+
+        builder1.setNegativeButton(
+                btn_Neg,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
+
+    //-------------------
+    //  AEB bracketing
+    //-------------------
+    private void takeAEBSequence() {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             Log.d(TAG, "returning as is busy");
             return;
@@ -846,11 +994,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
     private void takeAEBBracket() {
         Log.d(TAG, "camMediaBusy: " + camera.isMediaBusy() + " istakingPicture: " + camera.isTakingPicture() + " is media error: " + camera.isMediaError());
-   /*   try{
-          Thread.sleep(500);
-      }catch (Exception ex){
-          ex.printStackTrace();
-      }*/
         while (camera.isMediaBusy()) {
             // Log.d(TAG,"medibusy");
         }
@@ -880,6 +1023,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
+    //-------------------
+    //  Single Picture
+    //-------------------
     private void takePictureWithPoint(PointF point) {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             return;
@@ -1155,7 +1301,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         });
     }
 
-    // shutter control (movie)
+    //-------------------
+    //  shutter control (movie)
+    //-------------------
 
     private void startRecordingVideo() {
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
@@ -1219,9 +1367,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         });
     }
 
-    // -------------------------------------------------------------------------
+    // ------------------
     //  Tap Methods
-    // -------------------------------------------------------------------------
+    // ------------------
 
     private void focusModeTextViewDidTap() {
         Log.d(TAG, "Click focusmode");
@@ -1292,9 +1440,9 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         Log.d(TAG, "AEB did Tap: " + AEB);
     }
 
-    // -------------------------------------------------------------------------
+    // ------------------
     // Updates
-    // -------------------------------------------------------------------------
+    // ------------------
     public void refresh() {
         Log.d(TAG, "refresh");
         getFragmentManager().beginTransaction().detach(this).attach(this).commit();
@@ -1320,15 +1468,16 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     public void setEnabledTimeLapse(Boolean bool) {
         timelapse = bool;
         Log.d(TAG, "TimeLapse: " + timelapse);
-       runOnUiThread(new Runnable() {
-           @Override
-           public void run() {
-               if (timelapse)
-                   ll_timeLapse.setVisibility(View.VISIBLE);
-               else
-                   ll_timeLapse.setVisibility(View.INVISIBLE);
-           }
-       });
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (timelapse) {
+                    ll_tl_timeLapse.setVisibility(View.VISIBLE);
+                } else {
+                    ll_tl_timeLapse.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
     }
 
     public void updateRecordTypeText() {
@@ -1406,10 +1555,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
     }
 
-   /* private void updateAEBTextView() {
-        Log.d(TAG, "updateAEBTextView");
-        iv_AEB.setEnabled(AEB);
-    }*/
 
     //---------------------------------------------------------------
     //  update Helpers
