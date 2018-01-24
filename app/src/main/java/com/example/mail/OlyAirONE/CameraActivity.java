@@ -77,11 +77,8 @@ public class CameraActivity extends FragmentActivity
     WbFragment wbFragment;
     ShutterFragment shutterSpeedFragment;
     ExposureCorrFragment exposureCorrFragment;
-
     static OLYCamera camera = null;
 
-    //todo: implement movies
-    //todo: implement pic preview
     //-----------------
     //   Setup
     //-----------------
@@ -218,8 +215,7 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onRecordVideoPressed(Boolean bool) {
-        if (true)
-            fTrigger.setTriggerButtonSelected(bool);
+        fTrigger.setTriggerButtonSelected(bool);
     }
 
     @Override
@@ -286,9 +282,8 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onSlideValueBar(String value) {
-        String propValue = value;
         String property = extractProperty(value);
-        fSettings.SetSliderResult(property, propValue);
+        fSettings.SetSliderResult(property, value);
 
     }
 
@@ -562,8 +557,7 @@ public class CameraActivity extends FragmentActivity
         try {
             //Log.d(TAG, "prop: " + value);
             String[] myStringArr = value.split("/");
-            String extractedString = myStringArr[0].substring(1);
-            return extractedString;
+            return myStringArr[0].substring(1);
         } catch (Exception ex) {
             ex.printStackTrace();
             return "";
@@ -574,8 +568,7 @@ public class CameraActivity extends FragmentActivity
         try {
             //Log.d(TAG, "val: " + value);
             String[] myStringArr = value.split("/");
-            String extractedString = myStringArr[1].substring(0, myStringArr[1].length() - 1);
-            return extractedString;
+            return myStringArr[1].substring(0, myStringArr[1].length() - 1);
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
@@ -701,8 +694,8 @@ public class CameraActivity extends FragmentActivity
         SharedPreferences settings = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        String value = null;
-        OLYCamera.LiveViewSize live_view_quality = null;
+        String value;
+        OLYCamera.LiveViewSize live_view_quality;
         try {
             for (String name : Arrays.asList(
                     CAMERA_PROPERTY_TAKE_MODE,
@@ -743,7 +736,7 @@ public class CameraActivity extends FragmentActivity
     private void restoreCamSettings(SharedPreferences preferences) {
 
         if (camera.isConnected()) {
-            Map<String, String> values = new HashMap<String, String>();
+            Map<String, String> values = new HashMap<>();
             for (String name : Arrays.asList(
                     CAMERA_PROPERTY_TAKE_MODE,
                     CAMERA_PROPERTY_DRIVE_MODE,

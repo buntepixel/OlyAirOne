@@ -34,10 +34,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private static final int TEXTFIELD = 3;
     private static final int CHILD_TYPE_UNDEFINED = 4;
 
-    final String[] strVal = {"3", "5", "7", "9", "11"};
-    final String[] expSprVal = {"1", "2", "3"};
-    NumberPicker[] npNbImgArr;
-    NumberPicker[] npIntervArr;
+    private final String[] strVal = {"3", "5", "7", "9", "11"};
+    private final String[] expSprVal = {"1", "2", "3"};
+    private NumberPicker[] npNbImgArr;
+    private NumberPicker[] npIntervArr;
 
     private Activity context;
     private Map<String, List<String>> myChilds;
@@ -46,7 +46,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private CallParentActivtiy listener;
 
 
-    public ExpandableListAdapter(Activity context, List<String> parent, Map<String, List<String>> childs, CallParentActivtiy listener) {
+     ExpandableListAdapter(Activity context, List<String> parent, Map<String, List<String>> childs, CallParentActivtiy listener) {
         this.context = context;
         this.myChilds = childs;
         this.myParents = parent;
@@ -507,7 +507,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             Log.d(TAG, "focus true");
             listener.saveSetting(context.getResources().getString(R.string.pref_ssid), ((EditText) view).getText().toString());
         }
-        //Todo: also implement hide keyboard
     }*/
 
     @Override

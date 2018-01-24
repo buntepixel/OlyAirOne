@@ -176,7 +176,6 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
     @Override
     public String getSetting(String property, String defvalue) {
-        //todo: do initialisation on first connect ever
         String value = preferences.getString(property, defvalue ) ;
         Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
         return  value;
