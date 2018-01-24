@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener,
-        View.OnFocusChangeListener, NumberPicker.OnValueChangeListener {
+        NumberPicker.OnValueChangeListener {
     private static final String TAG = ExpandableListAdapter.class.getSimpleName();
 
     // 4 Child types
@@ -138,8 +139,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         else {
             // There is nothing to do here really we just need to set the content of view which we do in both cases
         }
-        TextView txt;
-        TextView txtcontent;
+        final TextView txt;
+        final TextView txtcontent;
         switch (childType) {
             case NUMBERPICKER:
                 /*TextView description_child = (TextView) convertView.findViewById(R.id.description_of_ads_expandable_list_child_text_view);
@@ -247,7 +248,22 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 txt = convertView.findViewById(R.id.tv_tv_discription);
                 txt.setText(child);
                 txtcontent = convertView.findViewById(R.id.tv_tv_content);
-                txtcontent.setOnFocusChangeListener(this);
+                txtcontent.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        listener.saveSetting(context.getResources().getString(R.string.pref_ssid), txtcontent.getText().toString());
+                    }
+                });
                 Log.d(TAG, "networkName: " + listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
                 txtcontent.setText(listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
                 break;
@@ -407,40 +423,44 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private void setup_AEB(View convertView) {
 
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
-        setupNumberPicker(np_nbImagesVal, strVal, false, CamSettingsActivity.AEB_IMAGETAG);
+        setupNumberPicker(np_nbImagesVal, strVal,getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])), false, CamSettingsActivity.AEB_IMAGETAG);
         Log.d(TAG, "savedVal: " + listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, "default"));
         int tmp = getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0]));
         Log.d(TAG, "savedArrVal: " + tmp);
-        np_nbImagesVal.setValue(getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])));
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        setupNumberPicker(np_exposureSpreadVal, expSprVal, false, CamSettingsActivity.AEB_SPREADTAG);
-        np_exposureSpreadVal.setValue(getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])));
+        setupNumberPicker(np_exposureSpreadVal, expSprVal,getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
 
         //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, expSprVal[0])));
     }
 
     private void setup_TL(View convertView) {
         npNbImgArr = new NumberPicker[3];
+        char[] charArr = listener.getSetting(CamSettingsActivity.TL_NBIMAGES, "035").toCharArray();
         NumberPicker np_total_100 = convertView.findViewById(R.id.np_nbTotalImg100);
-        setupNumberPicker(np_total_100, 0, 9, 0, true, "np_total_100");
+        setupNumberPicker(np_total_100, 0, 9, Integer.parseInt(String.valueOf(charArr[0])), true, "np_total_100");
         npNbImgArr[0] = np_total_100;
         NumberPicker np_total_10 = convertView.findViewById(R.id.np_nbTotalImg10);
-        setupNumberPicker(np_total_10, 0, 9, 3, true, "np_total_10");
+        setupNumberPicker(np_total_10, 0, 9, Integer.parseInt(String.valueOf(charArr[1])), true, "np_total_10");
         npNbImgArr[1] = np_total_10;
         NumberPicker np_total_1 = convertView.findViewById(R.id.np_nbTotalImg1);
-        setupNumberPicker(np_total_1, 0, 9, 5, true, "np_total_1");
+        setupNumberPicker(np_total_1, 0, 9, Integer.parseInt(String.valueOf(charArr[2])), true, "np_total_1");
         npNbImgArr[2] = np_total_1;
 
         npIntervArr = new NumberPicker[3];
+        int totalSecs = Integer.parseInt(listener.getSetting(CamSettingsActivity.TL_INTERVALL, "60"));
+        int hours = totalSecs / 3600;
+        int minutes = (totalSecs % 3600) / 60;
+        int seconds = totalSecs % 60;
+        Log.d(TAG, "hrs: " + hours + " min: " + minutes + " sec: " + seconds);
         NumberPicker np_intervall_hrs = convertView.findViewById(R.id.np_intervallTime_Hrs);
-        setupNumberPicker(np_intervall_hrs, 0, 23, 0, true, "np_intervall_hrs");
+        setupNumberPicker(np_intervall_hrs, 0, 23, hours, true, "np_intervall_hrs");
         npIntervArr[0] = np_intervall_hrs;
         NumberPicker np_intervall_min = convertView.findViewById(R.id.np_intervallTime_Min);
-        setupNumberPicker(np_intervall_min, 0, 59, 1, true, "np_intervall_min");
+        setupNumberPicker(np_intervall_min, 0, 59, minutes, true, "np_intervall_min");
         npIntervArr[1] = np_intervall_min;
         NumberPicker np_intervall_sec = convertView.findViewById(R.id.np_intervallTime_Sec);
-        setupNumberPicker(np_intervall_sec, 0, 59, 0, true, "np_intervall_sec");
+        setupNumberPicker(np_intervall_sec, 0, 59, seconds, true, "np_intervall_sec");
         npIntervArr[2] = np_intervall_sec;
 
     }
@@ -457,6 +477,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     }
 
     private void setupNumberPicker(NumberPicker np, Integer minVal, Integer maxVal, Integer startVal, Boolean wrap, String tag) {
+
         np.setMinValue(minVal); //from array first value
         np.setMaxValue(maxVal); //to array last value
         np.setTag(tag);
@@ -465,7 +486,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         np.setOnValueChangedListener(this);
     }
 
-    private void setupNumberPicker(NumberPicker np, String[] strVal, Boolean wrap, String tag) {
+    private void setupNumberPicker(NumberPicker np, String[] strVal,int startValue, Boolean wrap, String tag) {
         setupNumberPicker(np, 0, strVal.length - 1, 0, wrap, tag);
         np.setDisplayedValues(strVal);
     }
@@ -479,7 +500,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     //------------------------
     //    Interaction
     //------------------------
-    @Override
+   /* @Override
     public void onFocusChange(View view, boolean b) {
         //if(view.getTag()== )
         if (!b) {//if lost focus save textfield
@@ -487,7 +508,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             listener.saveSetting(context.getResources().getString(R.string.pref_ssid), ((EditText) view).getText().toString());
         }
         //Todo: also implement hide keyboard
-    }
+    }*/
 
     @Override
     public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal) {
@@ -501,14 +522,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         listener.saveSetting(CamSettingsActivity.AEB_SPREADTAG, expSprVal[numberPicker.getValue()]);
                         Log.d(TAG, "numberpicker changed to val: " + expSprVal[numberPicker.getValue()]);
                     } else if (numberPicker.getTag() == "np_total_100" || numberPicker.getTag() == "np_total_10" || numberPicker.getTag() == "np_total_1") {
-                        String nb ="";
+                        String nb = "";
                         for (NumberPicker nbp : npNbImgArr) {
-                           nb= nb+String.valueOf(nbp.getValue());
+                            nb = nb + String.valueOf(nbp.getValue());
                         }
                         Log.d(TAG, "TimeLapse NbOf Images: " + nb);
                         listener.saveSetting(CamSettingsActivity.TL_NBIMAGES, nb);
-                    } else if(numberPicker.getTag() =="np_intervall_hrs"||numberPicker.getTag() =="np_intervall_min"||numberPicker.getTag() =="np_intervall_sec"){
-                       long intervallSec= (((npIntervArr[0].getValue()*60)+npIntervArr[1].getValue())*60)+npIntervArr[2].getValue();
+                    } else if (numberPicker.getTag() == "np_intervall_hrs" || numberPicker.getTag() == "np_intervall_min" || numberPicker.getTag() == "np_intervall_sec") {
+                        long intervallSec = (((npIntervArr[0].getValue() * 60) + npIntervArr[1].getValue()) * 60) + npIntervArr[2].getValue();
                         Log.d(TAG, "intervallSec: " + String.valueOf(intervallSec));
                         listener.saveSetting(CamSettingsActivity.TL_INTERVALL, String.valueOf(intervallSec));
                     }

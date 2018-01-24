@@ -795,7 +795,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                             return;
                         }
                         int countdown = tl_intervall;
-                        while (countdown>0){
+                        while (countdown>-1){
                             updateNextCaptureCounter(String.valueOf(countdown));
                             countdown--;
                             try {
@@ -846,11 +846,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     private void startTimelapse() {
-        //get Settings
-       /* SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
-        tl_nbImages = Integer.parseInt(preferences.getString(CamSettingsActivity.TL_NBIMAGES, "35"));
-        tl_intervall = Integer.parseInt(preferences.getString(CamSettingsActivity.TL_INTERVALL, "60"));*/
-
         timeLapseDialogue("you're doing " + tl_nbImages + " images with a \ninterval of " + tl_intervall + " seconds", "Start Timelapse", "Cancel");
     }
 
@@ -976,6 +971,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
         return brackets;
     }
+
 
     private float convertShutterStringToMillSec(String inVal) {
         String valueString = CameraActivity.extractValue(inVal);
