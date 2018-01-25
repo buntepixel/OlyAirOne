@@ -36,6 +36,7 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         Log.d(TAG, "SET PrefsObj");
