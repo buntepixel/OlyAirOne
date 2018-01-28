@@ -34,6 +34,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
     private List<String> content;
     private int txtPadding = 25;
     private List<Integer> contentWidthList = new ArrayList<Integer>();
+    public boolean snappingSlider = false;
 
 
     @SuppressWarnings("serial")
@@ -51,18 +52,8 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
                     Log.d(TAG, "::::::::::onScrollChanged:::::::::::::::::" + scrollValue);
                     currContentIndex = getCurrIndex(scrollValue);
                     Log.d(TAG, "index" + currContentIndex);
-                    mValueInteractionListener.onScrollEnd(currContentIndex);
-                } catch (Exception ex) {
-                    String stackTrace = Log.getStackTraceString(ex);
-                    Log.d(TAG, stackTrace);
-                }
-            }
-            @Override
-            public void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth) {
-                try {
-                    //onScrollChanged(view, scrollValue, scrollBarWidth);
-                    Log.d(TAG,"tochUP");
-
+                    if (!snappingSlider)
+                        mValueInteractionListener.onScrollEnd(currContentIndex);
                 } catch (Exception ex) {
                     String stackTrace = Log.getStackTraceString(ex);
                     Log.d(TAG, stackTrace);
@@ -90,10 +81,11 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
 
     public ScrollingValueInteraction mValueInteractionListener;
 
+
     public interface ScrollingValueInteraction {
         void onScrollEnd(int currentIndex);
 
-        void onClick(int currentIndex, String value);
+        void onClick(String value);
     }
 
     public void SetScrollingValueInteractionListener(ScrollingValueInteraction listener) {
@@ -164,10 +156,9 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
     }
 
     public void snapBarToValue(int index) {
-        int tmp = getScrollPos(index);
-        //Log.d(TAG,"snapBArToValue: "+ tmp);
-        obsScrollView.smoothScrollTo(tmp, 0);
+        obsScrollView.smoothScrollTo(getScrollPos(index), 0);
         setSelScrollBarValSelected(index);
+        obsScrollView.setScroll = false;
     }
 
     public void setBarToValue(int index) {
@@ -175,13 +166,11 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         obsScrollView.setScrollX(tmp);//move to value
         setSelScrollBarValSelected(index);//highlight selection
     }
-    public void smoothScrollTo(int index){
-        int tmp = getScrollPos(index);
-        //Log.d(TAG,"index: "+index+"scrollpos: "+tmp);
-        obsScrollView.smoothScrollTo(tmp,0);
+
+    public void smoothScrollTo(int index) {
+        obsScrollView.smoothScrollTo(getScrollPos(index), 0);
         setSelScrollBarValSelected(index);
     }
-
 
     private void setSelScrollBarValSelected(int index) {
         //index+1 since we have the spacers
@@ -224,21 +213,21 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         }
     }
 
+
     @Override
     public void onClick(View view) {
         String tag = "";
-        if (view instanceof TextView){
-            tag = (String) ((TextView) view).getTag();
-            Log.d(TAG, "click textview: " + tag);
-            mValueInteractionListener.onClick(0, tag);
-        }
-        else if (view instanceof ImageView) {
-            tag = (String) ((ImageView) view).getTag();
+        Log.d(TAG, "click ScrollingValuePicker: " + tag);
+        if (view instanceof TextView) {
+            tag = (String) (view).getTag();
+            mValueInteractionListener.onClick(tag);
+        } else if (view instanceof ImageView) {
+            tag = (String) (view).getTag();
             Log.d(TAG, "click imageview: " + tag);
-            mValueInteractionListener.onClick(0,tag);
+            mValueInteractionListener.onClick(tag);
         }
-//todo: remove Listeners
     }
+
 
     // do stuff with the scroll listener we created early to make our values usable.
     private void AddTextViewContent(Context context, List<String> stringArr, LinearLayout linearLayout) {
