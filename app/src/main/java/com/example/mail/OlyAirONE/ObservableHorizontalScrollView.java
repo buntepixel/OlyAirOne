@@ -3,7 +3,6 @@ package com.example.mail.OlyAirONE;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
 /**
@@ -19,15 +18,11 @@ import android.widget.HorizontalScrollView;
 public class ObservableHorizontalScrollView extends HorizontalScrollView {
     private static final String TAG = ObservableHorizontalScrollView.class.getSimpleName();
 
-    int scrollPos;
+
     int scrollBarWidth;
-    boolean touch = false;
+    boolean setScroll = false;
 
-
-    /**
-     * Interface definition for a callback to be invoked with the scroll
-     * position changes.
-     */
+    private OnScrollChangedListener mOnScrollChangedListener;
 
     public interface OnScrollChangedListener {
         /**
@@ -37,12 +32,9 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
          * @param scrollValue    Current horizontal scroll origin.
          * @param scrollBarWidth width of scroll bar.
          */
-        void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue,  int scrollBarWidth);
-        //todo: remove below
-        void onTouchUpAction(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth);
-    }
+        void onScrollChanged(ObservableHorizontalScrollView view, int scrollValue, int scrollBarWidth);
 
-    private OnScrollChangedListener mOnScrollChangedListener;
+    }
 
     public ObservableHorizontalScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -55,30 +47,28 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
 
     @Override
     protected void onScrollChanged(int scrollValue, int t, int oldl, int oldt) {
-        super.onScrollChanged(scrollValue, t, oldl, oldt);
-        Log.d(TAG, "ScrollChanged: " + scrollValue);
-        scrollPos = scrollValue;
-        if (!touch && Math.abs(oldl - scrollValue) <= 1 ) {// && !touch
-            //  Log.d(TAG, "ScrollChanged = scrollVal: " + scrollValue);
+        Log.d(TAG, "ScrollChanged: " + scrollValue + "  oldVal: " + oldl + " diff: " + Math.abs(oldl - scrollValue)+ " setscroll: "+setScroll);
+
+        if (!setScroll&& Math.abs(oldl - scrollValue) <= 1) {// && !touch
             if (mOnScrollChangedListener != null) {
-                Log.d(TAG, "onScrollChanged: " + scrollValue);
-                mOnScrollChangedListener.onScrollChanged(this, scrollValue,  scrollBarWidth);
+                setScroll = true;//set it true so we don't get a scroll when snapping to a value;
+                mOnScrollChangedListener.onScrollChanged(this, scrollValue, scrollBarWidth);
+                Log.d(TAG, "ScrollChanged: " + scrollValue );
             }
-            scrollPos = scrollValue;
         }
+
+        super.onScrollChanged(scrollValue, t, oldl, oldt);
+
     }
 
-    @Override
+  /*  @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if(ev.getAction()== MotionEvent.ACTION_DOWN){
-            touch= true;
-        }
-        else if(ev.getAction()==MotionEvent.ACTION_UP){
-            touch= false;
+        if (ev.getAction() == MotionEvent.ACTION_MOVE) {
+            setScroll= false;//set back to false on next scroll
         }
         return super.onTouchEvent(ev);
     }
-
+*/
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
