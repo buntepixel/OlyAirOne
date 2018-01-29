@@ -11,6 +11,7 @@
     <dimen name="CamSetting_vertMargin">6dp</dimen>
     <dimen name="ListView_childItem_horizMargin">32dp</dimen>
     <dimen name="textspacer_smalltxt">6dp</dimen>
+    <dimen name="buttonelevation">10dp</dimen>
 
 
 </resources>

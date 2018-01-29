@@ -37,44 +37,46 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:weightSum="5"
+            android:weightSum="10"
             android:layout_weight="2">
 
             <Button
                 android:id="@+id/btnViewImages"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:elevation="4dp"
+                android:elevation="@dimen/buttonelevation"
                 android:text="View Pictures"
-                android:layout_weight="2"/>
+                android:layout_weight="5"/>
 
             <Button
                 android:id="@+id/btnCamSettings"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:elevation="4dp"
+                android:elevation="@dimen/buttonelevation"
                 android:text="Camera Settings"
-                android:layout_weight="2"/>
+                android:layout_weight="3"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
-                android:weightSum="1"
-                android:layout_weight="1">
+                android:weightSum="2"
+                android:layout_weight="2">
 
                 <Button
                     android:id="@+id/btn_turnOn"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:elevation="@dimen/buttonelevation"
                     android:layout_weight="1"
                     android:text="Turn Cam On"/>
 
                 <Button
                     android:id="@+id/btn_turnOff"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:elevation="@dimen/buttonelevation"
                     android:layout_weight="1"
                     android:text="Turn Cam off"/>
 

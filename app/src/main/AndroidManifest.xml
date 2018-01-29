@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
     <application
         android:allowBackup="true"
@@ -14,7 +16,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.mail.OlyAirONE.MainActivity">
+        <activity
+            android:name="com.example.mail.OlyAirONE.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -25,14 +29,12 @@
             android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
         </activity>
         <activity
-            android:name="com.example.mail.OlyAirONE.AppSettingsActivity"
-            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
-        </activity>
-        <activity
             android:name="com.example.mail.OlyAirONE.CameraActivity"
             android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
         </activity>
-        <activity android:name="com.example.mail.OlyAirONE.CamSettingsActivity">
+        <activity
+            android:name="com.example.mail.OlyAirONE.CamSettingsActivity"
+            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
         </activity>
     </application>
 

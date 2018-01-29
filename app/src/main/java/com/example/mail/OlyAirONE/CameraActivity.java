@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -62,6 +64,7 @@ public class CameraActivity extends FragmentActivity
 
     public static final String CAMERA_PROPERTY_IMAGE_PREVIEW = "RECVIEW";
     public static final String CAMERA_LIVEVIEWSIZE = "LIVEVIESIZE";
+
 
     static List<String> takeModeStrings;
 
@@ -372,9 +375,6 @@ public class CameraActivity extends FragmentActivity
     private void onConnectedToCamera() {
         try {
             Log.d(TAG, "Connected to Cam");
-            //restore Cam settings from Shared prefs
-            //restoreCamSettings();
-            //add LiveView to fragment manager if here first time
             createSliderFragments();
             try {
                 //get Takemode strings for static variable
@@ -566,12 +566,15 @@ public class CameraActivity extends FragmentActivity
 
     public static String extractValue(String value) {
         try {
-            //Log.d(TAG, "val: " + value);
+            Log.d(TAG, "val: " + value);
             String[] myStringArr = value.split("/");
             return myStringArr[1].substring(0, myStringArr[1].length() - 1);
-        } catch (Exception ex) {
+        } catch (IndexOutOfBoundsException ex) {
             ex.printStackTrace();
-            return null;
+            return "";
+        } catch (Exception ex){
+            ex.printStackTrace();
+            return "";
         }
     }
 
@@ -725,8 +728,25 @@ public class CameraActivity extends FragmentActivity
                 editor.putString(CAMERA_LIVEVIEWSIZE, "XGA");
 
             Log.d(TAG, "Saved: live_view_quality = " + settings.getString(CAMERA_LIVEVIEWSIZE, "noValue"));
+            //General Info for settings page
+            editor.putString("KitVersion", OLYCamera.getVersion());
+            editor.putString("KitBuildNumber", OLYCamera.getBuildNumber());
+
+            Map<String, Object> hardwareInformation = camera.inquireHardwareInformation();
+            editor.putString("CameraVersion", (String) hardwareInformation.get(OLYCamera.HARDWARE_INFORMATION_CAMERA_FIRMWARE_VERSION_KEY));
+            try {
+                PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+                String version = pInfo.versionName;
+                editor.putString("AppVersion", version);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+
         } catch (OLYCameraKitException ex) {
             ex.printStackTrace();
+            editor.putString("CameraVersion", "Unknown");
+            editor.putString("LensVersion", "Unknown");
         }
         // Commit the edits!
         editor.apply();
@@ -779,10 +799,13 @@ public class CameraActivity extends FragmentActivity
                 }
             }
             //setTouchShutter
-            Boolean touchShutterEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "ON")));
-            fLiveView.setEnabledTouchShutter(!touchShutterEnabled);
-            Boolean timeLapseEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TIMELAPSE", "ON")));
+            Boolean touchShutterEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>")));
+            fLiveView.setEnabledTouchShutter(touchShutterEnabled);
+            Boolean timeLapseEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TIMELAPSE", "<TIMELAPSE/ON>")));
             fLiveView.setEnabledTimeLapse(timeLapseEnabled);
+      /*      Boolean rawEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("RAW", "<RAW/ON>")));
+            fLiveView.setEnabledTimeLapse(timeLapseEnabled);*/
+            fLiveView.updateRecordTypeText();
         }
     }
 

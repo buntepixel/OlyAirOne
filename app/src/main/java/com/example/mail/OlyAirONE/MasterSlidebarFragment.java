@@ -184,11 +184,11 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
     }
 
     @Override
-    public void onClick(int currentIndex, String value) {
+    public void onClick(String value) {
         int clickedIndex = myString.indexOf(value);
-        Log.d(TAG,"mySTring: "+ myString.toString());
-        Log.d(TAG,"StringValue: "+value+"clickedIndex: "+clickedIndex);
-        mScrollingValuePicker.smoothScrollTo(clickedIndex);
+        Log.d(TAG, "mySTring: " + myString.toString());
+        Log.d(TAG, "StringValue: " + value + "clickedIndex: " + clickedIndex);
+        mScrollingValuePicker.setBarToValue(clickedIndex);
     }
 
     @Override

@@ -144,7 +144,6 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camsettings);
-
         createGroupList();
         createCollection();
         preferences = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
@@ -165,7 +164,6 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         });
     }
 
-
     @Override
     public void saveSetting(String property, String value) {
         Log.d(TAG, "save: prop: "+property+"  val: "+value);
@@ -176,9 +174,14 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
     @Override
     public String getSetting(String property, String defvalue) {
-        String value = preferences.getString(property, defvalue ) ;
-        Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
-        return  value;
+        try {
+            String value = preferences.getString(property, defvalue ) ;
+            Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
+            return  value;
+        }catch (ClassCastException e){
+            e.printStackTrace();
+        }
+        return "couldn't get Value";
     }
 
 
@@ -194,6 +197,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         groupList.add("Focusing");
         groupList.add("Shooting");
         groupList.add("Network");
+        groupList.add("Info");
     }
 
     @Override
@@ -211,6 +215,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         String[] focusing = {"touch shutter", "face detection"};
         String[] shooting = {"continous shooting vel","self timer"};
         String[] network = {"SSID(wifi name)"};
+        String[] info = {"Camera Version","CameraKit Version","CameraKit BuildNumber","App Version"};
+
 
 
 
@@ -231,6 +237,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
                 loadChild(shooting);
             else if (group.equals("Network"))
                 loadChild(network);
+            else if (group.equals("Info"))
+                loadChild(info);
             categoryColl.put(group, childList);
         }
     }
