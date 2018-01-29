@@ -169,7 +169,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
        /* if (savedInstanceState != null)
             return;*/
         camera = CameraActivity.getCamera();
-        Log.d(TAG, " camera Conntected: " + camera.isConnected());
     }
 
     @Override
@@ -235,12 +234,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         camera.setCameraStatusListener(this);
         camera.setRecordingListener(this);
         camera.setRecordingSupportsListener(this);
-        Log.d(TAG, "RecordType: " + tv_RecordType.getText());
 
         //wait for camera to get in to recording mode so we get correct updates
         connectionExecutor.execute(new Runnable() {
             @Override
-            public void run() {
+            public void run() {// wait for camera to get connected
                 while (!camera.isConnected() && !(camera.getRunMode() == OLYCamera.RunMode.Recording)) {
                     try {
                         Thread.sleep(100);
@@ -283,6 +281,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         Log.d(TAG, "onTouch");
+        Log.d(TAG, "enabled TouchShutter: " + enabledTouchShutter);
+
         if (v == imageView) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 imageViewDidTouchDown(event);
@@ -371,6 +371,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                         break;
                     case "MediaBusy":
                         updateRemainingRecordableImagesTextView();
+                        break;
+                    case "MediaError":
+                        if (camera.isHighTemperatureWarning())
+                            Toast.makeText(getActivity(), "Media Error, something is wromg with your Sd Card",Toast.LENGTH_LONG).show();
                         break;
                     case "HighTemperatureWarning":
                         if (camera.isHighTemperatureWarning())
@@ -499,8 +503,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
 
         if (enabledTouchShutter) {
+            if (timelapse) {
+                startTimelapse();
+            }
             // Touch Shutter mode
-            if (actionType == OLYCamera.ActionType.Single) {
+            else if (actionType == OLYCamera.ActionType.Single) {
                 takePictureWithPoint(point);
             } else if (actionType == OLYCamera.ActionType.Sequential) {
                 startTakingPictureWithPoint(point);
@@ -765,6 +772,10 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     //-------------------
     // Timelapse
     //-------------------
+    private void startTimelapse() {
+        timeLapseDialogue("you're doing " + tl_nbImages + " images with a \ninterval of " + tl_intervall + " seconds", "Start Timelapse", "Cancel");
+    }
+
     private void takeTimelapse() {
 
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
@@ -775,9 +786,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         try {
             OLYCamera.ActionType actionType = camera.getActionType();
             Log.d(TAG, "ActionTpe: " + actionType);
-            if (actionType != OLYCamera.ActionType.Single) {
-                String mode = "<TAKE_DRIVE/DRIVE_NORMAL>";
-                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE, mode);
+            if (actionType != OLYCamera.ActionType.Single) {//if not single dirive set to single
+                camera.setCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE, "<TAKE_DRIVE/DRIVE_NORMAL>");
                 //Log.d(TAG, "NewActionTpe: " + camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_DRIVE_MODE));
                 mOnLiveViewInteractionListener.updateDriveModeImage();
             }
@@ -790,24 +800,23 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                         takePicture();
                         counter++;
                         updateTimelapseStats(String.valueOf(counter));
-                        if(counter==tl_nbImages){//exit if we are done
+                        if (counter == tl_nbImages) {//exit if we are done
                             nextCaptureVisible(false);
                             return;
                         }
                         int countdown = tl_intervall;
-                        while (countdown>-1){
+                        while (countdown > -1) {
                             updateNextCaptureCounter(String.valueOf(countdown));
                             countdown--;
                             try {
                                 Thread.sleep(1000);
-                            }catch (InterruptedException ex){
+                            } catch (InterruptedException ex) {
                                 ex.printStackTrace();
                             }
                         }
                     }
                 }
             });
-
 
 
         } catch (Exception ex) {
@@ -823,7 +832,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             }
         });
     }
-    private void updateNextCaptureCounter(final String nextCapture){
+
+    private void updateNextCaptureCounter(final String nextCapture) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -831,11 +841,12 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             }
         });
     }
-    private void nextCaptureVisible(final boolean bool){
+
+    private void nextCaptureVisible(final boolean bool) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(bool)
+                if (bool)
                     ll_tl_nextCapture.setVisibility(View.VISIBLE);
                 else
                     ll_tl_nextCapture.setVisibility(View.INVISIBLE);
@@ -843,10 +854,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
             }
         });
-    }
-
-    private void startTimelapse() {
-        timeLapseDialogue("you're doing " + tl_nbImages + " images with a \ninterval of " + tl_intervall + " seconds", "Start Timelapse", "Cancel");
     }
 
     private void timeLapseDialogue(String text, String btn_Pos, String btn_Neg) {
@@ -1426,7 +1433,6 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     AEB = true;
                     iv_AEB.setImageResource(R.drawable.ic_aeb);
                 } else {
-                    Log.d(TAG, "can't AEB");
                     presentMessage("Auto Exposure not Possible", "you need to be in M (ManualMode) to do Exposure Bracketing");
                 }
             } catch (OLYCameraKitException e) {
@@ -1449,6 +1455,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             @Override
             public void run() {
                 //updateTakeModeImageView();
+
                 updateBatteryLevelImageView();
                 updateRemainingRecordableImagesTextView();
                 updateRecordTypeText();
@@ -1458,6 +1465,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     }
 
     public void setEnabledTouchShutter(Boolean bool) {
+        Log.d(TAG, "SetEnabledTouchShutter: " + bool);
+
         enabledTouchShutter = bool;
     }
 
@@ -1475,18 +1484,26 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             }
         });
     }
-
     public void updateRecordTypeText() {
-        String val = "";
+
+        String val="" ;
         try {
             val = camera.getCameraPropertyValue("RAW");
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
         }
-        if ("ON".equals(CameraActivity.extractValue(val)))
-            tv_RecordType.setText("RAW");
-        else
-            tv_RecordType.setText("JPG");
+        final String finVal=val;
+        Log.d(TAG,"RawVal: "+ val);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if ("ON".equals(CameraActivity.extractValue(finVal)))
+                    tv_RecordType.setText("RAW");
+                else
+                    tv_RecordType.setText("JPG");
+            }
+        });
+
     }
 
     private void updateTakeModeImageView() {

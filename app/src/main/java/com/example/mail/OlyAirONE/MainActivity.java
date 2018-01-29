@@ -1,14 +1,22 @@
 package com.example.mail.OlyAirONE;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.NavUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -27,6 +35,13 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     private BroadcastReceiver mReceiver;
     private WifiManager mWifiManager;
     private OLYCamera camera;
+
+    private BluetoothAdapter mBluetoothAdapter;
+    private boolean mScanning;
+    private Handler mHandler;
+    // Stops scanning after 10 seconds.
+    private static final long SCAN_PERIOD = 10000;
+
     Executor connectionExecutor = Executors.newFixedThreadPool(2);
 
     private SharedPreferences preferences;
@@ -36,8 +51,12 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+// Initializes Bluetooth adapter.
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);/**/
         preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         Log.d(TAG, "SET PrefsObj");
         btnCamera = findViewById(R.id.btnCamera);
@@ -51,6 +70,17 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
         camera.setConnectionListener(this);
 
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -99,6 +129,34 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
         });
     }
 
+
+    private ScanCallback leScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            Log.d(TAG, "callbackType: " + callbackType + " result: " + result);
+        }
+    };
+
+    private void scanLeDevice(final boolean enable) {
+        if (enable) {
+            // Stops scanning after a pre-defined scan period.
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScanning = false;
+                    mBluetoothAdapter.getBluetoothLeScanner().stopScan(leScanCallback);
+                }
+            }, SCAN_PERIOD);
+
+            mScanning = true;
+            mBluetoothAdapter.getBluetoothLeScanner().startScan(leScanCallback);
+        } else {
+            mScanning = false;
+            mBluetoothAdapter.getBluetoothLeScanner().stopScan(leScanCallback);
+
+        }
+    }
+
     @Override
     public void onClick(View view) {
         Intent intent;
@@ -113,17 +171,31 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
             intent.putExtra("target", "settings");
             startActivity(intent);
         } else if (view == btnTurnOn) {
+            try {
+                // you can selectively disable BLE-related features.
+                if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                    Toast.makeText(this, "ble_not_supported", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                scanLeDevice(true);
+                //camera.setBluetoothDevice(mBluetoothAdapter);
+                /*BluetoothDevice bluetoothDevice1 = new BluetoothDevice();
+                camera.setBluetoothDevice();*/
+                camera.wakeup();
+            } catch (OLYCameraKitException ex) {
+                ex.printStackTrace();
+            }
             //nothing here yet
         } else if (view == btnTurnOff) {
             Toast.makeText(this, "Camera should turn off in a second", Toast.LENGTH_SHORT).show();
             if (!camera.isConnected()) {
-                WifiManager wifiManager= (WifiManager) this.getApplicationContext().getSystemService(WIFI_SERVICE);
-                String ssid= mWifiManager.getConnectionInfo().getSSID();
-                SharedPreferences prefs=getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
-                String targetSSID= prefs.getString(getResources().getString(R.string.pref_ssid),"none");
-                Log.d(TAG,"target: "+targetSSID+"curr: "+ssid);
-                if(!ssid.equals("\""+targetSSID+"\"")){
-                    Toast.makeText(this,"Your Wifi is currently not connected to the wifi provided in your network settings\nconnect to your cam or check your settings",Toast.LENGTH_LONG).show();
+                WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(WIFI_SERVICE);
+                String ssid = mWifiManager.getConnectionInfo().getSSID();
+                SharedPreferences prefs = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
+                String targetSSID = prefs.getString(getResources().getString(R.string.pref_ssid), "none");
+                Log.d(TAG, "target: " + targetSSID + "curr: " + ssid);
+                if (!ssid.equals("\"" + targetSSID + "\"")) {
+                    Toast.makeText(this, "Your Wifi is currently not connected to the wifi provided in your network settings\nconnect to your cam or check your settings", Toast.LENGTH_LONG).show();
                     return;
                 }
                 Log.d(TAG, "connecting to cam");

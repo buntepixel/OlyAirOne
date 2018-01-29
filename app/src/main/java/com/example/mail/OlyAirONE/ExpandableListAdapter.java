@@ -33,6 +33,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private static final int SPINNER = 2;
     private static final int TEXTFIELD = 3;
     private static final int CHILD_TYPE_UNDEFINED = 4;
+    private static final int TEXT = 5;
 
     private final String[] strVal = {"3", "5", "7", "9", "11"};
     private final String[] expSprVal = {"1", "2", "3"};
@@ -46,7 +47,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private CallParentActivtiy listener;
 
 
-     ExpandableListAdapter(Activity context, List<String> parent, Map<String, List<String>> childs, CallParentActivtiy listener) {
+    ExpandableListAdapter(Activity context, List<String> parent, Map<String, List<String>> childs, CallParentActivtiy listener) {
         this.context = context;
         this.myChilds = childs;
         this.myParents = parent;
@@ -122,7 +123,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     break;
                 case TEXTFIELD:
                     Log.d(TAG, "TEXTFIELD");
-                    convertView = inflater.inflate(R.layout.childiten_textfield_camsettingsactivity, parent, false);
+                    convertView = inflater.inflate(R.layout.childitem_textfield_camsettingsactivity, parent, false);
+                    convertView.setTag(childType);
+                    break;
+                case TEXT:
+                    Log.d(TAG, "Text");
+                    convertView = inflater.inflate(R.layout.childitem_text_camsettingsactivity, parent, false);
                     convertView.setTag(childType);
                     break;
                 case CHILD_TYPE_UNDEFINED:
@@ -267,6 +273,19 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 Log.d(TAG, "networkName: " + listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
                 txtcontent.setText(listener.getSetting(context.getResources().getString(R.string.pref_ssid), "No saved Network"));
                 break;
+            case TEXT:
+                txt = convertView.findViewById(R.id.tv_tv_discription);
+                txt.setText(child);
+                txtcontent = convertView.findViewById(R.id.tv_tv_content);
+                    if (childPosition == 0) {
+                       txtcontent.setText(listener.getSetting("CameraVersion", "First connect "));
+                    } else if (childPosition == 1) {
+                        txtcontent.setText( listener.getSetting("KitVersion", "to Camera"));
+                    } else if (childPosition == 2) {
+                        txtcontent.setText( listener.getSetting("KitBuildNumber", "to retrieve"));
+                    } else if (childPosition == 2) {
+                        txtcontent.setText( listener.getSetting("LensVersion", "necessary Infos"));
+                    }
             case CHILD_TYPE_UNDEFINED:
                 //Define how to render the data on the CHILD_TYPE_UNDEFINED layout
                 break;
@@ -349,6 +368,19 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
+            case 7:
+                switch (childPosition) {//Info
+                    case 0:
+                        return TEXT;
+                    case 1:
+                        return TEXT;
+                    case 2:
+                        return TEXT;
+                    case 3:
+                        return TEXT;
+                    default:
+                        return CHILD_TYPE_UNDEFINED;
+                }
 
         }
         return CHILD_TYPE_UNDEFINED;
@@ -423,13 +455,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private void setup_AEB(View convertView) {
 
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
-        setupNumberPicker(np_nbImagesVal, strVal,getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])), false, CamSettingsActivity.AEB_IMAGETAG);
+        setupNumberPicker(np_nbImagesVal, strVal, getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])), false, CamSettingsActivity.AEB_IMAGETAG);
         Log.d(TAG, "savedVal: " + listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, "default"));
         int tmp = getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0]));
         Log.d(TAG, "savedArrVal: " + tmp);
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        setupNumberPicker(np_exposureSpreadVal, expSprVal,getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
+        setupNumberPicker(np_exposureSpreadVal, expSprVal, getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
 
         //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, expSprVal[0])));
     }
@@ -486,7 +518,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         np.setOnValueChangedListener(this);
     }
 
-    private void setupNumberPicker(NumberPicker np, String[] strVal,int startValue, Boolean wrap, String tag) {
+    private void setupNumberPicker(NumberPicker np, String[] strVal, int startValue, Boolean wrap, String tag) {
         setupNumberPicker(np, 0, strVal.length - 1, 0, wrap, tag);
         np.setDisplayedValues(strVal);
     }
