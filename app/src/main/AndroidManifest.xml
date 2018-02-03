@@ -17,24 +17,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.example.mail.OlyAirONE.MainActivity"
+            android:name=".MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.mail.OlyAirONE.ConnectToCamActivity"
-            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
+            android:name=".ConnectToCamActivity"
+            android:parentActivityName=".MainActivity">
         </activity>
         <activity
-            android:name="com.example.mail.OlyAirONE.CameraActivity"
-            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
+            android:name=".CameraActivity"
+            android:parentActivityName=".MainActivity">
         </activity>
         <activity
-            android:name="com.example.mail.OlyAirONE.CamSettingsActivity"
-            android:parentActivityName="com.example.mail.OlyAirONE.MainActivity">
+            android:name=".CamSettingsActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".ImageViewActivity"
+            android:label="@string/title_activity_image_view"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

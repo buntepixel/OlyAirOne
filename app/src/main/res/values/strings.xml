@@ -34,6 +34,15 @@
     <string name="camsettings_exposure_spread">Exposure Spread</string>
     <string name="camsettings_aspectratio_txt">AspectRatio</string>
 
+    <!-- ImageView -->
+    <string name="action_info">info</string>
+    <string name="action_refresh">refresh</string>
+    <string name="action_download">download</string>
+    <string name="action_download_original_size">Original Size</string>
+    <string name="action_download_2048x1536">2048 x 1536</string>
+    <string name="action_download_1920x1440">1920 x 1440</string>
+    <string name="action_download_1600x1200">1600 x 1200</string>
+    <string name="action_download_1024x768">1024 x 768</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -113,6 +122,7 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="timelapse_total_number_images">Total Number Images</string>
+    <string name="title_activity_image_view">ImageViewActivity</string>
 
 
 </resources>

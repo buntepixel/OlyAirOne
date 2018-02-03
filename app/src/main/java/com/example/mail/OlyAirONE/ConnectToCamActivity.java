@@ -237,7 +237,12 @@ public class ConnectToCamActivity extends Activity {
     public  void startNextActivity(Context context) {
         Intent switchToNextActivtiy;
         Log.d(TAG,"starting next Activtiy TARGET: "+ target);
-        if(target.equals("main") ){
+        if(target.equals("cam")){
+            switchToNextActivtiy = new Intent(context, CameraActivity.class);
+        }else if(target.equals("imageView")){
+            switchToNextActivtiy = new Intent(context, ImageViewActivity.class);
+        }
+        else if(target.equals("main") ){
             switchToNextActivtiy = new Intent(context,MainActivity.class);
             switchToNextActivtiy.putExtra("correctNetwork", true);
         }else{

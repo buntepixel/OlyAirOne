@@ -165,6 +165,9 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
             intent.putExtra("target", "cam");
             startActivity(intent);
         } else if (view == btnViewImages) {
+            intent = new Intent(getBaseContext(), ConnectToCamActivity.class);
+            intent.putExtra("target", "imageView");
+            startActivity(intent);
 
         } else if (view == btnCamSettings) {
             intent = new Intent(getBaseContext(), CamSettingsActivity.class);
