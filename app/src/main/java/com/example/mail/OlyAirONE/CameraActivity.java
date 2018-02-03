@@ -66,10 +66,10 @@ public class CameraActivity extends FragmentActivity
     public static final String CAMERA_LIVEVIEWSIZE = "LIVEVIESIZE";
 
 
-    static List<String> takeModeStrings;
+    private static List<String> takeModeStrings;
 
     Executor connectionExecutor = Executors.newFixedThreadPool(1);
-    int currTakeMode = 0;
+    static int currTakeMode = 0;
 
     FragmentManager fm;
     TriggerFragment fTrigger;
@@ -380,7 +380,7 @@ public class CameraActivity extends FragmentActivity
                 //get Takemode strings for static variable
                 takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
                 currTakeMode = takeModeStrings.indexOf(camera.getCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE));
-                fLiveView.triggerTakeModeUpdate(currTakeMode);
+                //fLiveView.triggerTakeModeUpdate(currTakeMode);
             } catch (OLYCameraKitException e) {
                 e.printStackTrace();
                 return;
@@ -412,36 +412,36 @@ public class CameraActivity extends FragmentActivity
         if (fSettings != null) {
             switch (mode) {
                 case 0://iAuto
-                    fSettings.SetTakeMode(mode);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.UpdateSliderButtons();
+                   // fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Iauto");
                     break;
                 case 1://Programm
-                    fSettings.SetTakeMode(mode);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.UpdateSliderButtons();
+                   // fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Programm");
                     break;
                 case 2://Aparture
-                    fSettings.SetTakeMode(mode);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.UpdateSliderButtons();
+                    //fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Aparture");
                     break;
                 case 3://Speed
-                    fSettings.SetTakeMode(mode);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.UpdateSliderButtons();
+                    //fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Speed");
                     break;
                 case 4://Manual
-                    fSettings.SetTakeMode(mode);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.UpdateSliderButtons();
+                   // fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Manual");
                     break;
                 case 5://Art
                     Log.d(TAG, "Art");
                     break;
                 case 6://Movie
-                    fSettings.SetTakeMode(mode);
-                    fTrigger.SetTakeMode(mode);
+                    fSettings.UpdateSliderButtons();
+                    //fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Movie");
                     break;
             }
@@ -572,7 +572,7 @@ public class CameraActivity extends FragmentActivity
         } catch (IndexOutOfBoundsException ex) {
             ex.printStackTrace();
             return "";
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return "";
         }
@@ -741,7 +741,7 @@ public class CameraActivity extends FragmentActivity
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
-
+            editor.putInt("takeMode", currTakeMode);
 
         } catch (OLYCameraKitException ex) {
             ex.printStackTrace();
@@ -798,6 +798,8 @@ public class CameraActivity extends FragmentActivity
                     Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
                 }
             }
+            currTakeMode = preferences.getInt("takeMode", 0);
+
             //setTouchShutter
             Boolean touchShutterEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>")));
             fLiveView.setEnabledTouchShutter(touchShutterEnabled);

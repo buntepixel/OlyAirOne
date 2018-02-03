@@ -283,7 +283,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         txtcontent.setText( listener.getSetting("KitVersion", "to Camera"));
                     } else if (childPosition == 2) {
                         txtcontent.setText( listener.getSetting("KitBuildNumber", "to retrieve"));
-                    } else if (childPosition == 2) {
+                    } else if (childPosition == 3) {
                         txtcontent.setText( listener.getSetting("LensVersion", "necessary Infos"));
                     }
             case CHILD_TYPE_UNDEFINED:

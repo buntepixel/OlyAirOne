@@ -26,7 +26,7 @@ public class TriggerFragment extends Fragment
 
     private boolean time, aparture, exposureAdj, iso, wb;
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
-    private int takeMode;
+
     OLYCamera camera;
 
     private ExposureCorrection expCorr;
@@ -118,18 +118,16 @@ public class TriggerFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "takemode on resume: " + takeMode);
-
         updateMeteringImageView();
     }
 
 //----------------
 
-    public void SetTakeMode(int takeMode) {
+  /*  public void UpdateSliderButtons(int takeMode) {
         this.takeMode = takeMode;
         updateMeteringImageView();
         updateDrivemodeImageView();
-    }
+    }*/
 
     private void meteringImageViewDidTap() {
         CameraActivity.updateImageView(iv_meteringMode, meteringIconList, CameraActivity.setCameraProperty(iv_meteringMode, CameraActivity.CAMERA_PROPERTY_METERING_MODE));
@@ -145,7 +143,7 @@ public class TriggerFragment extends Fragment
     }
 
     private void updateMeteringImageView() {
-        if (takeMode < 1 || takeMode > 5) {
+        if (CameraActivity.currTakeMode < 1 || CameraActivity.currTakeMode > 5) {
             iv_meteringMode.setVisibility(View.INVISIBLE);
         } else {
             iv_meteringMode.setVisibility(View.VISIBLE);

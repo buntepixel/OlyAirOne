@@ -56,9 +56,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
                 Log.d(TAG, "ScrollChanged: " + scrollValue );
             }
         }
-
         super.onScrollChanged(scrollValue, t, oldl, oldt);
-
     }
 
   /*  @Override

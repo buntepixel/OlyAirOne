@@ -34,7 +34,7 @@ public class SettingsFragment extends Fragment
     private boolean time, aparture, exposureAdj, iso, wb;
     private  String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
     private String [] expVals;
-    private int takeMode;
+    //private int takeMode;
     OLYCamera camera;
 
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
@@ -94,9 +94,7 @@ public class SettingsFragment extends Fragment
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         view.setId(View.generateViewId());
-        if (savedInstanceState != null) {
-            takeMode = savedInstanceState.getInt("takeMode", 0);
-        }
+
         CreateSettings( view);
         return view;
     }
@@ -117,11 +115,7 @@ public class SettingsFragment extends Fragment
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("takeMode", takeMode);
-    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -131,17 +125,6 @@ public class SettingsFragment extends Fragment
         updateAllValues();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "takeMode: " + takeMode);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-    }
 
     private RelativeLayout CreateSettings( View rootView) {
         RelativeLayout relativeLayout = rootView.findViewById(R.id.rl_settings);
@@ -172,9 +155,8 @@ public class SettingsFragment extends Fragment
         this.wb = wb;
     }
 
-    public void SetTakeMode(int takeMode) {
-        this.takeMode = takeMode;
-        switch (takeMode) {
+    public void UpdateSliderButtons() {
+        switch (CameraActivity.currTakeMode) {
             case 0://iAuto
                 SetButtonsBool(false, false, false, false, false);
                 Log.d(TAG, "Iauto");
@@ -444,7 +426,7 @@ public class SettingsFragment extends Fragment
 
         ll_expOffset.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
-        if (takeMode > 0 && takeMode < 4) {
+        if (CameraActivity.currTakeMode > 0 && CameraActivity.currTakeMode < 4) {
             LinearLayout containerLLayout = new LinearLayout(getActivity());
             LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             containerLLayout.setLayoutParams(linParams);
