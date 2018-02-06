@@ -1,28 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center" >
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/iv_gv_preview"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:src="@null"
+
         android:scaleType="centerCrop"
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/iv_gv_icon"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="4dp"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="@dimen/GridView_borderMargin"
+        android:layout_marginRight="@dimen/GridView_borderMargin"
+
         android:scaleType="centerCrop"
         android:src="@null"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"/>
+    <CheckBox
+        android:id="@+id/chbx_gv_delete"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:scaleType="centerCrop"
+        android:layout_marginLeft="@dimen/GridView_borderMargin"
+        android:layout_marginTop="@dimen/GridView_borderMargin"
+        android:visibility="gone"/>
 
-</RelativeLayout>
+</FrameLayout>
