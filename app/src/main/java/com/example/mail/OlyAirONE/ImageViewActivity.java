@@ -45,7 +45,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
             return;
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tb_toolbar);
         setSupportActionBar(toolbar);
         fImgGridView = new ImageGridViewFragment();
 
@@ -92,6 +92,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
                 try {
                     camera.connect(OLYCamera.ConnectionType.WiFi);
                 } catch (OLYCameraKitException e) {
+                    Log.d(TAG,"erron wifi");
                     alertConnectingFailed(e);
                     return;
                 }
@@ -99,6 +100,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
                 try {
                     camera.changeRunMode(OLYCamera.RunMode.Playback);
                 } catch (OLYCameraKitException e) {
+                    Log.d(TAG,"erron Playback");
                     alertConnectingFailed(e);
                     return;
                 }

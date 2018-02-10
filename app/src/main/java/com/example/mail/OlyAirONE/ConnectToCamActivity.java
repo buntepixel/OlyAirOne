@@ -44,7 +44,7 @@ public class ConnectToCamActivity extends Activity {
 
         //initializes necessary components
 
-        target= getIntent().getExtras().getString("target","none");
+        target = getIntent().getExtras().getString("target", "none");
         init();
     }
 
@@ -180,7 +180,7 @@ public class ConnectToCamActivity extends Activity {
             String ssid = getWifiCredentials();
 
             String mySSID = "\"" + ssid + "\"";
-            Log.d(TAG, "Active Wifi::" + activeSSID+" Saved Wifi: "+mySSID);
+            Log.d(TAG, "Active Wifi::" + activeSSID + " Saved Wifi: " + mySSID);
 
             // switch to cam if already connected
             if (activeSSID.equals(mySSID)) {
@@ -234,19 +234,16 @@ public class ConnectToCamActivity extends Activity {
         }
     }
 
-    public  void startNextActivity(Context context) {
+    public void startNextActivity(Context context) {
         Intent switchToNextActivtiy;
-        Log.d(TAG,"starting next Activtiy TARGET: "+ target);
-        if(target.equals("cam")){
+        Log.d(TAG, "starting next Activtiy TARGET: " + target);
+        if (target.equals("cam")) {
             switchToNextActivtiy = new Intent(context, CameraActivity.class);
-        }else if(target.equals("imageView")){
+        } else if (target.equals("imageView")) {
             switchToNextActivtiy = new Intent(context, ImageViewActivity.class);
-        }
-        else if(target.equals("main") ){
-            switchToNextActivtiy = new Intent(context,MainActivity.class);
-            switchToNextActivtiy.putExtra("correctNetwork", true);
-        }else{
-            switchToNextActivtiy = new Intent(context, CameraActivity.class);
+        } else {
+            Toast.makeText(getBaseContext(),"Something went wrong Returning to main screen",Toast.LENGTH_SHORT).show();
+            switchToNextActivtiy = new Intent(context, MainActivity.class);
         }
 
         //switchToNextActivtiy.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -262,7 +259,7 @@ public class ConnectToCamActivity extends Activity {
             if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
                 //Log.d(TAG, "GettingResponse: SCAN_RESULTS_AVAILABLE_ACTION");
                 String credentials = getWifiCredentials();
-                if (credentials == null||credentials.equals("")) {
+                if (credentials == null || credentials.equals("")) {
                     showWifiCredentialsDialog();
                 } else {
                     connectToCamWifi();

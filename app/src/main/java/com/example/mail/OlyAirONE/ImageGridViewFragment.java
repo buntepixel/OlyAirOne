@@ -285,25 +285,28 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private class GridViewOnItemClickListener implements AdapterView.OnTouchListener {
-/*		@Override
+    private class GridViewOnItemClickListener implements AdapterView.OnTouchListener, AdapterView.OnItemClickListener {
+        CountDownTimer timer;
+        Boolean deleteChbx = false;
+
+        @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			Toast.makeText(getActivity(), "What is this??",Toast.LENGTH_SHORT).show();
-	      *//*  ImagePagerViewFragment fragment = new ImagePagerViewFragment();	// Use an advanced viewer.
-//	        ImageViewFragment fragment = new ImageViewFragment();			// Use a simple viewer.
+            Toast.makeText(getActivity(), "What is this??", Toast.LENGTH_SHORT).show();
+//	        ImagePagerViewFragment fragment = new ImagePagerViewFragment();	// Use an advanced viewer.
+            /*ImageViewFragment fragment = new ImageViewFragment();			// Use a simple viewer.
 	        fragment.setCamera(camera);
 	        fragment.setContentList(contentList);
 	        fragment.setContentIndex(position);
 	        FragmentTransaction transaction = getFragmentManager().beginTransaction();
 	        transaction.replace(getId(), fragment);
 	       	transaction.addToBackStack(null);
-	       	transaction.commit();*//*
-		}*/
+	       	transaction.commit();*/
+        }
 
-        CountDownTimer timer;
 
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
+            Boolean returnVal = true;
             if (timer == null)
                 timer = new CountDownTimer(3000, 1000) {
                     @Override
@@ -316,8 +319,8 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment {
                     public void onFinish() {
                         Toast.makeText(getActivity(), "LongClick", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Finish");
-
-                        timer=null;
+                        deleteChbx = true;
+                        timer = null;
                     }
                 };
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -327,11 +330,19 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment {
             if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                 Log.d(TAG, "Cancel");
                 if (timer != null) {
+                    if (!deleteChbx)
+                        onsimpleTouch();
                     timer.cancel();
                     timer = null;
+                    returnVal = false;
                 }
             }
-            return true;
+            return returnVal;
+        }
+
+        private void onsimpleTouch() {
+            Toast.makeText(getActivity(), "shortClick", Toast.LENGTH_SHORT).show();
+
         }
     }
 
