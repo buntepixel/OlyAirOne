@@ -3,8 +3,9 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:background="@color/Black"
               android:orientation="vertical"
-              tools:ignore="HardcodedText" >
+              tools:ignore="HardcodedText">
 
     <GridView
         android:id="@+id/gv_imagegridview"
@@ -13,7 +14,7 @@
         android:columnWidth="80dp"
         android:horizontalSpacing="1dp"
         android:numColumns="auto_fit"
-        android:verticalSpacing="1dp" >
+        android:verticalSpacing="1dp">
     </GridView>
 
 </LinearLayout>

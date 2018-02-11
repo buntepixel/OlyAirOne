@@ -3,14 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center" >
+    android:gravity="center"
+    android:background="@color/Black">
 
     <ImageView
         android:id="@+id/iv_gv_preview"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:src="@null"
-
         android:scaleType="centerCrop"
         tools:ignore="ContentDescription" />
 
@@ -21,19 +21,19 @@
         android:layout_gravity="bottom|right"
         android:layout_marginBottom="@dimen/GridView_borderMargin"
         android:layout_marginRight="@dimen/GridView_borderMargin"
-
         android:scaleType="centerCrop"
         android:src="@null"
         tools:ignore="ContentDescription"/>
     <CheckBox
         android:id="@+id/chbx_gv_delete"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:scaleType="centerCrop"
         android:layout_marginLeft="@dimen/GridView_borderMargin"
         android:layout_marginTop="@dimen/GridView_borderMargin"
-        android:visibility="gone"/>
+        android:visibility="invisible"
+        android:background="@color/Chbx_Bg"/>
 
 </FrameLayout>
