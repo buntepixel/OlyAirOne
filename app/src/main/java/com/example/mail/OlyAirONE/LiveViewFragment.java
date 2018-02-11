@@ -404,10 +404,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     @Override
     public void onStopRecordingVideo(OLYCamera camera) {
         Log.d("TAG", "onStopRecordingVideo");
-
         mOnLiveViewInteractionListener.onRecordVideoPressed(true);
-
-
         /*runOnUiThread(new Runnable() {
             @Override
             public void run() {

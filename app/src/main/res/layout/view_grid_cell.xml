@@ -26,14 +26,12 @@
         tools:ignore="ContentDescription"/>
     <CheckBox
         android:id="@+id/chbx_gv_delete"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:scaleType="centerCrop"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginLeft="@dimen/GridView_borderMargin"
         android:layout_marginTop="@dimen/GridView_borderMargin"
         android:visibility="invisible"
-        android:background="@color/Chbx_Bg"/>
+        android:padding="@dimen/GridView_borderMargin"
+        />
 
 </FrameLayout>

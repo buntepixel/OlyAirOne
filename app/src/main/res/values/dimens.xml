@@ -5,6 +5,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="Icon_discription_txt">16dp</dimen>
     <dimen name="small_txt">12dp</dimen>
+    <dimen name="large_txt">20dp</dimen>
+
 
     <dimen name="LiveViewTopMarg">6dp</dimen>
     <dimen name="CamSetting_horizMargin">16dp</dimen>
