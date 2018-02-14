@@ -84,7 +84,7 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 			bar.setTitle(path);
 		}
 
-		inflater.inflate(R.menu.image_view, menu);
+		//inflater.inflate(R.menu.image_view, menu);
 		MenuItem downloadMenuItem = menu.findItem(R.id.action_download);
        	
 		String lowerCasePath = path.toLowerCase();

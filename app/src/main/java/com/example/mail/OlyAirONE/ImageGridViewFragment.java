@@ -8,6 +8,8 @@ package com.example.mail.OlyAirONE;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +17,8 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -37,7 +41,9 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,7 +58,7 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnTouchListener{
+public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnTouchListener {
     private static final String TAG = ImageGridViewFragment.class.getSimpleName();
 
     private GridView gridView;
@@ -63,12 +69,14 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     private boolean gridViewIsScrolling;
 
     private Menu optionsMenue;
-
+    MenuItem dropdown;
     CountDownTimer timer;
     Boolean selectionChbx = false;
     private ArrayList<OLYCameraFileInfo> selectionList;
 
     private List<OLYCameraFileInfo> contentList;
+    private int contentIndex;
+
     private ExecutorService executor;
     Executor connectionExecutor = Executors.newFixedThreadPool(1);
 
@@ -109,99 +117,245 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         optionsMenue = menu;
         inflater.inflate(R.menu.image_grid_view, menu);
+        dropdown = menu.findItem(R.id.action_download);
+        //dropdown.setOnMenuItemClickListener()
 
         ActionBar bar = getActivity().getActionBar();
         if (bar != null) {
             bar.setTitle(getString(R.string.app_name));
         }
+
     }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
-            refresh();
-            return true;
-        } else if (item.getItemId() == R.id.action_info) {
-            String cameraVersion;
-            try {
-                Map<String, Object> hardwareInformation = ImageViewActivity.camera.inquireHardwareInformation();
-                cameraVersion = (String) hardwareInformation.get(OLYCamera.HARDWARE_INFORMATION_CAMERA_FIRMWARE_VERSION_KEY);
-            } catch (OLYCameraKitException e) {
-                cameraVersion = "Unknown";
-            }
-            Toast.makeText(getActivity(), "Camera " + cameraVersion + " / " + "CameraKit " + OLYCamera.getVersion(), Toast.LENGTH_SHORT).show();
-        } else if (item.getItemId() == R.id.action_delete) {                        //delete Selection
-            boolean deleting = true;
-            Log.d(TAG, "nb to delete: " + selectionList.size());
-            try {
-                if (camera.getRunMode() != OLYCamera.RunMode.Playmaintenance) {
-                    camera.changeRunMode(OLYCamera.RunMode.Playmaintenance);
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                refresh();
+                return true;
+            case R.id.action_info:
+                String cameraVersion;
+                try {
+                    Map<String, Object> hardwareInformation = ImageViewActivity.camera.inquireHardwareInformation();
+                    cameraVersion = (String) hardwareInformation.get(OLYCamera.HARDWARE_INFORMATION_CAMERA_FIRMWARE_VERSION_KEY);
+                } catch (OLYCameraKitException e) {
+                    cameraVersion = "Unknown";
                 }
-            } catch (OLYCameraKitException ex) {
-                ex.printStackTrace();
-            }
-
-            infoLayout.setVisibility(View.VISIBLE);
-            info_totalNb.setText(String.valueOf(selectionList.size()));
-
-            connectionExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        int count = 1;
-                        for (OLYCameraFileInfo fileInfo : selectionList) {
-                            Log.d(TAG, "fullfilePath: " + fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename());
-                            final String filename = fileInfo.getFilename();
-                            final int fincount = count;
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    info_FileName.setText(filename);
-                                    info_currNb.setText(String.valueOf(fincount));
-                                }
-                            });
-                            camera.eraseContent(fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename());
-                            count++;
-                        }
-                        camera.changeRunMode(OLYCamera.RunMode.Playback);
-                        // refresh();
-
-                    } catch (OLYCameraKitException ex) {
-                        ex.printStackTrace();
-                        final String error = ex.toString();
-                        Log.d(TAG, "Error: " + ex);
-                        Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Camera " + cameraVersion + " / " + "CameraKit " + OLYCamera.getVersion(), Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_delete:
+                boolean deleting = true;
+                Log.d(TAG, "nb to delete: " + selectionList.size());
+                try {
+                    if (camera.getRunMode() != OLYCamera.RunMode.Playmaintenance) {
+                        camera.changeRunMode(OLYCamera.RunMode.Playmaintenance);
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            infoLayout.setVisibility(View.GONE);
-                            SetOptionsLongClick(false);
-                            refresh();
-                        }
-                    });
-
+                } catch (OLYCameraKitException ex) {
+                    ex.printStackTrace();
                 }
-            });
+                deleteContentFromCam();
+                return true;
+            case R.id.action_download:
+                Log.d(TAG, "nb to download: " + selectionList.size());
+                boolean doDownload = false;
+                float downloadSize = 0;
+                Log.d(TAG, "itemId:  " + item.getItemId() + "needed: " + R.id.action_download_1024x768);
+                switch (item.getSubMenu().getItem().getItemId()) {
+                    case R.id.action_download_original_size:
+                        downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
+                        doDownload = true;
+                        break;
+                    case R.id.action_download_2048x1536:
+                        downloadSize = OLYCamera.IMAGE_RESIZE_2048;
+                        doDownload = true;
+                        break;
+                    case R.id.action_download_1920x1440:
+                        downloadSize = OLYCamera.IMAGE_RESIZE_1920;
+                        doDownload = true;
+                        break;
+                    case R.id.action_download_1600x1200:
+                        downloadSize = OLYCamera.IMAGE_RESIZE_1600;
+                        doDownload = true;
+                        break;
+                    case R.id.action_download_1024x768:
+                        downloadSize = OLYCamera.IMAGE_RESIZE_1024;
+                        doDownload = true;
+                        break;
+                }
+                Log.d(TAG, "downloadsize:  " +downloadSize);
 
-            //Toast.makeText(getContext(), R.string.filesDeleted, Toast.LENGTH_SHORT).show();
-            //SetOptionsLongClick(false);
-
-        } else if (item.getItemId() == R.id.action_download) {                      //download selection
-            Log.d(TAG, "nb to download: " + selectionList.size());
-
-            SetOptionsLongClick(false);
-
-        } else if (item.getItemId() == R.id.action_EndAction) {                     //Cancel Action
-            SetOptionsLongClick(false);
-            Log.d(TAG, "canceled Action " + selectionList.size());
-
+                if (selectionList.size() > 0 && doDownload) {
+                    downLoadContentFromCam(downloadSize);
+                }
+                return true;
+            case R.id.action_EndAction:
+                SetOptionsLongClick(false);
+                Log.d(TAG, "canceled Action " + selectionList.size());
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void downLoadContentFromCam(float downloadSize) {
+        Log.d(TAG, "downloading Images");
+        final float myDownloadsize = downloadSize;
+        Calendar calendar = Calendar.getInstance();
+        String filename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(calendar.getTime()) + ".jpg";
+        infoLayout.setVisibility(View.VISIBLE);
+        info_totalNb.setText(String.valueOf(selectionList.size()));
+        connectionExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                int count = 1;
+                for (OLYCameraFileInfo fileInfo : selectionList) {
+                    Log.d(TAG, "fullfilePath: " + fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename());
+                    final String filename = fileInfo.getFilename();
+                    final int fincount = count;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            info_FileName.setText(filename);
+                            info_currNb.setText(String.valueOf(fincount));
+                        }
+                    });
+                    Log.d(TAG, "downloading Image: " + fileInfo.getFilename());
+
+                    camera.downloadImage(fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename(), myDownloadsize, new OLYCamera.DownloadImageCallback() {
+                        @Override
+                        public void onProgress(ProgressEvent e) {
+                        }
+
+                        @Override
+                        public void onCompleted(final byte[] data, Map<String, Object> metadata) {
+                            final String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/ImageViewerSample/";
+                            String filepath = new File(directoryPath, filename).getPath();
+
+                            // Saves the image.
+                            try {
+                                final File directory = new File(directoryPath);
+                                if (!directory.exists()) {
+                                    // noinspection ResultOfMethodCallIgnored
+                                    directory.mkdirs();
+                                }
+
+                                FileOutputStream outputStream = new FileOutputStream(filepath);
+                                outputStream.write(data);
+                                outputStream.close();
+                            } catch (IOException e) {
+                                final String message = e.getMessage();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        presentMessage("Save failed", message);
+                                    }
+                                });
+                                return;
+                            }
+
+                            // Updates the gallery.
+                            try {
+                                long now = System.currentTimeMillis();
+                                ContentValues values = new ContentValues();
+                                ContentResolver resolver = getActivity().getContentResolver();
+                                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                                values.put(MediaStore.Images.Media.DATA, filepath);
+                                values.put(MediaStore.Images.Media.DATE_ADDED, now);
+                                values.put(MediaStore.Images.Media.DATE_TAKEN, now);
+                                values.put(MediaStore.Images.Media.DATE_MODIFIED, now);
+                                values.put(MediaStore.Images.Media.ORIENTATION, getRotationDegrees(data, metadata));
+                                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getActivity(), "Saved " + filename, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } catch (Exception e) {
+                                final String message = e.getMessage();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        presentMessage("Save failed", message);
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onErrorOccurred(Exception e) {
+                            final String message = e.getMessage();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    presentMessage("Download failed", message);
+                                }
+                            });
+                        }
+                    });
+                    count++;
+                }
+                // refresh();
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        infoLayout.setVisibility(View.GONE);
+                        SetOptionsLongClick(false);
+                        refresh();
+                    }
+                });
+
+            }
+        });
+    }
+
+    private void deleteContentFromCam() {
+        infoLayout.setVisibility(View.VISIBLE);
+        info_totalNb.setText(String.valueOf(selectionList.size()));
+        connectionExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int count = 1;
+                    for (OLYCameraFileInfo fileInfo : selectionList) {
+                        Log.d(TAG, "fullfilePath: " + fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename());
+                        final String filename = fileInfo.getFilename();
+                        final int fincount = count;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                info_FileName.setText(filename);
+                                info_currNb.setText(String.valueOf(fincount));
+                            }
+                        });
+                        camera.eraseContent(fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename());
+                        count++;
+                    }
+                    camera.changeRunMode(OLYCamera.RunMode.Playback);
+                    // refresh();
+
+                } catch (OLYCameraKitException ex) {
+                    ex.printStackTrace();
+                    final String error = ex.toString();
+                    Log.d(TAG, "Error: " + ex);
+                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        infoLayout.setVisibility(View.GONE);
+                        SetOptionsLongClick(false);
+                        refresh();
+                    }
+                });
+
+            }
+        });
+    }
 
 
     @Override
@@ -410,11 +564,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                         try {
                             selItem = (OLYCameraFileInfo) getItem(position);
                             if (((CheckBox) view).isChecked() && !selectionList.contains(selItem)) {
-                                Log.d(TAG, "Added selItem: " + selItem.getFilename());
-                                Log.d(TAG, "Type: " + selItem.getFiletype());
-                                Log.d(TAG, "Type: " + selItem.getExtension());
-
-
                                 selectionList.add(selItem);
                             } else if (selectionList.contains(selItem)) {
                                 selectionList.remove(selItem);
