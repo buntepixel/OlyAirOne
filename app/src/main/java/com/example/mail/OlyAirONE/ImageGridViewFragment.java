@@ -58,7 +58,7 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnTouchListener{
+public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnTouchListener {
     private static final String TAG = ImageGridViewFragment.class.getSimpleName();
 
     private GridView gridView;
@@ -199,7 +199,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
         Calendar calendar = Calendar.getInstance();
         String filename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(calendar.getTime()) + ".jpg";
         infoLayout.setVisibility(View.VISIBLE);
-
         info_task.setText(R.string.gv_ifo_downloading);
         info_totalNb.setText(String.valueOf(selectionList.size()));
         connectionExecutor.execute(new Runnable() {
@@ -219,19 +218,19 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                         }
                     });
                     Log.d(TAG, "downloading Image: " + fileInfo.getFilename());
-
+                    downloading = true;
                     camera.downloadImage(fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename(), myDownloadsize, new OLYCamera.DownloadImageCallback() {
                         @Override
                         public void onProgress(ProgressEvent e) {
-                            Log.d(TAG,"prograss: "+e.getProgress());
-                            if(e.getProgress()<1)
-                                downloading= true;
+                            if (e.getProgress() < 1)
+                                downloading = true;
                             else
-                                downloading=false;
+                                downloading = false;
+                           // Log.d(TAG, "progress: " + e.getProgress() + " downloading: " + downloading);
                         }
 
                         @Override
-                        public void onCompleted(final byte[] data, Map<String, Object> metadata) {
+                        public void onCompleted(byte[] data, Map<String, Object> metadata) {
                             final String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/OLYAirONE/";
                             String filepath = new File(directoryPath, filename).getPath();
 
@@ -270,12 +269,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                                 values.put(MediaStore.Images.Media.DATE_MODIFIED, now);
                                 values.put(MediaStore.Images.Media.ORIENTATION, getRotationDegrees(data, metadata));
                                 resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(getActivity(), "Saved " + filename, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+
                             } catch (Exception e) {
                                 final String message = e.getMessage();
                                 runOnUiThread(new Runnable() {
@@ -299,15 +293,15 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                             });
                         }
                     });
-                    Log.d(TAG,"downloading?: "+downloading);
-                  /*  while (downloading){
+                    Log.d(TAG, "downloading?: " + downloading);
+                    while (downloading){
                         try {
-                            Log.d(TAG,"sleeping");
+                            //Log.d(TAG,"sleeping");
                             Thread.sleep(100);
                         }catch (InterruptedException ex){
                             ex.printStackTrace();
                         }
-                    }*/
+                    }
                     count++;
                 }
                 // refresh();
@@ -325,6 +319,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
             }
         });
     }
+
 
     private void deleteContentFromCam() {
         infoLayout.setVisibility(View.VISIBLE);
@@ -374,6 +369,13 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
 
     @Override
     public void onResume() {
+        if(camera.getRunMode()!= OLYCamera.RunMode.Playback){
+            try{
+                camera.changeRunMode(OLYCamera.RunMode.Playback);
+            }catch (OLYCameraKitException ex){
+                ex.printStackTrace();
+            }
+        }
         super.onResume();
         connectionExecutor.execute(new Runnable() {
             @Override
