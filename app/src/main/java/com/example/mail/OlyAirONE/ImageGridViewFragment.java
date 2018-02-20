@@ -58,15 +58,17 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnTouchListener {
+public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnTouchListener{
     private static final String TAG = ImageGridViewFragment.class.getSimpleName();
 
     private GridView gridView;
     private RelativeLayout infoLayout;
+    private TextView info_task;
     private TextView info_currNb;
     private TextView info_totalNb;
     private TextView info_FileName;
     private boolean gridViewIsScrolling;
+    private boolean downloading;
 
     private Menu optionsMenue;
     MenuItem dropdown;
@@ -105,13 +107,13 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
         gridView.setOnTouchListener(this);
         gridView.setOnScrollListener(new GridViewOnScrollListener());
         infoLayout = (RelativeLayout) view.findViewById(R.id.rl_ifo_totalLayout);
+        info_task = view.findViewById((R.id.tv_ifo_task));
         info_FileName = view.findViewById(R.id.tv_ifo_filename);
         info_currNb = (TextView) view.findViewById(R.id.tv_ifo_itemNr);
         info_totalNb = (TextView) view.findViewById(R.id.tv_ifo_totalNr);
 
         return view;
     }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -127,9 +129,11 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
 
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "nb to download: " + selectionList.size());
+        boolean doDownload = false;
+        float downloadSize = 0;
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 refresh();
@@ -156,43 +160,34 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 }
                 deleteContentFromCam();
                 return true;
-            case R.id.action_download:
-                Log.d(TAG, "nb to download: " + selectionList.size());
-                boolean doDownload = false;
-                float downloadSize = 0;
-                Log.d(TAG, "itemId:  " + item.getItemId() + "needed: " + R.id.action_download_1024x768);
-                switch (item.getSubMenu().getItem().getItemId()) {
-                    case R.id.action_download_original_size:
-                        downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
-                        doDownload = true;
-                        break;
-                    case R.id.action_download_2048x1536:
-                        downloadSize = OLYCamera.IMAGE_RESIZE_2048;
-                        doDownload = true;
-                        break;
-                    case R.id.action_download_1920x1440:
-                        downloadSize = OLYCamera.IMAGE_RESIZE_1920;
-                        doDownload = true;
-                        break;
-                    case R.id.action_download_1600x1200:
-                        downloadSize = OLYCamera.IMAGE_RESIZE_1600;
-                        doDownload = true;
-                        break;
-                    case R.id.action_download_1024x768:
-                        downloadSize = OLYCamera.IMAGE_RESIZE_1024;
-                        doDownload = true;
-                        break;
-                }
-                Log.d(TAG, "downloadsize:  " +downloadSize);
-
-                if (selectionList.size() > 0 && doDownload) {
-                    downLoadContentFromCam(downloadSize);
-                }
-                return true;
             case R.id.action_EndAction:
                 SetOptionsLongClick(false);
                 Log.d(TAG, "canceled Action " + selectionList.size());
                 return true;
+            case R.id.action_download_original_size:
+                downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
+                doDownload = true;
+                break;
+            case R.id.action_download_2048x1536:
+                downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
+                doDownload = true;
+                break;
+            case R.id.action_download_1920x1440:
+                downloadSize = OLYCamera.IMAGE_RESIZE_2048;
+                doDownload = true;
+                break;
+            case R.id.action_download_1600x1200:
+                downloadSize = OLYCamera.IMAGE_RESIZE_1920;
+                doDownload = true;
+                break;
+            case R.id.action_download_1024x768:
+                downloadSize = OLYCamera.IMAGE_RESIZE_1024;
+                doDownload = true;
+        }
+        Log.d(TAG, "downloadsize:  " + downloadSize);
+        if (selectionList.size() > 0 && doDownload) {
+            downLoadContentFromCam(downloadSize);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -204,6 +199,8 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
         Calendar calendar = Calendar.getInstance();
         String filename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(calendar.getTime()) + ".jpg";
         infoLayout.setVisibility(View.VISIBLE);
+
+        info_task.setText(R.string.gv_ifo_downloading);
         info_totalNb.setText(String.valueOf(selectionList.size()));
         connectionExecutor.execute(new Runnable() {
             @Override
@@ -211,12 +208,12 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
 
                 int count = 1;
                 for (OLYCameraFileInfo fileInfo : selectionList) {
-                    Log.d(TAG, "fullfilePath: " + fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename());
                     final String filename = fileInfo.getFilename();
                     final int fincount = count;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             info_FileName.setText(filename);
                             info_currNb.setText(String.valueOf(fincount));
                         }
@@ -226,11 +223,16 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                     camera.downloadImage(fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename(), myDownloadsize, new OLYCamera.DownloadImageCallback() {
                         @Override
                         public void onProgress(ProgressEvent e) {
+                            Log.d(TAG,"prograss: "+e.getProgress());
+                            if(e.getProgress()<1)
+                                downloading= true;
+                            else
+                                downloading=false;
                         }
 
                         @Override
                         public void onCompleted(final byte[] data, Map<String, Object> metadata) {
-                            final String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/ImageViewerSample/";
+                            final String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath() + "/OLYAirONE/";
                             String filepath = new File(directoryPath, filename).getPath();
 
                             // Saves the image.
@@ -246,6 +248,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                                 outputStream.close();
                             } catch (IOException e) {
                                 final String message = e.getMessage();
+                                Log.d(TAG, "Error: " + message);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -287,6 +290,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                         @Override
                         public void onErrorOccurred(Exception e) {
                             final String message = e.getMessage();
+                            Log.d(TAG, message);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -295,6 +299,15 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                             });
                         }
                     });
+                    Log.d(TAG,"downloading?: "+downloading);
+                  /*  while (downloading){
+                        try {
+                            Log.d(TAG,"sleeping");
+                            Thread.sleep(100);
+                        }catch (InterruptedException ex){
+                            ex.printStackTrace();
+                        }
+                    }*/
                     count++;
                 }
                 // refresh();
@@ -316,6 +329,8 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     private void deleteContentFromCam() {
         infoLayout.setVisibility(View.VISIBLE);
         info_totalNb.setText(String.valueOf(selectionList.size()));
+        info_task.setText(R.string.gv_ifo_deleting);
+
         connectionExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -356,7 +371,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
             }
         });
     }
-
 
     @Override
     public void onResume() {
@@ -445,60 +459,65 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         Boolean returnVal = true;
+        if (selectionChbx) {
+            onShortTouch();
+        } else {
+            if (timer == null)
+                timer = new CountDownTimer(2000, 1000) {
+                    @Override
+                    public void onTick(long l) {
+                        Log.d(TAG, "Tick");
+                    }
 
-        if (timer == null)
-            timer = new CountDownTimer(2000, 1000) {
-                @Override
-                public void onTick(long l) {
-                    Log.d(TAG, "Tick");
-                }
-
-                @Override
-                public void onFinish() {
-                    Toast.makeText(getActivity(), "LongClick", Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onFinish() {
+                        // Toast.makeText(getActivity(), "LongClick", Toast.LENGTH_SHORT).show();
+                        timer = null;
+                        Log.d(TAG, "Finish");
+                        onLongTouch();
+                    }
+                };
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                Log.d(TAG, "start");
+                selectionChbx = false;
+                timer.start();
+            }
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                Log.d(TAG, "Cancel");
+                if (timer != null) {
+                    Log.d(TAG, "deleteCheckboc: " + selectionChbx);
+                    if (!selectionChbx)
+                        onShortTouch();
+                    timer.cancel();
                     timer = null;
-                    Log.d(TAG, "Finish");
-                    onLongTouch();
+                    returnVal = false;
                 }
-            };
-        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-            Log.d(TAG, "start");
-            selectionChbx = false;
-            timer.start();
-        }
-        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-            Log.d(TAG, "Cancel");
-            if (timer != null) {
-                Log.d(TAG, "deleteCheckboc: " + selectionChbx);
-                if (!selectionChbx)
-                    onShortTouch();
-                timer.cancel();
-                timer = null;
-                returnVal = false;
             }
         }
+
         //return returnVal;
         return false;
     }
 
     private void onShortTouch() {
+        Log.d(TAG, "short Touch: " + selectionChbx);
 
 
     }
 
     private void onLongTouch() {
-        selectionChbx = true;
         Log.d(TAG, "Long Touch: " + selectionChbx);
+        selectionChbx = true;
         SetOptionsLongClick(true);
     }
 
     private void SetOptionsLongClick(Boolean visible) {
         selectionChbx = visible;
         selectionList.clear();
-        gridView.setAdapter(gridView.getAdapter());//refresh and hide checkboxes
         optionsMenue.findItem(R.id.action_delete).setVisible(visible);
         optionsMenue.findItem(R.id.action_download).setVisible(visible);
         optionsMenue.findItem(R.id.action_EndAction).setVisible(visible);
+        gridView.setAdapter(gridView.getAdapter());//refresh and hide checkboxes
     }
 
 
@@ -507,8 +526,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
         public ImageView imageView;
         public ImageView iconView;
         public CheckBox chbxView;
-
-
     }
 
     private class GridViewAdapter extends BaseAdapter {

@@ -126,6 +126,8 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="timelapse_total_number_images">Total Number Images</string>
     <string name="title_activity_image_view">ImageViewActivity</string>
+    <string name="gv_ifo_deleting">Deleting</string>
+    <string name="gv_ifo_downloading">Downloading</string>
 
 
 

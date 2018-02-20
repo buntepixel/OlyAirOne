@@ -39,13 +39,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 >
-
+                <TextView
+                    android:id="@+id/tv_ifo_task"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/large_txt"
+                    android:textColor="@color/colorTextWhite"
+                    />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
                     android:textColor="@color/colorTextWhite"
-                    android:text="Deleting file: "/>
+                    android:text=" File: "/>
 
                 <TextView
                     android:id="@+id/tv_ifo_filename"

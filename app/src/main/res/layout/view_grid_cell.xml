@@ -24,6 +24,7 @@
         android:scaleType="centerCrop"
         android:src="@null"
         tools:ignore="ContentDescription"/>
+
     <CheckBox
         android:id="@+id/chbx_gv_delete"
         android:layout_width="30dp"
@@ -31,6 +32,7 @@
         android:layout_marginLeft="@dimen/GridView_borderMargin"
         android:layout_marginTop="@dimen/GridView_borderMargin"
         android:visibility="invisible"
+        android:background="@color/Chbx_Bg"
         android:padding="@dimen/GridView_borderMargin"
         />
 
