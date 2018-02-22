@@ -75,6 +75,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     CountDownTimer timer;
     Boolean selectionChbx = false;
     private ArrayList<OLYCameraFileInfo> selectionList;
+    private Boolean[] selectionPosArr;
 
     private List<OLYCameraFileInfo> contentList;
     private int contentIndex;
@@ -226,7 +227,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                                 downloading = true;
                             else
                                 downloading = false;
-                           // Log.d(TAG, "progress: " + e.getProgress() + " downloading: " + downloading);
+                            // Log.d(TAG, "progress: " + e.getProgress() + " downloading: " + downloading);
                         }
 
                         @Override
@@ -294,11 +295,11 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                         }
                     });
                     Log.d(TAG, "downloading?: " + downloading);
-                    while (downloading){
+                    while (downloading) {
                         try {
                             //Log.d(TAG,"sleeping");
                             Thread.sleep(100);
-                        }catch (InterruptedException ex){
+                        } catch (InterruptedException ex) {
                             ex.printStackTrace();
                         }
                     }
@@ -369,10 +370,11 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
 
     @Override
     public void onResume() {
-        if(camera.getRunMode()!= OLYCamera.RunMode.Playback){
-            try{
+        selectionList.clear();
+        if (camera.getRunMode() != OLYCamera.RunMode.Playback) {
+            try {
                 camera.changeRunMode(OLYCamera.RunMode.Playback);
-            }catch (OLYCameraKitException ex){
+            } catch (OLYCameraKitException ex) {
                 ex.printStackTrace();
             }
         }
@@ -435,6 +437,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 list.removeAll(shouldBeRemovedItems);
 
                 contentList = list;
+                selectionPosArr = new Boolean[list.size()];
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -502,7 +505,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     }
 
     private void onShortTouch() {
-        Log.d(TAG, "short Touch: " + selectionChbx);
+        // Log.d(TAG, "short Touch: " + selectionChbx);
 
 
     }
@@ -578,33 +581,40 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 viewHolder.chbxView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.d(TAG, "click: " + ((CheckBox) view).isChecked());
                         OLYCameraFileInfo selItem;
                         try {
+                            Log.d(TAG, "click pos: " + position);
                             selItem = (OLYCameraFileInfo) getItem(position);
                             if (((CheckBox) view).isChecked() && !selectionList.contains(selItem)) {
                                 selectionList.add(selItem);
+                                selectionPosArr[position] = true;
                             } else if (selectionList.contains(selItem)) {
                                 selectionList.remove(selItem);
+                                selectionPosArr[position] = false;
                                 Log.d(TAG, "Removed selItem: " + selItem.getFilename());
                             } else {
                                 Log.d(TAG, "NotingHappend in click");
                             }
                         } catch (ClassCastException ex) {
                             ex.printStackTrace();
+                            Log.d(TAG, "error: " + ex.toString());
+
                         }
                     }
                 });
 
-                if (selectionChbx) {
-                    Log.d(TAG, "showCheckbox");
-                    viewHolder.chbxView.setVisibility(View.VISIBLE);
-                }
+
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (GridCellViewHolder) convertView.getTag();
             }
             OLYCameraFileInfo item = (OLYCameraFileInfo) getItem(position);
+            if (selectionChbx) {//set checked if previously checked
+                Log.d(TAG, "pos: " + position);
+
+                viewHolder.chbxView.setVisibility(View.VISIBLE);
+                //viewHolder.chbxView.setChecked(selectionPosArr[position]);
+            }
             if (item == null) {
                 viewHolder.imageView.setImageDrawable(null);
                 viewHolder.iconView.setImageDrawable(null);
@@ -612,6 +622,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
             }
             String path = new File(item.getDirectoryPath(), item.getFilename()).getPath();
             Bitmap thumbnail = imageCache.get(path);
+
             if (thumbnail == null) {
                 viewHolder.imageView.setImageDrawable(null);
                 viewHolder.iconView.setImageDrawable(null);
