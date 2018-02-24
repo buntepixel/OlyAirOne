@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -58,7 +57,7 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnTouchListener {
+public class ImageGridViewFragment extends android.support.v4.app.Fragment implements  AdapterView.OnItemClickListener,AdapterView.OnItemLongClickListener{
     private static final String TAG = ImageGridViewFragment.class.getSimpleName();
 
     private GridView gridView;
@@ -75,8 +74,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     CountDownTimer timer;
     Boolean selectionChbx = false;
     private ArrayList<OLYCameraFileInfo> selectionList;
-    private Boolean[] selectionPosArr;
-
     private List<OLYCameraFileInfo> contentList;
     private int contentIndex;
 
@@ -105,7 +102,10 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
         gridView = (GridView) view.findViewById(R.id.gv_imagegridview);
         GridViewAdapter gridViewAdapter = new GridViewAdapter(inflater);
         gridView.setAdapter(gridViewAdapter);
-        gridView.setOnTouchListener(this);
+        gridView.setTag(gridViewAdapter);
+       // gridView.setOnTouchListener(this);
+        gridView.setOnItemClickListener(this);
+        gridView.setOnItemLongClickListener(this);
         gridView.setOnScrollListener(new GridViewOnScrollListener());
         infoLayout = (RelativeLayout) view.findViewById(R.id.rl_ifo_totalLayout);
         info_task = view.findViewById((R.id.tv_ifo_task));
@@ -161,10 +161,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 }
                 deleteContentFromCam();
                 return true;
-            case R.id.action_EndAction:
-                SetOptionsLongClick(false);
-                Log.d(TAG, "canceled Action " + selectionList.size());
-                return true;
+
             case R.id.action_download_original_size:
                 downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
                 doDownload = true;
@@ -184,6 +181,11 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
             case R.id.action_download_1024x768:
                 downloadSize = OLYCamera.IMAGE_RESIZE_1024;
                 doDownload = true;
+                break;
+            case R.id.action_EndAction:
+                SetOptionsLongClick(false);
+                Log.d(TAG, "canceled Action " + selectionList.size());
+                return true;
         }
         Log.d(TAG, "downloadsize:  " + downloadSize);
         if (selectionList.size() > 0 && doDownload) {
@@ -437,8 +439,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 list.removeAll(shouldBeRemovedItems);
 
                 contentList = list;
-                selectionPosArr = new Boolean[list.size()];
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -462,61 +462,61 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        Boolean returnVal = true;
-        if (selectionChbx) {
-            onShortTouch();
-        } else {
-            if (timer == null)
-                timer = new CountDownTimer(2000, 1000) {
-                    @Override
-                    public void onTick(long l) {
-                        Log.d(TAG, "Tick");
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        // Toast.makeText(getActivity(), "LongClick", Toast.LENGTH_SHORT).show();
-                        timer = null;
-                        Log.d(TAG, "Finish");
-                        onLongTouch();
-                    }
-                };
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                Log.d(TAG, "start");
-                selectionChbx = false;
-                timer.start();
-            }
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                Log.d(TAG, "Cancel");
-                if (timer != null) {
-                    Log.d(TAG, "deleteCheckboc: " + selectionChbx);
-                    if (!selectionChbx)
-                        onShortTouch();
-                    timer.cancel();
-                    timer = null;
-                    returnVal = false;
-                }
-            }
-        }
-
-        //return returnVal;
-        return false;
-    }
-
-    private void onShortTouch() {
-        // Log.d(TAG, "short Touch: " + selectionChbx);
-
-
-    }
-
-    private void onLongTouch() {
-        Log.d(TAG, "Long Touch: " + selectionChbx);
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+        Log.d(TAG, "Long click: " + selectionChbx);
         selectionChbx = true;
         SetOptionsLongClick(true);
+        return true;
     }
 
-    private void SetOptionsLongClick(Boolean visible) {
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        OLYCameraFileInfo selItem;
+        try {
+            Log.d(TAG, "click pos: " + position);
+            GridViewAdapter adapter = (GridViewAdapter) adapterView.getAdapter();
+            GridCellViewHolder holder = (GridCellViewHolder) view.getTag();
+            selItem = (OLYCameraFileInfo) adapterView.getAdapter().getItem(position);
+            if(selectionChbx){
+                if (!holder.chbxView.isChecked()) {
+                    holder.chbxView.setChecked(true);
+                    if (!selectionList.contains(selItem)) {
+                        selectionList.add(selItem);
+                        Log.d(TAG, "Added selItem: " + selItem.getFilename());
+                    }
+
+                } else {
+                    holder.chbxView.setChecked(false);
+                    if (selectionList.contains(selItem)) {
+                        selectionList.remove(selItem);
+                        Log.d(TAG, "Removed selItem: " + selItem.getFilename());
+                    }
+                }
+            }else{
+                Log.d(TAG, "Go to big view: ");
+
+            }
+        } catch (ClassCastException ex) {
+            ex.printStackTrace();
+            Log.d(TAG, "error: " + ex.toString());
+
+        }
+    }
+
+
+
+
+
+
+    private void SetOptionsLongClick(Boolean visible) {/*
+        if (visible) {
+            gridView.setOnItemClickListener(this);
+            gridView.setOnTouchListener(null);
+        } else {
+            gridView.setOnItemClickListener(null);
+            gridView.setOnTouchListener(this);
+        }*/
         selectionChbx = visible;
         selectionList.clear();
         optionsMenue.findItem(R.id.action_delete).setVisible(visible);
@@ -570,7 +570,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
         }
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.view_grid_cell, parent, false);
 
@@ -578,19 +578,20 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 viewHolder.imageView = (ImageView) convertView.findViewById(R.id.iv_gv_preview);
                 viewHolder.iconView = (ImageView) convertView.findViewById(R.id.iv_gv_icon);
                 viewHolder.chbxView = (CheckBox) convertView.findViewById(R.id.chbx_gv_delete);
-                viewHolder.chbxView.setOnClickListener(new View.OnClickListener() {
+
+               /* viewHolder.chbxView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         OLYCameraFileInfo selItem;
                         try {
-                            Log.d(TAG, "click pos: " + position);
-                            selItem = (OLYCameraFileInfo) getItem(position);
+                            Log.d(TAG, "click pos: " + tmpPos);
+                            selItem = (OLYCameraFileInfo) getItem(tmpPos);
                             if (((CheckBox) view).isChecked() && !selectionList.contains(selItem)) {
                                 selectionList.add(selItem);
-                                selectionPosArr[position] = true;
+                                selectionPosArr[tmpPos] = true;
                             } else if (selectionList.contains(selItem)) {
                                 selectionList.remove(selItem);
-                                selectionPosArr[position] = false;
+                                selectionPosArr[tmpPos] = false;
                                 Log.d(TAG, "Removed selItem: " + selItem.getFilename());
                             } else {
                                 Log.d(TAG, "NotingHappend in click");
@@ -601,14 +602,13 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
 
                         }
                     }
-                });
-
-
+                });*/
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (GridCellViewHolder) convertView.getTag();
             }
             OLYCameraFileInfo item = (OLYCameraFileInfo) getItem(position);
+
             if (selectionChbx) {//set checked if previously checked
                 Log.d(TAG, "pos: " + position);
 
@@ -647,6 +647,12 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
 
     }
 
+    private class GridViewOnItemClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        }
+    }
 
     private class GridViewOnScrollListener implements AbsListView.OnScrollListener {
         @Override

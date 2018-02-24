@@ -32,6 +32,9 @@
         android:layout_marginLeft="@dimen/GridView_borderMargin"
         android:layout_marginTop="@dimen/GridView_borderMargin"
         android:visibility="invisible"
+        android:focusable="false"
+        android:clickable="false"
+        android:focusableInTouchMode="false"
         android:background="@color/Chbx_Bg"
         android:padding="@dimen/GridView_borderMargin"
         />
