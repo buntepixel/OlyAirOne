@@ -18,14 +18,18 @@ import jp.co.olympus.camerakit.OLYCameraConnectionListener;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
 
-public class ImageViewActivity extends AppCompatActivity implements OLYCameraConnectionListener {
+public class ImageViewActivity extends AppCompatActivity implements OLYCameraConnectionListener, ImageGridViewFragment.ImagerGridViewInteractionListener {
     private static final String TAG = ImageViewActivity.class.getSimpleName();
     public static OLYCamera camera;
     ImageGridViewFragment fImgGridView;
+    ImagePagerViewFragment fPagerViewFragment;
 
-    private static final String FRAGMENT_TAG_IMGGRIDVIEW = "imgGridView";
+    public static final String FRAGMENT_TAG_IMGGRIDVIEW = "imgGridView";
+    public static final String FRAGMENT_TAG_IMGPAGEVIEWE = "imgPageView";
+
     Executor connectionExecutor = Executors.newFixedThreadPool(1);
     FragmentManager fm;
+    String currFragStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,21 +41,29 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         camera.setConnectionListener(this);
         fm = getSupportFragmentManager();
         if (savedInstanceState != null) {
-            fImgGridView = (ImageGridViewFragment) fm.getFragment(savedInstanceState, FRAGMENT_TAG_IMGGRIDVIEW);
+            currFragStr = savedInstanceState.getString("currFragStr");
+            Log.d(TAG, "currFragStr: " + currFragStr);
+
+            if (currFragStr.equals(FRAGMENT_TAG_IMGGRIDVIEW))
+                fImgGridView = (ImageGridViewFragment) fm.getFragment(savedInstanceState, currFragStr);
+            else if (currFragStr.equals(FRAGMENT_TAG_IMGPAGEVIEWE))
+                fPagerViewFragment = (ImagePagerViewFragment) fm.getFragment(savedInstanceState, currFragStr);
             return;
         }
-
         fImgGridView = new ImageGridViewFragment();
-
-
-
+        fImgGridView.setImageGridViewInteractionListener(this);
+        currFragStr = FRAGMENT_TAG_IMGGRIDVIEW;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putString("currFragStr", currFragStr);
         if (fm.findFragmentByTag(FRAGMENT_TAG_IMGGRIDVIEW) != null)
             fm.putFragment(outState, FRAGMENT_TAG_IMGGRIDVIEW, fImgGridView);
+        else if (fm.findFragmentByTag(FRAGMENT_TAG_IMGPAGEVIEWE) != null) {
+            fm.putFragment(outState, FRAGMENT_TAG_IMGPAGEVIEWE, fPagerViewFragment);
+        }
     }
 
     @Override
@@ -68,6 +80,11 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         Log.d(TAG, "END Resume");
     }
 
+    @Override
+    public void OnFragmentChange(String fragmentName) {
+        currFragStr = fragmentName;
+    }
+
     //------------------------
     //    Connecting Camera
     //------------------------
@@ -75,19 +92,18 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         connectionExecutor.execute(new Runnable() {
             @Override
             public void run() {
-
+                Log.d(TAG, "startConnecting Cam");
                 try {
                     camera.connect(OLYCamera.ConnectionType.WiFi);
                 } catch (OLYCameraKitException e) {
-                    Log.d(TAG,"erron wifi");
+                    Log.d(TAG, "erron wifi");
                     alertConnectingFailed(e);
                     return;
                 }
-
                 try {
                     camera.changeRunMode(OLYCamera.RunMode.Playback);
                 } catch (OLYCameraKitException e) {
-                    Log.d(TAG,"erron Playback");
+                    Log.d(TAG, "erron Playback");
                     alertConnectingFailed(e);
                     return;
                 }
@@ -126,13 +142,24 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
     }
 
     private void onConnectedToCamera() {
-
         Log.d(TAG, "Connected to Cam");
-        ImageGridViewFragment frag = (ImageGridViewFragment) fm.findFragmentById(R.id.fl_imgViewAction_content);
-        if(frag==null){
-            FragmentTransaction transaction = fm.beginTransaction();
-            transaction.add(R.id.fl_imgViewAction_content, fImgGridView, FRAGMENT_TAG_IMGGRIDVIEW);
-            transaction.commit();
+        if (currFragStr != null && currFragStr.equals(FRAGMENT_TAG_IMGGRIDVIEW)) {
+            ImageGridViewFragment frag = (ImageGridViewFragment) fm.findFragmentById(R.id.fl_imgViewAction_content);
+            if (frag == null) {
+                FragmentTransaction transaction = fm.beginTransaction();
+                Log.d(TAG, "Frag = imgGridView: ");
+                transaction.add(R.id.fl_imgViewAction_content, fImgGridView, FRAGMENT_TAG_IMGGRIDVIEW);
+                transaction.commit();
+            }
+
+        } else if (currFragStr != null && currFragStr.equals(FRAGMENT_TAG_IMGPAGEVIEWE)) {
+            Log.d(TAG, "Frag = pagerView: ");
+            ImagePagerViewFragment frag = (ImagePagerViewFragment) fm.findFragmentById(R.id.fl_imgViewAction_content);
+            if (frag == null) {
+                FragmentTransaction transaction = fm.beginTransaction();
+                transaction.add(R.id.fl_imgViewAction_content, fPagerViewFragment, FRAGMENT_TAG_IMGPAGEVIEWE);
+                transaction.commit();
+            }
         }
     }
 

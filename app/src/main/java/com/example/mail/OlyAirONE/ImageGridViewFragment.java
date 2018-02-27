@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -57,7 +58,7 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-public class ImageGridViewFragment extends android.support.v4.app.Fragment implements  AdapterView.OnItemClickListener,AdapterView.OnItemLongClickListener{
+public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private static final String TAG = ImageGridViewFragment.class.getSimpleName();
 
     private GridView gridView;
@@ -83,6 +84,15 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     private LruCache<String, Bitmap> imageCache;
     OLYCamera camera;
 
+    private ImagerGridViewInteractionListener listener;
+
+    public interface ImagerGridViewInteractionListener {
+        void OnFragmentChange(String fragmentName);
+    }
+
+    public void setImageGridViewInteractionListener(ImagerGridViewInteractionListener listener) {
+        this.listener = listener;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,12 +108,10 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_image_grid_view, container, false);
-
         gridView = (GridView) view.findViewById(R.id.gv_imagegridview);
         GridViewAdapter gridViewAdapter = new GridViewAdapter(inflater);
         gridView.setAdapter(gridViewAdapter);
         gridView.setTag(gridViewAdapter);
-       // gridView.setOnTouchListener(this);
         gridView.setOnItemClickListener(this);
         gridView.setOnItemLongClickListener(this);
         gridView.setOnScrollListener(new GridViewOnScrollListener());
@@ -478,7 +486,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
             GridViewAdapter adapter = (GridViewAdapter) adapterView.getAdapter();
             GridCellViewHolder holder = (GridCellViewHolder) view.getTag();
             selItem = (OLYCameraFileInfo) adapterView.getAdapter().getItem(position);
-            if(selectionChbx){
+            if (selectionChbx) {
                 if (!holder.chbxView.isChecked()) {
                     holder.chbxView.setChecked(true);
                     if (!selectionList.contains(selItem)) {
@@ -493,8 +501,18 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                         Log.d(TAG, "Removed selItem: " + selItem.getFilename());
                     }
                 }
-            }else{
+            } else {
                 Log.d(TAG, "Go to big view: ");
+                ImagePagerViewFragment fImgPagerView = new ImagePagerViewFragment();    // Use an advanced viewer.
+                fImgPagerView.setContentList(contentList);
+                fImgPagerView.setContentIndex(position);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(getId(), fImgPagerView, ImageViewActivity.FRAGMENT_TAG_IMGPAGEVIEWE);
+                transaction.addToBackStack(ImageViewActivity.FRAGMENT_TAG_IMGGRIDVIEW);
+                if (listener != null)
+                    listener.OnFragmentChange(ImageViewActivity.FRAGMENT_TAG_IMGPAGEVIEWE);
+                transaction.commit();
+
 
             }
         } catch (ClassCastException ex) {
@@ -503,10 +521,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
 
         }
     }
-
-
-
-
 
 
     private void SetOptionsLongClick(Boolean visible) {/*

@@ -17,6 +17,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,18 +44,20 @@ import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 
-public class ImageViewFragment extends android.support.v4.app.Fragment {
-	
-	private ImageView imageView;
+public class ImagePagerViewFragment extends android.support.v4.app.Fragment {
+	private static final String TAG = ImagePagerViewFragment.class.getSimpleName();
 
 	private OLYCamera camera;
 	private List<OLYCameraFileInfo> contentList;
 	private int contentIndex;
-
-	public void setCamera(OLYCamera camera) {
-		this.camera = camera;
-	}
 	
+	private LayoutInflater layoutInflater;
+	private ViewPager viewPager;
+
+	private LruCache<String, Bitmap> imageCache;
+
+	
+
 	public void setContentList(List<OLYCameraFileInfo> contentList) {
 		this.contentList = contentList;
 	}
@@ -58,25 +65,33 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 	public  void setContentIndex(int contentIndex) {
 		this.contentIndex = contentIndex;
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		
+		camera=ImageViewActivity.camera;
+		imageCache = new LruCache<String, Bitmap>(5);
 		setHasOptionsMenu(true);
+		setRetainInstance(true);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_image_view, container, false);
 		
-		imageView = (ImageView)view.findViewById(R.id.imageView1);
+		layoutInflater = inflater;
+		View view = layoutInflater.inflate(R.layout.fragment_image_pager_view, container, false);
+		viewPager = (ViewPager)view.findViewById(R.id.viewPager1);
+		ImagePagerAdapter pagerAdaptor = new ImagePagerAdapter();
+		viewPager.setAdapter(pagerAdaptor);
+		ImagePageChangeListener pageChangeListener = new ImagePageChangeListener();
+		viewPager.addOnPageChangeListener(pageChangeListener);
+		
 		return view;
 	}
-	
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
 		OLYCameraFileInfo file = contentList.get(contentIndex);
 		String path = file.getDirectoryPath() + "/" + file.getFilename();
 		ActionBar bar = getActivity().getActionBar();
@@ -84,7 +99,7 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 			bar.setTitle(path);
 		}
 
-		//inflater.inflate(R.menu.image_view, menu);
+		inflater.inflate(R.menu.image_view, menu);
 		MenuItem downloadMenuItem = menu.findItem(R.id.action_download);
        	
 		String lowerCasePath = path.toLowerCase();
@@ -94,25 +109,32 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 			downloadMenuItem.setEnabled(false);
        	}
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+
 		boolean doDownload = false;
 		float downloadSize = 0;
+		Log.d(TAG, "itemId:  " + item.getItemId() + "needed: " + R.id.action_download_1024x768);
 
 		if (item.getItemId() == R.id.action_download_original_size) {
+			Log.d(TAG, "Ori:  " + item.getItemId() );
 			downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
 			doDownload = true;
 		} else if (item.getItemId() == R.id.action_download_2048x1536) {
+			Log.d(TAG, "2048:  " + item.getItemId() );
 			downloadSize = OLYCamera.IMAGE_RESIZE_2048;
 			doDownload = true;
 		} else if (item.getItemId() == R.id.action_download_1920x1440) {
+			Log.d(TAG, "1920:  " + item.getItemId() );
 			downloadSize = OLYCamera.IMAGE_RESIZE_1920;
 			doDownload = true;
 		} else if (item.getItemId() == R.id.action_download_1600x1200) {
+			Log.d(TAG, "1600:  " + item.getItemId() );
 			downloadSize = OLYCamera.IMAGE_RESIZE_1600;
 			doDownload = true;
 		} else if (item.getItemId() == R.id.action_download_1024x768) {
+			Log.d(TAG, "1024:  " + item.getItemId() );
 			downloadSize = OLYCamera.IMAGE_RESIZE_1024;
 			doDownload = true;
 		}
@@ -121,10 +143,10 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 			Calendar calendar = Calendar.getInstance();
 			String filename = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(calendar.getTime()) + ".jpg";
 			
-			/*Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment1);
-			if (ImageViewFragment.class.isAssignableFrom(fragment.getClass())) {
-				ImageViewFragment imageViewFragment = (ImageViewFragment)fragment;
-				imageViewFragment.saveImage(filename, downloadSize);
+			/*//Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment1);
+			if (ImagePagerViewFragment.class.isAssignableFrom(fragment.getClass())) {
+				ImagePagerViewFragment imagePagerViewFragment = (ImagePagerViewFragment)fragment;
+				imagePagerViewFragment.saveImage(filename, downloadSize);
 				return true;
 			}*/
 		}
@@ -136,20 +158,96 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 	public void onResume() {
 		super.onResume();
 		
+		viewPager.setCurrentItem(contentIndex);
+	}
+	
+	private class ImagePagerAdapter extends PagerAdapter {
+
+		@Override
+		public int getCount() {
+			return contentList.size();
+		}
+
+		@Override
+		public boolean isViewFromObject(View view, Object object) {
+			return view.equals(object);
+		}
+		
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			ImageView view = (ImageView)layoutInflater.inflate(R.layout.view_image_page, container, false);
+			container.addView(view);
+			downloadImage(position, view);
+			return view;
+		}
+		
+		@Override
+		public void destroyItem(ViewGroup container, int position, Object object) {
+			container.removeView((ImageView)object);
+		}
+		
+	}
+
+	private class ImagePageChangeListener implements OnPageChangeListener {
+
+		@Override
+		public void onPageScrollStateChanged(int state) {
+		}
+
+		@Override
+		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		}
+
+		@Override
+		public void onPageSelected(int position) {
+			contentIndex = position;
+			
+			OLYCameraFileInfo file = contentList.get(contentIndex);
+			String path = file.getDirectoryPath() + "/" + file.getFilename();
+			ActionBar bar = getActivity().getActionBar();
+			if (bar != null) {
+				bar.setTitle(path);
+			}
+	       	getActivity().invalidateOptionsMenu();
+		}
+
+	}
+
+	private void downloadImage(int position, final ImageView view) {
+		OLYCameraFileInfo file = contentList.get(position);
+		final String path = file.getDirectoryPath() + "/" + file.getFilename();
+
+		// Get the cached image.
+		Bitmap bitmap = imageCache.get(path);
+		if (bitmap != null) {
+			if (view != null && viewPager.indexOfChild(view) > -1) {
+				view.setImageBitmap(bitmap);
+			}
+			return;
+		}		
+		
 		// Download the image.
-		OLYCameraFileInfo file = contentList.get(contentIndex);
-		String path = file.getDirectoryPath() + "/" + file.getFilename();
 		camera.downloadContentScreennail(path, new OLYCamera.DownloadImageCallback() {
 			@Override
 			public void onProgress(ProgressEvent e) {
+				// MARK: Do not use to cancel a downloading by progress handler.
+			 	//       A communication error may occur by the downloading of the next image when
+				//       you cancel the downloading of the image by a progress handler in
+				//       the current version.
 			}
 			
 			@Override
 			public void onCompleted(final byte[] data, final Map<String, Object> metadata) {
+				// Cache the downloaded image.
+				final Bitmap bitmap = createRotatedBitmap(data, metadata);
+				imageCache.put(path, bitmap);
+				
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						imageView.setImageBitmap(createRotatedBitmap(data, metadata));
+						if (view != null && viewPager.indexOfChild(view) > -1) {
+							view.setImageBitmap(bitmap);
+						}
 					}
 				});
 			}
@@ -157,6 +255,7 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 			@Override
 			public void onErrorOccurred(Exception e) {
 				final String message = e.getMessage();
+				Log.e(TAG, message);
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
@@ -165,7 +264,7 @@ public class ImageViewFragment extends android.support.v4.app.Fragment {
 				});
 			}
 		});
-
+		
 	}
 	
 	private void saveImage(final String filename, float downloadSize) {
