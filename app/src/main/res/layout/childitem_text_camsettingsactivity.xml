@@ -23,8 +23,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="@dimen/ListView_childItem_horizMargin"
         android:textAlignment="viewEnd"
-        android:maxLines="1"
-        android:inputType="textCapCharacters"
         />
 
 </LinearLayout>

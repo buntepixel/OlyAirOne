@@ -277,15 +277,20 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 txt = convertView.findViewById(R.id.tv_tv_discription);
                 txt.setText(child);
                 txtcontent = convertView.findViewById(R.id.tv_tv_content);
+                if (groupPosition == 7) {
                     if (childPosition == 0) {
-                       txtcontent.setText(listener.getSetting("CameraVersion", "First connect "));
+                        txtcontent.setText(listener.getSetting("CameraVersion", "First connect "));
                     } else if (childPosition == 1) {
-                        txtcontent.setText( listener.getSetting("KitVersion", "to Camera"));
+                        txtcontent.setText(listener.getSetting("KitVersion", "to Camera"));
                     } else if (childPosition == 2) {
-                        txtcontent.setText( listener.getSetting("KitBuildNumber", "to retrieve"));
+                        txtcontent.setText(listener.getSetting("KitBuildNumber", "to retrieve"));
                     } else if (childPosition == 3) {
-                        txtcontent.setText( listener.getSetting("LensVersion", "necessary Infos"));
+                        txtcontent.setText(listener.getSetting("LensVersion", "necessary Infos"));
                     }
+                }else if(groupPosition ==8){
+                    txtcontent.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                    txtcontent.setText("\nsupport@thegoodplace.eu\nChristian Freisleder\nWilderich-Lang-Str.7\n80634 Munich(Germany)");
+                }
             case CHILD_TYPE_UNDEFINED:
                 //Define how to render the data on the CHILD_TYPE_UNDEFINED layout
                 break;
@@ -299,7 +304,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     }
 
     public int getChildTypeCount() {
-        return 5; // I defined 4 child types (NUMBERPICKER, CHECKBOX, SPINNER,TEXTFIELD CHILD_TYPE_UNDEFINED)
+        return 6; // I defined 4 child types (NUMBERPICKER, CHECKBOX, SPINNER,TEXTFIELD CHILD_TYPE_UNDEFINED)
     }
 
     public int getChildType(int groupPosition, int childPosition) {
@@ -377,6 +382,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     case 2:
                         return TEXT;
                     case 3:
+                        return TEXT;
+                    default:
+                        return CHILD_TYPE_UNDEFINED;
+                }
+            case 8:
+                switch (childPosition) {//impressum
+                    case 0:
                         return TEXT;
                     default:
                         return CHILD_TYPE_UNDEFINED;

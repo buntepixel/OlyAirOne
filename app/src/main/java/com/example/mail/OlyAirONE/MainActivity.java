@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.concurrent.Executor;
@@ -27,6 +28,7 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
 
 public class MainActivity extends Activity implements View.OnClickListener, OLYCameraConnectionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private TextView tv_impressum;
     private ImageView iv_TurnOff, iv_Camera, iv_ViewImages, iv_CamSettings;
     private BroadcastReceiver mReceiver;
     private WifiManager mWifiManager;
@@ -54,6 +56,7 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
         iv_ViewImages = findViewById(R.id.iv_viewImages);
         iv_CamSettings = findViewById(R.id.iv_CamSettings);
         iv_TurnOff = findViewById(R.id.btn_turnOff);
+        tv_impressum = findViewById(R.id.tv_impressum);
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         camera = new OLYCamera();
         camera.setContext(this);
@@ -81,6 +84,7 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
         iv_ViewImages.setOnClickListener(this);
         iv_CamSettings.setOnClickListener(this);
         iv_TurnOff.setOnClickListener(this);
+        tv_impressum.setOnClickListener(this);
 
     }
 
@@ -91,6 +95,8 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
         iv_ViewImages.setOnClickListener(null);
         iv_CamSettings.setOnClickListener(null);
         iv_TurnOff.setOnClickListener(null);
+        tv_impressum.setOnClickListener(null);
+
     }
 
     @Override
@@ -121,7 +127,9 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     @Override
     public void onClick(View view) {
         Intent intent;
-        if (view == iv_Camera) {
+        if (view == tv_impressum) {
+            Toast.makeText(this, "impressum", Toast.LENGTH_SHORT).show();
+        } else if (view == iv_Camera) {
             intent = new Intent(getBaseContext(), ConnectToCamActivity.class);
             intent.putExtra("target", "cam");
             startActivity(intent);
@@ -135,7 +143,7 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
             intent.putExtra("target", "settings");
             startActivity(intent);
         } else if (view == iv_TurnOff) {
-            Toast.makeText(this, "Camera should turn off in a second", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Camera will turn off in a second", Toast.LENGTH_SHORT).show();
             if (!camera.isConnected()) {
                 WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(WIFI_SERVICE);
                 String ssid = mWifiManager.getConnectionInfo().getSSID();

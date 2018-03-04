@@ -198,6 +198,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         groupList.add("Shooting");
         groupList.add("Network");
         groupList.add("Info");
+        groupList.add("Impressum");
     }
 
     @Override
@@ -216,6 +217,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         String[] shooting = {"continous shooting vel","self timer"};
         String[] network = {"SSID(wifi name)"};
         String[] info = {"Camera Version","CameraKit Version","CameraKit BuildNumber","App Version"};
+        String[] impressum = {"Impressum"};
 
 
 
@@ -239,6 +241,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
                 loadChild(network);
             else if (group.equals("Info"))
                 loadChild(info);
+            else if (group.equals("Impressum"))
+                loadChild(impressum);
             categoryColl.put(group, childList);
         }
     }
