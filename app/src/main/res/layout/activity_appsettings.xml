@@ -21,16 +21,16 @@
             android:id="@+id/tvSSID"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_alignParentStart="true"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:text="@string/pref_ssid"/>
 
         <TextView
             android:id="@+id/tvPw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fab_margin"
             android:layout_below="@id/tvSSID"
+            android:layout_marginTop="@dimen/fab_margin"
             android:text="@string/pref_Pw"/>
 
         <EditText
@@ -38,8 +38,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/tvPw"
-            android:layout_toEndOf="@id/tvPw"
             android:layout_marginStart="@dimen/fab_margin"
+            android:layout_toEndOf="@id/tvPw"
             android:hint="@string/pref_Pw"/>
 
         <EditText
@@ -47,8 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/tvSSID"
-            android:layout_toRightOf="@id/tvPw"
             android:layout_marginStart="@dimen/fab_margin"
+            android:layout_toRightOf="@id/tvPw"
             android:hint="@string/pref_network_name"/>
 
     </RelativeLayout>

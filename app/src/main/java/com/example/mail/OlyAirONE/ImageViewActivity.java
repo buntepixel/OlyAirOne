@@ -1,11 +1,10 @@
 package com.example.mail.OlyAirONE;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -28,7 +27,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
     public static final String FRAGMENT_TAG_IMGPAGEVIEWE = "imgPageView";
 
     Executor connectionExecutor = Executors.newFixedThreadPool(1);
-    FragmentManager fm;
+    android.app.FragmentManager fm;
     String currFragStr;
 
     @Override
@@ -39,7 +38,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         camera = new OLYCamera();
         camera.setContext(getApplicationContext());
         camera.setConnectionListener(this);
-        fm = getSupportFragmentManager();
+        fm = getFragmentManager();
         if (savedInstanceState != null) {
             currFragStr = savedInstanceState.getString("currFragStr");
             Log.d(TAG, "currFragStr: " + currFragStr);
@@ -146,7 +145,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         if (currFragStr != null && currFragStr.equals(FRAGMENT_TAG_IMGGRIDVIEW)) {
             ImageGridViewFragment frag = (ImageGridViewFragment) fm.findFragmentById(R.id.fl_imgViewAction_content);
             if (frag == null) {
-                FragmentTransaction transaction = fm.beginTransaction();
+                android.app.FragmentTransaction transaction = fm.beginTransaction();
                 Log.d(TAG, "Frag = imgGridView: ");
                 transaction.add(R.id.fl_imgViewAction_content, fImgGridView, FRAGMENT_TAG_IMGGRIDVIEW);
                 transaction.commit();
@@ -156,7 +155,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
             Log.d(TAG, "Frag = pagerView: ");
             ImagePagerViewFragment frag = (ImagePagerViewFragment) fm.findFragmentById(R.id.fl_imgViewAction_content);
             if (frag == null) {
-                FragmentTransaction transaction = fm.beginTransaction();
+                android.app.FragmentTransaction transaction = fm.beginTransaction();
                 transaction.add(R.id.fl_imgViewAction_content, fPagerViewFragment, FRAGMENT_TAG_IMGPAGEVIEWE);
                 transaction.commit();
             }
@@ -166,13 +165,21 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        finish();
-        Intent intent = new Intent(this, MainActivity.class);
-        if (camera.isConnected())
-            intent.putExtra("correctNetwork", false);
-        else
-            intent.putExtra("correctNetwork", true);
-        startActivity(intent);
+        Fragment frag = fm.findFragmentByTag(FRAGMENT_TAG_IMGPAGEVIEWE);
+        Log.d(TAG,"pop"+ (frag == null));
+
+        if (frag != null) {
+            Log.d(TAG,"pop");
+            fm.popBackStack();
+        } else {
+            finish();
+            Intent intent = new Intent(this, MainActivity.class);
+            if (camera.isConnected())
+                intent.putExtra("correctNetwork", false);
+            else
+                intent.putExtra("correctNetwork", true);
+            startActivity(intent);
+        }
     }
 
     @Override

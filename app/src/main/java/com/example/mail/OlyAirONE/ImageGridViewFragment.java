@@ -8,6 +8,8 @@ package com.example.mail.OlyAirONE;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -19,7 +21,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -58,7 +59,7 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-public class ImageGridViewFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class ImageGridViewFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private static final String TAG = ImageGridViewFragment.class.getSimpleName();
 
     private GridView gridView;
@@ -197,14 +198,14 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
         }
         Log.d(TAG, "downloadsize:  " + downloadSize);
         if (selectionList.size() > 0 && doDownload) {
-            downLoadContentFromCam(downloadSize);
+            saveImageToPhone(downloadSize);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void downLoadContentFromCam(float downloadSize) {
+    private void saveImageToPhone(float downloadSize) {
         Log.d(TAG, "downloading Images");
         final float myDownloadsize = downloadSize;
         Calendar calendar = Calendar.getInstance();
@@ -363,7 +364,7 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                     ex.printStackTrace();
                     final String error = ex.toString();
                     Log.d(TAG, "Error: " + ex);
-                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
                 }
                 runOnUiThread(new Runnable() {
                     @Override
@@ -507,12 +508,11 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 fImgPagerView.setContentList(contentList);
                 fImgPagerView.setContentIndex(position);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(getId(), fImgPagerView, ImageViewActivity.FRAGMENT_TAG_IMGPAGEVIEWE);
+                transaction.replace(getId(), fImgPagerView);
                 transaction.addToBackStack(ImageViewActivity.FRAGMENT_TAG_IMGGRIDVIEW);
+                transaction.commit();
                 if (listener != null)
                     listener.OnFragmentChange(ImageViewActivity.FRAGMENT_TAG_IMGPAGEVIEWE);
-                transaction.commit();
-
 
             }
         } catch (ClassCastException ex) {
@@ -593,30 +593,6 @@ public class ImageGridViewFragment extends android.support.v4.app.Fragment imple
                 viewHolder.iconView = (ImageView) convertView.findViewById(R.id.iv_gv_icon);
                 viewHolder.chbxView = (CheckBox) convertView.findViewById(R.id.chbx_gv_delete);
 
-               /* viewHolder.chbxView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        OLYCameraFileInfo selItem;
-                        try {
-                            Log.d(TAG, "click pos: " + tmpPos);
-                            selItem = (OLYCameraFileInfo) getItem(tmpPos);
-                            if (((CheckBox) view).isChecked() && !selectionList.contains(selItem)) {
-                                selectionList.add(selItem);
-                                selectionPosArr[tmpPos] = true;
-                            } else if (selectionList.contains(selItem)) {
-                                selectionList.remove(selItem);
-                                selectionPosArr[tmpPos] = false;
-                                Log.d(TAG, "Removed selItem: " + selItem.getFilename());
-                            } else {
-                                Log.d(TAG, "NotingHappend in click");
-                            }
-                        } catch (ClassCastException ex) {
-                            ex.printStackTrace();
-                            Log.d(TAG, "error: " + ex.toString());
-
-                        }
-                    }
-                });*/
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (GridCellViewHolder) convertView.getTag();

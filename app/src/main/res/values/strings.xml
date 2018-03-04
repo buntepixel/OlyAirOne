@@ -128,7 +128,7 @@
     <string name="title_activity_image_view">ImageViewActivity</string>
     <string name="gv_ifo_deleting">Deleting</string>
     <string name="gv_ifo_downloading">Downloading</string>
-
+    <string name="btn_camera">Camera</string>
 
 
 </resources>

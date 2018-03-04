@@ -6,7 +6,7 @@
 
     <view
         class="com.example.mail.OlyAirONE.ScalableImageView"
-        android:id="@+id/imageView1"
+        android:id="@+id/fragImgView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

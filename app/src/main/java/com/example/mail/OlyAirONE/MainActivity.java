@@ -2,14 +2,10 @@ package com.example.mail.OlyAirONE;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,7 +14,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.concurrent.Executor;
@@ -31,7 +27,7 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
 
 public class MainActivity extends Activity implements View.OnClickListener, OLYCameraConnectionListener {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private Button btnCamera, btnViewImages, btnCamSettings, btnTurnOff, btnTurnOn;
+    private ImageView iv_TurnOff, iv_Camera, iv_ViewImages, iv_CamSettings;
     private BroadcastReceiver mReceiver;
     private WifiManager mWifiManager;
     private OLYCamera camera;
@@ -51,19 +47,13 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-// Initializes Bluetooth adapter.
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-
         setContentView(R.layout.activity_main);/**/
         preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         Log.d(TAG, "SET PrefsObj");
-        btnCamera = findViewById(R.id.btnCamera);
-        btnViewImages = findViewById(R.id.btnViewImages);
-        btnCamSettings = findViewById(R.id.btnCamSettings);
-        btnTurnOff = findViewById(R.id.btn_turnOff);
-        btnTurnOn = findViewById(R.id.btn_turnOn);
+        iv_Camera = findViewById(R.id.iv_Camera);
+        iv_ViewImages = findViewById(R.id.iv_viewImages);
+        iv_CamSettings = findViewById(R.id.iv_CamSettings);
+        iv_TurnOff = findViewById(R.id.btn_turnOff);
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         camera = new OLYCamera();
         camera.setContext(this);
@@ -87,22 +77,20 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     protected void onResume() {
         super.onResume();
 
-        btnCamera.setOnClickListener(this);
-        btnViewImages.setOnClickListener(this);
-        btnCamSettings.setOnClickListener(this);
-        btnTurnOff.setOnClickListener(this);
-        btnTurnOn.setOnClickListener(this);
+        iv_Camera.setOnClickListener(this);
+        iv_ViewImages.setOnClickListener(this);
+        iv_CamSettings.setOnClickListener(this);
+        iv_TurnOff.setOnClickListener(this);
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        btnCamera.setOnClickListener(null);
-        btnViewImages.setOnClickListener(null);
-        btnCamSettings.setOnClickListener(null);
-        btnTurnOff.setOnClickListener(null);
-        btnTurnOn.setOnClickListener(null);
+        iv_Camera.setOnClickListener(null);
+        iv_ViewImages.setOnClickListener(null);
+        iv_CamSettings.setOnClickListener(null);
+        iv_TurnOff.setOnClickListener(null);
     }
 
     @Override
@@ -130,66 +118,23 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     }
 
 
-    private ScanCallback leScanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            Log.d(TAG, "callbackType: " + callbackType + " result: " + result);
-        }
-    };
-
-    private void scanLeDevice(final boolean enable) {
-        if (enable) {
-            // Stops scanning after a pre-defined scan period.
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScanning = false;
-                    mBluetoothAdapter.getBluetoothLeScanner().stopScan(leScanCallback);
-                }
-            }, SCAN_PERIOD);
-
-            mScanning = true;
-            mBluetoothAdapter.getBluetoothLeScanner().startScan(leScanCallback);
-        } else {
-            mScanning = false;
-            mBluetoothAdapter.getBluetoothLeScanner().stopScan(leScanCallback);
-
-        }
-    }
-
     @Override
     public void onClick(View view) {
         Intent intent;
-        if (view == btnCamera) {
+        if (view == iv_Camera) {
             intent = new Intent(getBaseContext(), ConnectToCamActivity.class);
             intent.putExtra("target", "cam");
             startActivity(intent);
-        } else if (view == btnViewImages) {
+        } else if (view == iv_ViewImages) {
             intent = new Intent(getBaseContext(), ConnectToCamActivity.class);
             intent.putExtra("target", "imageView");
             startActivity(intent);
 
-        } else if (view == btnCamSettings) {
+        } else if (view == iv_CamSettings) {
             intent = new Intent(getBaseContext(), CamSettingsActivity.class);
             intent.putExtra("target", "settings");
             startActivity(intent);
-        } else if (view == btnTurnOn) {
-            try {
-                // you can selectively disable BLE-related features.
-                if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                    Toast.makeText(this, "ble_not_supported", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                scanLeDevice(true);
-                //camera.setBluetoothDevice(mBluetoothAdapter);
-                /*BluetoothDevice bluetoothDevice1 = new BluetoothDevice();
-                camera.setBluetoothDevice();*/
-                camera.wakeup();
-            } catch (OLYCameraKitException ex) {
-                ex.printStackTrace();
-            }
-            //nothing here yet
-        } else if (view == btnTurnOff) {
+        } else if (view == iv_TurnOff) {
             Toast.makeText(this, "Camera should turn off in a second", Toast.LENGTH_SHORT).show();
             if (!camera.isConnected()) {
                 WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(WIFI_SERVICE);
