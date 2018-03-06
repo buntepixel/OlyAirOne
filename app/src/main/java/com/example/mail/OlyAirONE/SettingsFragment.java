@@ -156,6 +156,7 @@ public class SettingsFragment extends Fragment
     }
 
     public void UpdateSliderButtons() {
+        Log.d(TAG,"UpdateSliderButtons"+CameraActivity.currTakeMode);
         switch (CameraActivity.currTakeMode) {
             case 0://iAuto
                 SetButtonsBool(false, false, false, false, false);

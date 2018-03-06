@@ -144,6 +144,7 @@ public class CameraActivity extends FragmentActivity
             Log.d(TAG, "Cam Is connected");
             onConnectedToCamera();
         }
+        setTakeModeInFragments(currTakeMode);
         Log.d(TAG, "END Resume");
     }
 
@@ -408,17 +409,16 @@ public class CameraActivity extends FragmentActivity
     private void setTakeModeInFragments(int mode) {
         Log.d(TAG, "Mode: " + mode);
         fSettings = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
-
         if (fSettings != null) {
             switch (mode) {
                 case 0://iAuto
                     fSettings.UpdateSliderButtons();
-                   // fTrigger.SetTakeMode(mode);
+                    // fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Iauto");
                     break;
                 case 1://Programm
                     fSettings.UpdateSliderButtons();
-                   // fTrigger.SetTakeMode(mode);
+                    // fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Programm");
                     break;
                 case 2://Aparture
@@ -433,7 +433,7 @@ public class CameraActivity extends FragmentActivity
                     break;
                 case 4://Manual
                     fSettings.UpdateSliderButtons();
-                   // fTrigger.SetTakeMode(mode);
+                    // fTrigger.SetTakeMode(mode);
                     Log.d(TAG, "Manual");
                     break;
                 case 5://Art
