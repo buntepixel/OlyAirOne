@@ -442,7 +442,7 @@ public class SettingsFragment extends Fragment
 
             leftText.setText("-");
             leftText.setWidth(30);
-            leftText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextWhite));
+            leftText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextLightWhite));
             leftText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             containerLLayout.addView(leftText);
 
@@ -457,7 +457,7 @@ public class SettingsFragment extends Fragment
             rightText.setGravity(Gravity.CENTER);
             rightText.setWidth(30);
             rightText.setText("+");
-            rightText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextWhite));
+            rightText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextLightWhite));
             rightText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             containerLLayout.addView(rightText);
         }

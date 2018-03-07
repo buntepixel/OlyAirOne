@@ -15,6 +15,7 @@
         android:columnWidth="80dp"
         android:horizontalSpacing="1dp"
         android:numColumns="auto_fit"
+        android:background="@color/colorPrimaryDark"
         android:verticalSpacing="1dp">
     </GridView>
 
@@ -44,13 +45,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
-                    android:textColor="@color/colorTextWhite"
+                    android:textColor="@color/colorTextLightWhite"
                     />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
-                    android:textColor="@color/colorTextWhite"
+                    android:textColor="@color/colorTextLightWhite"
                     android:text=" File: "/>
 
                 <TextView
@@ -58,7 +59,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
-                    android:textColor="@color/colorTextWhite"
+                    android:textColor="@color/colorTextLightWhite"
                     android:textStyle="bold"
 
                     android:text=""/>
@@ -72,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
-                    android:textColor="@color/colorTextWhite"
+                    android:textColor="@color/colorTextLightWhite"
                     android:text="item: "/>
 
                 <TextView
@@ -80,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
-                    android:textColor="@color/colorTextWhite"
+                    android:textColor="@color/colorTextLightWhite"
                     android:textStyle="bold"
                     android:text="0"/>
 
@@ -88,7 +89,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
-                    android:textColor="@color/colorTextWhite"
+                    android:textColor="@color/colorTextLightWhite"
                     android:text=" of "/>
 
                 <TextView
@@ -96,7 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/large_txt"
-                    android:textColor="@color/colorTextWhite"
+                    android:textColor="@color/colorTextLightWhite"
                     android:textStyle="bold"
                     android:text="0"/>
             </LinearLayout>

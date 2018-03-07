@@ -129,7 +129,7 @@ public class ImagePagerViewFragment extends Fragment {
         float downloadSize = 0;
         Log.d(TAG, "itemId:  " + item.getItemId() + "needed: " + R.id.action_download_1024x768);
         if (item.getItemId() == android.R.id.home) {
-         fm.popBackStackImmediate(ImageViewActivity.FRAGMENT_TAG_IMGGRIDVIEW,FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            fm.popBackStack();
         } else if (item.getItemId() == R.id.action_download_original_size) {
             Log.d(TAG, "Ori:  " + item.getItemId());
             downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
@@ -162,7 +162,6 @@ public class ImagePagerViewFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     public void onResume() {

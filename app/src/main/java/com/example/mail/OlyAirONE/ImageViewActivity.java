@@ -1,7 +1,6 @@
 package com.example.mail.OlyAirONE;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -118,7 +117,6 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
 
     }
 
-
     private void alertConnectingFailed(Exception e) {
         final Intent myIntent = new Intent(this, ConnectToCamActivity.class);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -162,25 +160,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Fragment frag = fm.findFragmentByTag(FRAGMENT_TAG_IMGPAGEVIEWE);
-        Log.d(TAG,"pop"+ (frag == null));
 
-        if (frag != null) {
-            Log.d(TAG,"pop");
-            fm.popBackStack();
-        } else {
-            finish();
-            Intent intent = new Intent(this, MainActivity.class);
-            if (camera.isConnected())
-                intent.putExtra("correctNetwork", false);
-            else
-                intent.putExtra("correctNetwork", true);
-            startActivity(intent);
-        }
-    }
 
     @Override
     public void onStop() {

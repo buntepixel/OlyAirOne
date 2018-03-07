@@ -13,7 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-
         android:layout_weight="1">
 
         <TextView
@@ -31,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="@dimen/GridView_borderMargin"
-            android:src="@drawable/ic_power_settings_new_black_36dp"
+            android:src="@drawable/ic_power_settings_new_white_36dp"
             />
 
     </RelativeLayout>

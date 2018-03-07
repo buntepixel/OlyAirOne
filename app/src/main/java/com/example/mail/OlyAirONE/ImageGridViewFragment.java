@@ -509,7 +509,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                 fImgPagerView.setContentIndex(position);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.replace(getId(), fImgPagerView);
-                transaction.addToBackStack(ImageViewActivity.FRAGMENT_TAG_IMGGRIDVIEW);
+                transaction.addToBackStack(null);
                 transaction.commit();
                 if (listener != null)
                     listener.OnFragmentChange(ImageViewActivity.FRAGMENT_TAG_IMGPAGEVIEWE);

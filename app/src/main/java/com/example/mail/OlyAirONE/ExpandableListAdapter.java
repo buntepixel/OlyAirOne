@@ -521,7 +521,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     }
 
     private void setupNumberPicker(NumberPicker np, Integer minVal, Integer maxVal, Integer startVal, Boolean wrap, String tag) {
-
+//Todo: fix null ref on very first init
         np.setMinValue(minVal); //from array first value
         np.setMaxValue(maxVal); //to array last value
         np.setTag(tag);
