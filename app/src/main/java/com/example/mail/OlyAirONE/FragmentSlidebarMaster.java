@@ -20,8 +20,8 @@ import jp.co.olympus.camerakit.OLYCamera;
  * Created by mail on 13/10/2016.
  */
 
-public abstract class FragmentMasterSlidebar extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
-    private static final String TAG = FragmentMasterSlidebar.class.getSimpleName();
+public abstract class FragmentSlidebarMaster extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
+    private static final String TAG = FragmentSlidebarMaster.class.getSimpleName();
     OLYCamera camera;
     protected List<String> myString;
     private sliderValue sliderValueListener;
@@ -35,7 +35,7 @@ public abstract class FragmentMasterSlidebar extends Fragment implements ViewTre
         void onSlideValueBar(String value);
     }
 
-    public FragmentMasterSlidebar() {
+    public FragmentSlidebarMaster() {
 
     }
 
@@ -178,7 +178,6 @@ public abstract class FragmentMasterSlidebar extends Fragment implements ViewTre
         if (sliderValueListener != null) {
             sliderValueListener.onSlideValueBar(myString.get(currIndex));
             mySliderValIndex = currIndex;
-            Log.d(TAG, "CurrSTring: " + myString.get(currIndex) + "mysliderValIdx: " + mySliderValIndex);
             mScrollingValuePicker.snapBarToValue(mySliderValIndex);
         }
     }
@@ -188,6 +187,7 @@ public abstract class FragmentMasterSlidebar extends Fragment implements ViewTre
         int clickedIndex = myString.indexOf(value);
         Log.d(TAG, "mySTring: " + myString.toString());
         Log.d(TAG, "StringValue: " + value + "clickedIndex: " + clickedIndex);
+        sliderValueListener.onSlideValueBar(value);
         mScrollingValuePicker.setBarToValue(clickedIndex);
     }
 
@@ -196,7 +196,6 @@ public abstract class FragmentMasterSlidebar extends Fragment implements ViewTre
         super.onAttach(context);
         try {
             sliderValueListener = (sliderValue) context;
-
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement sliderValueListener ");
         }

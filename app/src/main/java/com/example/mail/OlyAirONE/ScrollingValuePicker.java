@@ -220,6 +220,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         Log.d(TAG, "click ScrollingValuePicker: " + tag);
         if (view instanceof TextView) {
             tag = (String) (view).getTag();
+            Log.d(TAG, "click textView: " + tag);
             mValueInteractionListener.onClick(tag);
         } else if (view instanceof ImageView) {
             tag = (String) (view).getTag();

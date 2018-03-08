@@ -30,7 +30,7 @@ import jp.co.olympus.camerakit.OLYCameraPropertyListener;
 
 public class CameraActivity extends FragmentActivity
         implements FragmentLiveView.OnLiveViewInteractionListener, FragmentTrigger.OnTriggerFragmInteractionListener,
-        FragmentMasterSlidebar.sliderValue, FragmentSettings.OnSettingsFragmInteractionListener,
+        FragmentSlidebarMaster.sliderValue, FragmentSettings.OnSettingsFragmInteractionListener,
         OLYCameraConnectionListener, OLYCameraPropertyListener {
     private static final String TAG = CameraActivity.class.getSimpleName();
     private static final String FRAGMENT_TAG_SETTINGS = "Settings";
@@ -75,11 +75,11 @@ public class CameraActivity extends FragmentActivity
     FragmentTrigger fTrigger;
     FragmentLiveView fLiveView;
     FragmentSettings fSettings;
-    FragmentMasterSlidebarAperture apartureFragment;
-    FragmentMasterSlidebarIso mFragmentIso;
-    FragmentWbMasterSlidebar wbFragment;
-    FragmentShutterMasterSlidebar shutterSpeedFragment;
-    FragmentMasterSlidebarExposureCorr exposureCorrFragment;
+    FragmentSlidebarMasterAperture apartureFragment;
+    FragmentSlidebarMasterIso mFragmentIso;
+    FragmentSlidebarMasterWb wbFragment;
+    FragmentSlidebarMasterShutter shutterSpeedFragment;
+    FragmentSlidebarMasterExposureCorr exposureCorrFragment;
     static OLYCamera camera = null;
 
     //-----------------
@@ -469,23 +469,23 @@ public class CameraActivity extends FragmentActivity
     private void createSliderFragments() {
         //create slider fragments.
         Log.d(TAG, "Creating Slider Fragments");
-        apartureFragment = FragmentMasterSlidebarAperture.newInstance(getCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), getCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
-        shutterSpeedFragment = FragmentShutterMasterSlidebar.newInstance(getCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), getCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
-        exposureCorrFragment = FragmentMasterSlidebarExposureCorr.newInstance(getCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION), getCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
-        mFragmentIso = FragmentMasterSlidebarIso.newInstance(getCamPropertyValues(CAMERA_PROPERTY_ISO_SENSITIVITY), getCamPropertyValue(CAMERA_PROPERTY_ISO_SENSITIVITY));
-        wbFragment = FragmentWbMasterSlidebar.newInstance(getCamPropertyValues(CAMERA_PROPERTY_WHITE_BALANCE), getCamPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE));
+        apartureFragment = FragmentSlidebarMasterAperture.newInstance(getCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), getCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
+        shutterSpeedFragment = FragmentSlidebarMasterShutter.newInstance(getCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), getCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
+        exposureCorrFragment = FragmentSlidebarMasterExposureCorr.newInstance(getCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION), getCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
+        mFragmentIso = FragmentSlidebarMasterIso.newInstance(getCamPropertyValues(CAMERA_PROPERTY_ISO_SENSITIVITY), getCamPropertyValue(CAMERA_PROPERTY_ISO_SENSITIVITY));
+        wbFragment = FragmentSlidebarMasterWb.newInstance(getCamPropertyValues(CAMERA_PROPERTY_WHITE_BALANCE), getCamPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE));
     }
 
     private void removeVisibleSliderFragments() {
         //if there is a fragment loaded remove it
         Log.d(TAG, "RemoveVisFragment");
-        FragmentMasterSlidebar fragment1 = (FragmentMasterSlidebar) fm.findFragmentById(R.id.fl_FragCont_ExpApart1);
+        FragmentSlidebarMaster fragment1 = (FragmentSlidebarMaster) fm.findFragmentById(R.id.fl_FragCont_ExpApart1);
         if (fragment1 != null) {
             android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(fragment1);
             Log.d(TAG, "Removing expApart1");
-            FragmentMasterSlidebar fragment2 = (FragmentMasterSlidebar) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
+            FragmentSlidebarMaster fragment2 = (FragmentSlidebarMaster) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
             if (fragment2 != null) {
                 ft.remove(fragment2);
                 Log.d(TAG, "Removing expApart2");
@@ -499,7 +499,7 @@ public class CameraActivity extends FragmentActivity
 
     }
 
-    private void generalPressed(FragmentMasterSlidebar myFragment, final String propertyName, int frameLayoutToAppear) {
+    private void generalPressed(FragmentSlidebarMaster myFragment, final String propertyName, int frameLayoutToAppear) {
         //getting possible values
         List<String> valueList = getCamPropertyValues(propertyName);
         if (valueList == null || valueList.size() == 0) return;
@@ -515,7 +515,7 @@ public class CameraActivity extends FragmentActivity
             android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             //Remove Fragment showing
-            final FragmentMasterSlidebar myFrag = (FragmentMasterSlidebar) fm.findFragmentById(frameLayoutToAppear);
+            final FragmentSlidebarMaster myFrag = (FragmentSlidebarMaster) fm.findFragmentById(frameLayoutToAppear);
 
             Log.d(TAG, "myFrag: " + myFrag + " myFragment: " + myFragment);
             if (myFrag == myFragment) {
@@ -530,14 +530,14 @@ public class CameraActivity extends FragmentActivity
                     //set slider to curr value
                     myFrag.SetSliderBarValIdx(value);
 
-                    FragmentMasterSlidebar myFrag2 = (FragmentMasterSlidebar) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
+                    FragmentSlidebarMaster myFrag2 = (FragmentSlidebarMaster) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
                     if (myFrag2 != null)
                         ft.remove(myFrag2);
 
                 } else {
                     Log.d(TAG, "New");
                     myFragment.updateBundle(valueList, value);
-                    myFragment.setSliderValueListener(new FragmentMasterSlidebar.sliderValue() {
+                    myFragment.setSliderValueListener(new FragmentSlidebarMaster.sliderValue() {
                         @Override
                         public void onSlideValueBar(String value) {
                             fSettings.SetSliderResult(value, propertyName);

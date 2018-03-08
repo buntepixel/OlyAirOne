@@ -933,7 +933,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         for (int i = nbOffExp + 1; i < nbImages; i++) {//get pos offset
             floatBr[i] = floatBr[i - 1] * (2 * evOffset);
         }
-        List<String> shutterVals = FragmentShutterMasterSlidebar.getPossibleShutterValues();
+        List<String> shutterVals = FragmentSlidebarMasterShutter.getPossibleShutterValues();
         /*Log.d(TAG, "shutterValsSize: " + shutterVals.size());
         Log.d(TAG, "shutterVals: " + shutterVals.toString());*/
         int k = 0;

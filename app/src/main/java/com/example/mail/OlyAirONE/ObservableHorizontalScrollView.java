@@ -59,14 +59,7 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
         super.onScrollChanged(scrollValue, t, oldl, oldt);
     }
 
-  /*  @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_MOVE) {
-            setScroll= false;//set back to false on next scroll
-        }
-        return super.onTouchEvent(ev);
-    }
-*/
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);

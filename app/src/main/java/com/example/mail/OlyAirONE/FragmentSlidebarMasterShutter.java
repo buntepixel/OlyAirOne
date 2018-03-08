@@ -9,12 +9,12 @@ import java.util.List;
  * Created by mail on 13/10/2016.
  */
 
-public class FragmentShutterMasterSlidebar extends FragmentMasterSlidebar {
-    private static final String TAG = FragmentShutterMasterSlidebar.class.getSimpleName();
+public class FragmentSlidebarMasterShutter extends FragmentSlidebarMaster {
+    private static final String TAG = FragmentSlidebarMasterShutter.class.getSimpleName();
     private static List<String> expValues;
 
-    public static FragmentShutterMasterSlidebar newInstance(List<String> myString, String value) {
-        FragmentShutterMasterSlidebar myFragment = new FragmentShutterMasterSlidebar();
+    public static FragmentSlidebarMasterShutter newInstance(List<String> myString, String value) {
+        FragmentSlidebarMasterShutter myFragment = new FragmentSlidebarMasterShutter();
 
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
