@@ -167,7 +167,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         super.onCreate(savedInstanceState);
        /* if (savedInstanceState != null)
             return;*/
-        camera = CameraActivity.getCamera();
+        camera = CameraActivity.camera;
     }
 
     @Override

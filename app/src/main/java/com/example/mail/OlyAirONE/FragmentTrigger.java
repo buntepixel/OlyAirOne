@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
@@ -28,19 +27,12 @@ public class FragmentTrigger extends Fragment
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
 
     OLYCamera camera;
-
-    private ExposureCorrection expCorr;
-    private List<String> possibleExpCorrValues;
     private ImageView iv_driveMode;
-    private String val_driveMode;
     private ImageView iv_meteringMode;
-    private String val_meteringMode;
     private ImageView iv_shutter;
+    private int currTakeMode;
 
-    private Boolean enabledFocusLock;
-    private Boolean updateMetering;
-
-    private OnTriggerFragmInteractionListener triggerFragmListener;
+    private OnTriggerFragmInteractionListener listener;
 
     @SuppressWarnings("serial")
     private static final Map<String, Integer> drivemodeIconList = new HashMap<String, Integer>() {
@@ -70,8 +62,6 @@ public class FragmentTrigger extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        camera = CameraActivity.getCamera();
-        Log.d(TAG, " camera Conntected: camera set:" + camera.isConnected());
     }
 
     @Override
@@ -93,6 +83,7 @@ public class FragmentTrigger extends Fragment
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "click");
         if (v == iv_driveMode)
             drivemodeImageViewDidTap();
         else if (v == iv_meteringMode)
@@ -101,11 +92,12 @@ public class FragmentTrigger extends Fragment
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        Log.d(TAG, "touch");
         if (v == iv_shutter) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                triggerFragmListener.onShutterTouched(event);
+                listener.onShutterTouched(event);
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                triggerFragmListener.onShutterTouched(event);
+                listener.onShutterTouched(event);
             }
         }
         return true;
@@ -115,19 +107,20 @@ public class FragmentTrigger extends Fragment
         iv_shutter.setSelected(bool);
     }
 
+    public void setTakeMode(int takeMode) {
+        this.currTakeMode = takeMode;
+        updateMeteringImageView();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
+        camera = CameraActivity.camera;
         updateMeteringImageView();
     }
 
 //----------------
 
-  /*  public void UpdateSliderButtons(int takeMode) {
-        this.takeMode = takeMode;
-        updateMeteringImageView();
-        updateDrivemodeImageView();
-    }*/
 
     private void meteringImageViewDidTap() {
         CameraActivity.updateImageView(iv_meteringMode, meteringIconList, CameraActivity.setCameraProperty(iv_meteringMode, CameraActivity.CAMERA_PROPERTY_METERING_MODE));
@@ -143,24 +136,21 @@ public class FragmentTrigger extends Fragment
     }
 
     private void updateMeteringImageView() {
-        if (CameraActivity.currTakeMode < 1 || CameraActivity.currTakeMode > 5) {
+        Log.d(TAG, "camAct: currTakeMode: " + currTakeMode);
+        if (currTakeMode < 1 || currTakeMode > 5) {
             iv_meteringMode.setVisibility(View.INVISIBLE);
         } else {
             iv_meteringMode.setVisibility(View.VISIBLE);
-             CameraActivity.updatePropertyImageView(iv_meteringMode, meteringIconList, CameraActivity.CAMERA_PROPERTY_METERING_MODE);
+            CameraActivity.updatePropertyImageView(iv_meteringMode, meteringIconList, CameraActivity.CAMERA_PROPERTY_METERING_MODE);
         }
     }
-
-
-
-
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            triggerFragmListener = (OnTriggerFragmInteractionListener) context;
+            listener = (OnTriggerFragmInteractionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnTriggerFragmInteractionListener");
         }
@@ -169,8 +159,8 @@ public class FragmentTrigger extends Fragment
     @Override
     public void onDetach() {
         super.onDetach();
-        if (triggerFragmListener != null)
-            triggerFragmListener = null;
+        if (listener != null)
+            listener = null;
     }
 }
 

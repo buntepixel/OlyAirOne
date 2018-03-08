@@ -208,7 +208,7 @@ public class CameraActivity extends FragmentActivity
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            this.currTakeMode = currDriveMode;
+            currTakeMode = currDriveMode;
             setTakeModeInFragments(currDriveMode);
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);
@@ -410,41 +410,10 @@ public class CameraActivity extends FragmentActivity
         Log.d(TAG, "Mode: " + mode);
         fSettings = (FragmentSettings) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
         if (fSettings != null) {
-            switch (mode) {
-                case 0://iAuto
-                    fSettings.UpdateSliderButtons();
-                    // fTrigger.SetTakeMode(mode);
-                    Log.d(TAG, "Iauto");
-                    break;
-                case 1://Programm
-                    fSettings.UpdateSliderButtons();
-                    // fTrigger.SetTakeMode(mode);
-                    Log.d(TAG, "Programm");
-                    break;
-                case 2://Aparture
-                    fSettings.UpdateSliderButtons();
-                    //fTrigger.SetTakeMode(mode);
-                    Log.d(TAG, "Aparture");
-                    break;
-                case 3://Speed
-                    fSettings.UpdateSliderButtons();
-                    //fTrigger.SetTakeMode(mode);
-                    Log.d(TAG, "Speed");
-                    break;
-                case 4://Manual
-                    fSettings.UpdateSliderButtons();
-                    // fTrigger.SetTakeMode(mode);
-                    Log.d(TAG, "Manual");
-                    break;
-                case 5://Art
-                    Log.d(TAG, "Art");
-                    break;
-                case 6://Movie
-                    fSettings.UpdateSliderButtons();
-                    //fTrigger.SetTakeMode(mode);
-                    Log.d(TAG, "Movie");
-                    break;
-            }
+            fSettings.UpdateSliderButtons();
+            fTrigger.setTakeMode(mode);
+
+
         } else {
             Log.w(TAG, "couldn't find Fragment with tag: Trigger");
         }
