@@ -10,11 +10,11 @@ import java.util.List;
  * Created by mail on 14/06/2017.
  */
 
-public class IsoFragment extends MasterSlidebarFragment {
-    private static final String TAG = IsoFragment.class.getSimpleName();
+public class FragmentMasterSlidebarIso extends FragmentMasterSlidebar {
+    private static final String TAG = FragmentMasterSlidebarIso.class.getSimpleName();
 
-    public  static IsoFragment newInstance(List<String> myString,String value) {
-        IsoFragment myFragment = new IsoFragment();
+    public  static FragmentMasterSlidebarIso newInstance(List<String> myString, String value) {
+        FragmentMasterSlidebarIso myFragment = new FragmentMasterSlidebarIso();
         Log.d(TAG, "SliderBarValues: " + myString.size());
 
         Bundle args = new Bundle();

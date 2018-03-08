@@ -16,11 +16,11 @@ import android.widget.EditText;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class WificredentialsDialogueFragment extends DialogFragment {
-    private static final String TAG = WificredentialsDialogueFragment.class.getSimpleName();
+public class FragmentWificredentialsDialogue extends DialogFragment {
+    private static final String TAG = FragmentWificredentialsDialogue.class.getSimpleName();
 
-    static WificredentialsDialogueFragment newInstance() {
-        WificredentialsDialogueFragment f = new WificredentialsDialogueFragment();
+    static FragmentWificredentialsDialogue newInstance() {
+        FragmentWificredentialsDialogue f = new FragmentWificredentialsDialogue();
         return f;
     }
 

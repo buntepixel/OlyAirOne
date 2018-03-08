@@ -50,8 +50,8 @@ import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 
-public class ImagePagerViewFragment extends Fragment {
-    private static final String TAG = ImagePagerViewFragment.class.getSimpleName();
+public class FragmentImagePagerView extends Fragment {
+    private static final String TAG = FragmentImagePagerView.class.getSimpleName();
 
     private OLYCamera camera;
     private List<OLYCameraFileInfo> contentList;

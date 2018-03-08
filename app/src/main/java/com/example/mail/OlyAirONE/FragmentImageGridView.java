@@ -59,8 +59,8 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-public class ImageGridViewFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
-    private static final String TAG = ImageGridViewFragment.class.getSimpleName();
+public class FragmentImageGridView extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+    private static final String TAG = FragmentImageGridView.class.getSimpleName();
 
     private GridView gridView;
     private RelativeLayout infoLayout;
@@ -504,7 +504,7 @@ public class ImageGridViewFragment extends Fragment implements AdapterView.OnIte
                 }
             } else {
                 Log.d(TAG, "Go to big view: ");
-                ImagePagerViewFragment fImgPagerView = new ImagePagerViewFragment();    // Use an advanced viewer.
+                FragmentImagePagerView fImgPagerView = new FragmentImagePagerView();    // Use an advanced viewer.
                 fImgPagerView.setContentList(contentList);
                 fImgPagerView.setContentIndex(position);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();

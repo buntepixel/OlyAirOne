@@ -9,11 +9,11 @@ import java.util.List;
  * Created by mail on 13/10/2016.
  */
 
-public class ExposureCorrFragment extends MasterSlidebarFragment {
-    private static final String TAG = ExposureCorrFragment.class.getSimpleName();
+public class FragmentMasterSlidebarAperture extends FragmentMasterSlidebar {
+    private static final String TAG = FragmentMasterSlidebarAperture.class.getSimpleName();
 
-    public  static ExposureCorrFragment newInstance(List<String> myString,String value) {
-        ExposureCorrFragment myFragment = new ExposureCorrFragment();
+    public  static FragmentMasterSlidebarAperture newInstance(List<String> myString, String value) {
+        FragmentMasterSlidebarAperture myFragment = new FragmentMasterSlidebarAperture();
 
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
@@ -25,6 +25,6 @@ public class ExposureCorrFragment extends MasterSlidebarFragment {
         return myFragment;
     }
 
-
-
 }
+
+

@@ -19,11 +19,11 @@ import android.widget.Toast;
  * Activities that contain this fragment must implement the
  * {@link OnMainSettingsFragmInteractionListener} interface
  * to handle interaction events.
- * Use the {@link MainSettingsFragment#newInstance} factory method to
+ * Use the {@link FragmentMainSettings#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainSettingsFragment extends Fragment {
-    private static final String TAG = MainSettingsFragment.class.getSimpleName();
+public class FragmentMainSettings extends Fragment {
+    private static final String TAG = FragmentMainSettings.class.getSimpleName();
     ;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,7 +41,7 @@ public class MainSettingsFragment extends Fragment {
 
     private OnMainSettingsFragmInteractionListener mListener;
 
-    public MainSettingsFragment() {
+    public FragmentMainSettings() {
         // Required empty public constructor
     }
 
@@ -51,11 +51,11 @@ public class MainSettingsFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment MainSettingsFragment.
+     * @return A new instance of fragment FragmentMainSettings.
      */
     // TODO: Rename and change types and number of parameters
-    public static MainSettingsFragment newInstance(String param1, String param2) {
-        MainSettingsFragment fragment = new MainSettingsFragment();
+    public static FragmentMainSettings newInstance(String param1, String param2) {
+        FragmentMainSettings fragment = new FragmentMainSettings();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

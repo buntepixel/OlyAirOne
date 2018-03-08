@@ -46,10 +46,10 @@ import jp.co.olympus.camerakit.OLYCameraStatusListener;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListener,
+public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListener,
         OLYCameraStatusListener, OLYCameraPropertyListener, OLYCameraRecordingListener, OLYCameraRecordingSupportsListener,
         View.OnClickListener, View.OnTouchListener {
-    private static final String TAG = LiveViewFragment.class.getSimpleName();
+    private static final String TAG = FragmentLiveView.class.getSimpleName();
 
     int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
             R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
@@ -93,7 +93,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     private MediaPlayer shutterSoundPlayer;
     private Boolean enabledTouchShutter = false;
     private Boolean enabledFocusLock = false;
-    private CameraLiveImageView imageView;
+    private CameraLiveImageView liveImageView;
     private OLYCamera camera;
     //private int takeModeCounter = 0;
     private OnLiveViewInteractionListener mOnLiveViewInteractionListener;
@@ -156,7 +156,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     //----------------------
     //   Creation
     //----------------------
-    public LiveViewFragment() {
+    public FragmentLiveView() {
         // Required empty public constructor
     }
 
@@ -176,7 +176,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_live_view, container, false);
         view.setId(View.generateViewId());
-        imageView = view.findViewById(R.id.cameraLiveImageView);
+        liveImageView = view.findViewById(R.id.cameraLiveImageView);
 
         iv_batteryLevelImageView = view.findViewById(R.id.batteryLevelImageView);
         remainingRecordableImagesTextView = view.findViewById(R.id.tv_SdCardSpaceRemain);
@@ -209,7 +209,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
         focusModeTextView.setOnClickListener(this);
         ib_TakeMode.setOnClickListener(this);
-        imageView.setOnTouchListener(this);
+        liveImageView.setOnTouchListener(this);
         iv_AEB.setOnClickListener(this);
         return view;
     }
@@ -219,7 +219,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         super.onDestroyView();
         focusModeTextView.setOnClickListener(null);
         ib_TakeMode.setOnClickListener(null);
-        imageView.setOnTouchListener(null);
+        liveImageView.setOnTouchListener(null);
         iv_AEB.setOnClickListener(null);
     }
 
@@ -281,7 +281,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         Log.d(TAG, "onTouch");
         Log.d(TAG, "enabled TouchShutter: " + enabledTouchShutter);
 
-        if (v == imageView) {
+        if (v == liveImageView) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 imageViewDidTouchDown(event);
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -382,7 +382,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     @Override
     public void onUpdateLiveView(OLYCamera olyCamera, byte[] bytes, Map<String, Object> map) {
         try {
-            imageView.setImageData(bytes, map);
+            liveImageView.setImageData(bytes, map);
         } catch (Error e) {
             Log.e(TAG, "exception: " + e.getMessage());
             Log.e(TAG, "exception: " + Log.getStackTraceString(e));
@@ -418,6 +418,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     //------------------------
 
     public void onShutterTouched(MotionEvent event) {
+        Log.d(TAG,"shuttertouched: ");
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             shutterImageViewDidTouchDown();
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -437,7 +438,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         if (timelapse || AEB)
             return;
         if (camera.getActionType() == OLYCamera.ActionType.Single) {
-            RecviewFragment fragment = new RecviewFragment();
+            FragmentRecview fragment = new FragmentRecview();
             fragment.setImageData(data, metadata);
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(getId(), fragment);
@@ -484,17 +485,21 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
     // UI events
 
     private void imageViewDidTouchDown(MotionEvent event) {
+        Log.d(TAG,"imageViewDidTouchDown");
         OLYCamera.ActionType actionType = camera.getActionType();
 
         // If the focus point is out of area, ignore the touch.
-        PointF point = imageView.getPointWithEvent(event);
-        if (!imageView.isContainsPoint(point)) {
+        PointF point = liveImageView.getPointWithEvent(event);
+        if (!liveImageView.isContainsPoint(point)) {
             return;
         }
 
         if (enabledTouchShutter) {
             if (timelapse) {
                 startTimelapse();
+            } else if (AEB) {
+                takeAEBSequence();
+                return;
             }
             // Touch Shutter mode
             else if (actionType == OLYCamera.ActionType.Single) {
@@ -575,8 +580,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         {
             float focusWidth = 0.125f;  // 0.125 is rough estimate.
             float focusHeight = 0.125f;
-            float imageWidth = imageView.getIntrinsicContentSizeWidth();
-            float imageHeight = imageView.getIntrinsicContentSizeHeight();
+            float imageWidth = liveImageView.getIntrinsicContentSizeWidth();
+            float imageHeight = liveImageView.getIntrinsicContentSizeHeight();
             if (imageWidth > imageHeight) {
                 focusHeight *= (imageWidth / imageHeight);
             } else {
@@ -585,7 +590,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             preFocusFrameRect = new RectF(point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
                     point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f);
         }
-        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
+        liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
         // Set auto-focus point.
         try {
             camera.setAutoFocusPoint(point);
@@ -600,7 +605,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             }
             enabledFocusLock = false;
             mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
-            imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+            liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
 
@@ -616,7 +621,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
 
                         focusedSoundPlayer.start();
                         RectF postFocusFrameRect = autoFocusResult.getRect();
-                        imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                        liveImageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
 
                     } else if (autoFocusResult.getResult().equals("none")) {
                         // Could not lock.
@@ -629,7 +634,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                         enabledFocusLock = false;
                         mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
-                        imageView.hideFocusFrame();
+                        liveImageView.hideFocusFrame();
                     } else {
                         // Lock failed.
                         try {
@@ -641,7 +646,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                         enabledFocusLock = false;
                         mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
-                        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+                        liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
                     }
                 }
             }
@@ -663,7 +668,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                 enabledFocusLock = false;
                 mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
-                imageView.hideFocusFrame();
+                liveImageView.hideFocusFrame();
 
                 final String message = e.getMessage();
                 runOnUiThread(new Runnable() {
@@ -689,7 +694,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         }
 
         enabledFocusLock = false;
-        imageView.hideFocusFrame();
+        liveImageView.hideFocusFrame();
     }
 
     // shutter control (still)
@@ -709,11 +714,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     if (!enabledFocusLock) {
                         if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                             RectF postFocusFrameRect = autoFocusResult.getRect();
-                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                            liveImageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
                         } else if (autoFocusResult.getResult().equals("none")) {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         } else {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         }
                     }
                 } else if (progress == TakingProgress.BeginCapturing) {
@@ -733,7 +738,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
             }
 
@@ -745,7 +750,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
 
                 final String message = e.getMessage();
@@ -928,7 +933,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         for (int i = nbOffExp + 1; i < nbImages; i++) {//get pos offset
             floatBr[i] = floatBr[i - 1] * (2 * evOffset);
         }
-        List<String> shutterVals = ShutterFragment.getPossibleShutterValues();
+        List<String> shutterVals = FragmentShutterMasterSlidebar.getPossibleShutterValues();
         /*Log.d(TAG, "shutterValsSize: " + shutterVals.size());
         Log.d(TAG, "shutterVals: " + shutterVals.toString());*/
         int k = 0;
@@ -1028,8 +1033,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         {
             float focusWidth = 0.125f;  // 0.125 is rough estimate.
             float focusHeight = 0.125f;
-            float imageWidth = imageView.getIntrinsicContentSizeWidth();
-            float imageHeight = imageView.getIntrinsicContentSizeHeight();
+            float imageWidth = liveImageView.getIntrinsicContentSizeWidth();
+            float imageHeight = liveImageView.getIntrinsicContentSizeHeight();
             if (imageWidth > imageHeight) {
                 focusHeight *= (imageWidth / imageHeight);
             } else {
@@ -1038,7 +1043,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             preFocusFrameRect = new RectF(point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
                     point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f);
         }
-        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
+        liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
 
         // Set auto-focus point.
         try {
@@ -1054,7 +1059,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             enabledFocusLock = false;
             mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
-            imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+            liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
 
@@ -1066,11 +1071,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     if (!enabledFocusLock) {
                         if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                             RectF postFocusFrameRect = autoFocusResult.getRect();
-                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                            liveImageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
                         } else if (autoFocusResult.getResult().equals("none")) {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         } else {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         }
                     }
                 } else if (progress == TakingProgress.BeginCapturing) {
@@ -1086,7 +1091,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
             }
 
@@ -1098,7 +1103,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
 
                 final String message = e.getMessage();
@@ -1124,11 +1129,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     if (!enabledFocusLock) {
                         if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                             RectF postFocusFrameRect = autoFocusResult.getRect();
-                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                            liveImageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
                         } else if (autoFocusResult.getResult().equals("none")) {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         } else {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         }
                     }
                 } else if (progress == TakingProgress.BeginCapturing) {
@@ -1149,7 +1154,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
 
                 final String message = e.getMessage();
@@ -1173,8 +1178,8 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
         {
             float focusWidth = 0.125f;  // 0.125 is rough estimate.
             float focusHeight = 0.125f;
-            float imageWidth = imageView.getIntrinsicContentSizeWidth();
-            float imageHeight = imageView.getIntrinsicContentSizeHeight();
+            float imageWidth = liveImageView.getIntrinsicContentSizeWidth();
+            float imageHeight = liveImageView.getIntrinsicContentSizeHeight();
             if (imageWidth > imageHeight) {
                 focusHeight *= (imageWidth / imageHeight);
             } else {
@@ -1183,7 +1188,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             preFocusFrameRect = new RectF(point.x - focusWidth / 2.0f, point.y - focusHeight / 2.0f,
                     point.x + focusWidth / 2.0f, point.y + focusHeight / 2.0f);
         }
-        imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
+        liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Running);
 
         // Set auto-focus point.
         try {
@@ -1199,7 +1204,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
             enabledFocusLock = false;
             mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
-            imageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
+            liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
 
@@ -1210,11 +1215,11 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     if (!enabledFocusLock) {
                         if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                             RectF postFocusFrameRect = autoFocusResult.getRect();
-                            imageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
+                            liveImageView.showFocusFrame(postFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Focused);
                         } else if (autoFocusResult.getResult().equals("none")) {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         } else {
-                            imageView.hideFocusFrame();
+                            liveImageView.hideFocusFrame();
                         }
                     }
                 } else if (progress == TakingProgress.BeginCapturing) {
@@ -1235,7 +1240,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
 
                 final String message = e.getMessage();
@@ -1268,7 +1273,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
             }
 
@@ -1280,7 +1285,7 @@ public class LiveViewFragment extends Fragment implements OLYCameraLiveViewListe
                     } catch (OLYCameraKitException ee) {
                         ee.printStackTrace();
                     }
-                    imageView.hideFocusFrame();
+                    liveImageView.hideFocusFrame();
                 }
 
                 final String message = e.getMessage();

@@ -130,15 +130,15 @@ public class ConnectToCamActivity extends Activity {
         ft.addToBackStack(null);
 
         // Create and show the dialog.
-        WificredentialsDialogueFragment wifiFragDialogue = WificredentialsDialogueFragment.newInstance();
+        FragmentWificredentialsDialogue wifiFragDialogue = FragmentWificredentialsDialogue.newInstance();
         wifiFragDialogue.show(ft, "WifiCredDialogue");
 
-        wifiFragDialogue.setSaveCredentialsListener(new WificredentialsDialogueFragment.SaveCredentialsListener() {
+        wifiFragDialogue.setSaveCredentialsListener(new FragmentWificredentialsDialogue.SaveCredentialsListener() {
             @Override
             public void OnSaveCredentials(String ssid) {
                 //SharedPreferences mySettings = getSharedPreferences(getResources().getString(R.string.pref_wifinetwork), Context.MODE_PRIVATE);
                 Log.d(TAG, "OtherSide: " + ssid);
-                WificredentialsDialogueFragment prev = (WificredentialsDialogueFragment) getFragmentManager().findFragmentByTag("WifiCredDialogue");
+                FragmentWificredentialsDialogue prev = (FragmentWificredentialsDialogue) getFragmentManager().findFragmentByTag("WifiCredDialogue");
                 if (prev != null)
                     prev.dismiss();
                 connectToCamWifi();

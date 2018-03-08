@@ -9,11 +9,11 @@ import java.util.List;
  * Created by mail on 13/10/2016.
  */
 
-public class WbFragment extends MasterSlidebarFragment {
-    private static final String TAG = WbFragment.class.getSimpleName();
+public class FragmentWbMasterSlidebar extends FragmentMasterSlidebar {
+    private static final String TAG = FragmentWbMasterSlidebar.class.getSimpleName();
 
-    public  static WbFragment newInstance(List<String> myString,String value) {
-        WbFragment myFragment = new WbFragment();
+    public  static FragmentWbMasterSlidebar newInstance(List<String> myString, String value) {
+        FragmentWbMasterSlidebar myFragment = new FragmentWbMasterSlidebar();
 
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();

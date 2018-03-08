@@ -20,8 +20,8 @@ import jp.co.olympus.camerakit.OLYCamera;
  * Created by mail on 13/10/2016.
  */
 
-public abstract class MasterSlidebarFragment extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
-    private static final String TAG = MasterSlidebarFragment.class.getSimpleName();
+public abstract class FragmentMasterSlidebar extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
+    private static final String TAG = FragmentMasterSlidebar.class.getSimpleName();
     OLYCamera camera;
     protected List<String> myString;
     private sliderValue sliderValueListener;
@@ -35,7 +35,7 @@ public abstract class MasterSlidebarFragment extends Fragment implements ViewTre
         void onSlideValueBar(String value);
     }
 
-    public MasterSlidebarFragment() {
+    public FragmentMasterSlidebar() {
 
     }
 

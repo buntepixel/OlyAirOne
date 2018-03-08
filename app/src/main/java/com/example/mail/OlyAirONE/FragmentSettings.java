@@ -27,9 +27,9 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
  * Created by mail on 14/06/2017.
  */
 
-public class SettingsFragment extends Fragment
+public class FragmentSettings extends Fragment
         implements View.OnClickListener {
-    private static final String TAG = SettingsFragment.class.getSimpleName();
+    private static final String TAG = FragmentSettings.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
     private  String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};

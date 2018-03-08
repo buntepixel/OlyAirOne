@@ -25,7 +25,7 @@ import java.util.Map;
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCameraRecordingSupportsListener;
 
-public class RecviewFragment extends android.support.v4.app.Fragment implements OLYCameraRecordingSupportsListener, View.OnTouchListener {
+public class FragmentRecview extends android.support.v4.app.Fragment implements OLYCameraRecordingSupportsListener, View.OnTouchListener {
 	
 	private ImageView imageView;
 	
@@ -159,7 +159,7 @@ public class RecviewFragment extends android.support.v4.app.Fragment implements 
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				imageView.setImageBitmap(createRotatedBitmap(RecviewFragment.this.data, RecviewFragment.this.metadata));
+				imageView.setImageBitmap(createRotatedBitmap(FragmentRecview.this.data, FragmentRecview.this.metadata));
 			}
 		});
 	}

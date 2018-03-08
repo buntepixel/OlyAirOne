@@ -16,11 +16,11 @@ import jp.co.olympus.camerakit.OLYCameraConnectionListener;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
 
-public class ImageViewActivity extends AppCompatActivity implements OLYCameraConnectionListener, ImageGridViewFragment.ImagerGridViewInteractionListener {
+public class ImageViewActivity extends AppCompatActivity implements OLYCameraConnectionListener, FragmentImageGridView.ImagerGridViewInteractionListener {
     private static final String TAG = ImageViewActivity.class.getSimpleName();
     public static OLYCamera camera;
-    ImageGridViewFragment fImgGridView;
-    ImagePagerViewFragment fPagerViewFragment;
+    FragmentImageGridView fImgGridView;
+    FragmentImagePagerView fPagerViewFragment;
 
     public static final String FRAGMENT_TAG_IMGGRIDVIEW = "imgGridView";
     public static final String FRAGMENT_TAG_IMGPAGEVIEWE = "imgPageView";
@@ -43,12 +43,12 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
             Log.d(TAG, "currFragStr: " + currFragStr);
 
             if (currFragStr.equals(FRAGMENT_TAG_IMGGRIDVIEW))
-                fImgGridView = (ImageGridViewFragment) fm.getFragment(savedInstanceState, currFragStr);
+                fImgGridView = (FragmentImageGridView) fm.getFragment(savedInstanceState, currFragStr);
             else if (currFragStr.equals(FRAGMENT_TAG_IMGPAGEVIEWE))
-                fPagerViewFragment = (ImagePagerViewFragment) fm.getFragment(savedInstanceState, currFragStr);
+                fPagerViewFragment = (FragmentImagePagerView) fm.getFragment(savedInstanceState, currFragStr);
             return;
         }
-        fImgGridView = new ImageGridViewFragment();
+        fImgGridView = new FragmentImageGridView();
         fImgGridView.setImageGridViewInteractionListener(this);
         currFragStr = FRAGMENT_TAG_IMGGRIDVIEW;
     }
@@ -141,7 +141,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
     private void onConnectedToCamera() {
         Log.d(TAG, "Connected to Cam");
         if (currFragStr != null && currFragStr.equals(FRAGMENT_TAG_IMGGRIDVIEW)) {
-            ImageGridViewFragment frag = (ImageGridViewFragment) fm.findFragmentById(R.id.fl_imgViewAction_content);
+            FragmentImageGridView frag = (FragmentImageGridView) fm.findFragmentById(R.id.fl_imgViewAction_content);
             if (frag == null) {
                 android.app.FragmentTransaction transaction = fm.beginTransaction();
                 Log.d(TAG, "Frag = imgGridView: ");
@@ -151,7 +151,7 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
 
         } else if (currFragStr != null && currFragStr.equals(FRAGMENT_TAG_IMGPAGEVIEWE)) {
             Log.d(TAG, "Frag = pagerView: ");
-            ImagePagerViewFragment frag = (ImagePagerViewFragment) fm.findFragmentById(R.id.fl_imgViewAction_content);
+            FragmentImagePagerView frag = (FragmentImagePagerView) fm.findFragmentById(R.id.fl_imgViewAction_content);
             if (frag == null) {
                 android.app.FragmentTransaction transaction = fm.beginTransaction();
                 transaction.add(R.id.fl_imgViewAction_content, fPagerViewFragment, FRAGMENT_TAG_IMGPAGEVIEWE);

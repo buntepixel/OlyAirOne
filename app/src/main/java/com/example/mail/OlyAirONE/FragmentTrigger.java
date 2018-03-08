@@ -20,9 +20,9 @@ import jp.co.olympus.camerakit.OLYCamera;
  * Created by mail on 14/06/2017.
  */
 
-public class TriggerFragment extends Fragment
+public class FragmentTrigger extends Fragment
         implements View.OnClickListener, View.OnTouchListener {
-    private static final String TAG = TriggerFragment.class.getSimpleName();
+    private static final String TAG = FragmentTrigger.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
