@@ -374,6 +374,11 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                         //todo: implement level gauge
                         //Log.d(TAG, "LevelGauge: "+name);
                         break;
+                    case "DetectedHumanFaces":
+                      Log.d(TAG, "faces: "+camera.getDetectedHumanFaces());
+                      //todo: implement face recognition
+                       liveImageView.showFocusFrame(camera.getDetectedHumanFaces().get("facerecognize1"),CameraLiveImageView.FocusFrameStatus.Focused);
+                        break;
                 }
             }
         });
@@ -1499,18 +1504,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
 
     }
 
-    private void updateTakeModeImageView() {
-        Log.d(TAG, "updateTakeModeImageView");
-        CameraActivity.updatePropertyImageView(ib_TakeMode, takeModeIconsList, CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
-       /* try {
-            String takeMode = camera.getCameraPropertyValue(CameraActivity.CAMERA_PROPERTY_TAKE_MODE);
-            takeModeCounter = CameraActivity.getTakeModeStrings().indexOf(takeMode);
-            Log.d(TAG, "updateTakeModeIv shootingModecounter: " + takeModeCounter);
-        } catch (OLYCameraKitException ex) {
-            ex.printStackTrace();
-        }
-        ib_TakeMode.setImageResource(takeModeDrawablesArr[takeModeCounter]);*/
-    }
 
     private void updateBatteryLevelImageView() {
         Log.d(TAG, "updateBatteryLevelImageView");
@@ -1594,6 +1587,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title).setMessage(message);
         builder.show();
+
     }
 
 }

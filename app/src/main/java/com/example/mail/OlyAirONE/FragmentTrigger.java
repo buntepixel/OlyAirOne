@@ -73,11 +73,6 @@ public class FragmentTrigger extends Fragment
         iv_driveMode = view.findViewById(R.id.ib_drivemode);
         iv_meteringMode = view.findViewById(R.id.ib_metering);
         iv_shutter = view.findViewById(R.id.ib_shutterrelease);
-
-        iv_shutter.setOnTouchListener(this);
-        iv_driveMode.setOnClickListener(this);
-        iv_meteringMode.setOnClickListener(this);
-
         return view;
     }
 
@@ -111,15 +106,30 @@ public class FragmentTrigger extends Fragment
         this.currTakeMode = takeMode;
         updateMeteringImageView();
     }
+    public void setCamera(OLYCamera camera){
+        this.camera= camera;
+        updateMeteringImageView();
+        updateDrivemodeImageView();
+    }
 
     @Override
     public void onResume() {
         super.onResume();
-        camera = CameraActivity.camera;
-        updateMeteringImageView();
+        iv_shutter.setOnTouchListener(this);
+        iv_driveMode.setOnClickListener(this);
+        iv_meteringMode.setOnClickListener(this);
+
+        //updateMeteringImageView();
     }
 
-//----------------
+    @Override
+    public void onPause() {
+        super.onPause();
+        iv_shutter.setOnTouchListener(null);
+        iv_driveMode.setOnClickListener(null);
+        iv_meteringMode.setOnClickListener(null);
+    }
+    //----------------
 
 
     private void meteringImageViewDidTap() {

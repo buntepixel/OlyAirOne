@@ -40,8 +40,9 @@ public class ConnectToCamActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect_to_cam);
+        Log.d(TAG,"onCreate");
 
+        setContentView(R.layout.activity_connect_to_cam);
         //initializes necessary components
 
         target = getIntent().getExtras().getString("target", "none");

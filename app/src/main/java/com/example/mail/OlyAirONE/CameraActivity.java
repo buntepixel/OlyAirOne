@@ -144,7 +144,6 @@ public class CameraActivity extends FragmentActivity
             Log.d(TAG, "Cam Is connected");
             onConnectedToCamera();
         }
-        setTakeModeInFragments(currTakeMode);
         Log.d(TAG, "END Resume");
     }
 
@@ -377,11 +376,12 @@ public class CameraActivity extends FragmentActivity
         try {
             Log.d(TAG, "Connected to Cam");
             createSliderFragments();
+            fTrigger.setCamera(camera);
             try {
                 //get Takemode strings for static variable
                 takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
                 currTakeMode = takeModeStrings.indexOf(camera.getCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE));
-                //fLiveView.triggerTakeModeUpdate(currTakeMode);
+                setTakeModeInFragments(currTakeMode);
             } catch (OLYCameraKitException e) {
                 e.printStackTrace();
                 return;
@@ -408,31 +408,15 @@ public class CameraActivity extends FragmentActivity
     //------------------------
     private void setTakeModeInFragments(int mode) {
         Log.d(TAG, "Mode: " + mode);
-        fSettings = (FragmentSettings) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
+       // fSettings = (FragmentSettings) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
         if (fSettings != null) {
             fSettings.UpdateSliderButtons();
             fTrigger.setTakeMode(mode);
-
-
         } else {
             Log.w(TAG, "couldn't find Fragment with tag: Trigger");
         }
         //remove fragments that are still on
         removeVisibleSliderFragments();
-        //refresh view
-        //todo: find other way to refresh view
-       /* android.app.Fragment frgSettings = getFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
-        android.app.Fragment frgTrigger = getFragmentManager().findFragmentByTag(FRAGMENT_TAG_TRIGGER);
-        android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(frgSettings);
-        ft.attach(frgSettings);
-        ft.detach(frgTrigger);
-        ft.attach(frgTrigger);
-        ft.commit();*/
-        //fLiveView.refresh();
-        /*fSettings.refresh();
-        fTrigger.refresh();*/
-
     }
 
     private void createSliderFragments() {
@@ -599,8 +583,7 @@ public class CameraActivity extends FragmentActivity
             return retVal;
         }
         if (value == null) return retVal;
-        inView.setSelected(true);//todo: can be deleted?????
-
+       // inView.setSelected(true);//todo: can be deleted?????
         try {
             int index = valueList.indexOf(value) + 1;//get Index of current value and increment
             //Log.d(TAG, "Index: " + index);

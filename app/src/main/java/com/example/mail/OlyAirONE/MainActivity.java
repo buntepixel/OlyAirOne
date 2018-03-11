@@ -120,6 +120,7 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     public void onClick(View view) {
         Intent intent;
         if (view == iv_Camera) {
+            Log.d(TAG,"clicking Camera");
             intent = new Intent(getBaseContext(), ConnectToCamActivity.class);
             intent.putExtra("target", "cam");
             startActivity(intent);

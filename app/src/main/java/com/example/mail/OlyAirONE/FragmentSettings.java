@@ -407,6 +407,7 @@ public class FragmentSettings extends Fragment
     }
 
     private LinearLayout CreateExposureCorr(ColorStateList colorStateList, int padding) {
+        expCorr = new ExposureCorrection(getActivity());
         ll_expOffset = new LinearLayout(getActivity());
         ll_expOffset.setId(View.generateViewId());
         RelativeLayout.LayoutParams relParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -447,7 +448,6 @@ public class FragmentSettings extends Fragment
             containerLLayout.addView(leftText);
 
 
-            expCorr = new ExposureCorrection(getActivity());
             linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             expCorr.setLayoutParams(linParams);
 
