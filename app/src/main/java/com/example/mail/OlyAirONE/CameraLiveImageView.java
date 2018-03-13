@@ -23,16 +23,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView.ScaleType;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import jp.co.olympus.camerakit.OLYCamera;
 
-public class CameraLiveImageView extends View  {
+public class CameraLiveImageView extends View {
+    private static final String TAG = CameraLiveImageView.class.getSimpleName();
 
 
-    public  enum FocusFrameStatus {
+    public enum FocusFrameStatus {
         Running,
         Focused,
         Failed,
@@ -44,7 +46,7 @@ public class CameraLiveImageView extends View  {
 
     private boolean showingFocusFrame;
     private FocusFrameStatus focusFrameStatus;
-    private RectF focusFrameRect;
+    private ArrayList<RectF> focusFrameRect;
     private Timer focusFrameHideTimer;
 
     public CameraLiveImageView(Context context) {
@@ -64,6 +66,7 @@ public class CameraLiveImageView extends View  {
 
     private void initComponent() {
         imageScaleType = ScaleType.FIT_CENTER;
+        focusFrameRect = new ArrayList<RectF>();
     }
 
     @Override
@@ -210,23 +213,30 @@ public class CameraLiveImageView extends View  {
     public void showFocusFrame(RectF rect, FocusFrameStatus status) {
         showFocusFrame(rect, status, 0);
     }
+    public void showFocusFrame(RectF rect, FocusFrameStatus status, double duration) {
+        ArrayList<RectF> rectArrList = new ArrayList<RectF>();
+        rectArrList.add(rect);
+        showFocusFrame(rectArrList,status,duration);
+    }
 
     /**
      * Shows the focus frame.
      *
-     * @param rect     A rectangle of the focus frame on view area.
+     * @param rectArrList     A list of rectangles of the focus frame on view area.
      * @param status   A status of the focus frame.
      * @param duration A duration of the focus frame showing.
      */
-    public void showFocusFrame(RectF rect, FocusFrameStatus status, double duration) {
+
+    public void showFocusFrame(ArrayList<RectF> rectArrList,FocusFrameStatus status, double duration){
         if (focusFrameHideTimer != null) {
             focusFrameHideTimer.cancel();
             focusFrameHideTimer = null;
         }
-
         showingFocusFrame = true;
         focusFrameStatus = status;
-        focusFrameRect = rect;
+        for(RectF rectF: rectArrList){
+            focusFrameRect.add(rectF);
+        }
 
         refreshCanvas();
 
@@ -320,7 +330,7 @@ public class CameraLiveImageView extends View  {
             canvas.rotate(-imageRotationDegrees, centerX, centerY);
         }
 
-        if (imageBitmap != null && focusFrameRect != null && showingFocusFrame) {
+        if (imageBitmap != null && focusFrameRect != null&& focusFrameRect.size()>0 && showingFocusFrame) {
             //  Calculate the rectangle of focus.
             float imageWidth;
             float imageHeight;
@@ -331,9 +341,11 @@ public class CameraLiveImageView extends View  {
                 imageWidth = imageBitmap.getHeight();
                 imageHeight = imageBitmap.getWidth();
             }
-            RectF focusRectOnImage = OLYCamera.convertRectOnViewfinderIntoLiveImage(focusFrameRect, imageWidth, imageHeight, imageRotationDegrees);
-            RectF focusRectOnView = convertRectFromImageArea(focusRectOnImage);
-
+            ArrayList<RectF> focusRectOnView = new ArrayList<RectF>();
+            for (RectF rectF : focusFrameRect) {
+                RectF focusRectOnImage = OLYCamera.convertRectOnViewfinderIntoLiveImage(rectF, imageWidth, imageHeight, imageRotationDegrees);
+                focusRectOnView.add(convertRectFromImageArea(focusRectOnImage));
+            }
             // Draw a rectangle to the canvas.
             Paint focusFramePaint = new Paint();
             focusFramePaint.setStyle(Paint.Style.STROKE);
@@ -352,7 +364,11 @@ public class CameraLiveImageView extends View  {
             DisplayMetrics dm = getResources().getDisplayMetrics();
             float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, focusFrameStrokeWidth, dm);
             focusFramePaint.setStrokeWidth(strokeWidth);
-            canvas.drawRect(focusRectOnView, focusFramePaint);
+            for(RectF rectF: focusRectOnView){
+                canvas.drawRect(rectF, focusFramePaint);
+            }
+            focusFrameRect.clear();
+
         }
     }
 
@@ -389,23 +405,23 @@ public class CameraLiveImageView extends View  {
                 viewPointX *= ratioX;
                 viewPointY *= ratioY;
                 break;
-            case FIT_CENTER:	// go to next label.
+            case FIT_CENTER:    // go to next label.
             case CENTER_INSIDE:
                 scale = Math.min(ratioX, ratioY);
                 viewPointX *= scale;
                 viewPointY *= scale;
-                viewPointX += (viewSizeWidth  - imageSizeWidth  * scale) / 2.0f;
+                viewPointX += (viewSizeWidth - imageSizeWidth * scale) / 2.0f;
                 viewPointY += (viewSizeHeight - imageSizeHeight * scale) / 2.0f;
                 break;
             case CENTER_CROP:
                 scale = Math.max(ratioX, ratioY);
                 viewPointX *= scale;
                 viewPointY *= scale;
-                viewPointX += (viewSizeWidth  - imageSizeWidth  * scale) / 2.0f;
+                viewPointX += (viewSizeWidth - imageSizeWidth * scale) / 2.0f;
                 viewPointY += (viewSizeHeight - imageSizeHeight * scale) / 2.0f;
                 break;
             case CENTER:
-                viewPointX += viewSizeWidth / 2.0  - imageSizeWidth  / 2.0f;
+                viewPointX += viewSizeWidth / 2.0 - imageSizeWidth / 2.0f;
                 viewPointY += viewSizeHeight / 2.0 - imageSizeHeight / 2.0f;
                 break;
             default:
@@ -448,23 +464,23 @@ public class CameraLiveImageView extends View  {
                 imagePointX /= ratioX;
                 imagePointY /= ratioY;
                 break;
-            case FIT_CENTER:	// go to next label.
+            case FIT_CENTER:    // go to next label.
             case CENTER_INSIDE:
                 scale = Math.min(ratioX, ratioY);
-                imagePointX -= (viewSizeWidth  - imageSizeWidth  * scale) / 2.0f;
+                imagePointX -= (viewSizeWidth - imageSizeWidth * scale) / 2.0f;
                 imagePointY -= (viewSizeHeight - imageSizeHeight * scale) / 2.0f;
                 imagePointX /= scale;
                 imagePointY /= scale;
                 break;
             case CENTER_CROP:
                 scale = Math.max(ratioX, ratioY);
-                imagePointX -= (viewSizeWidth  - imageSizeWidth  * scale) / 2.0f;
+                imagePointX -= (viewSizeWidth - imageSizeWidth * scale) / 2.0f;
                 imagePointY -= (viewSizeHeight - imageSizeHeight * scale) / 2.0f;
                 imagePointX /= scale;
                 imagePointY /= scale;
                 break;
             case CENTER:
-                imagePointX -= (viewSizeWidth - imageSizeWidth)  / 2.0f;
+                imagePointX -= (viewSizeWidth - imageSizeWidth) / 2.0f;
                 imagePointY -= (viewSizeHeight - imageSizeHeight) / 2.0f;
                 break;
             default:
@@ -485,7 +501,7 @@ public class CameraLiveImageView extends View  {
             return new RectF();
         }
 
-        PointF imageTopLeft =  new PointF(rect.left, rect.top);
+        PointF imageTopLeft = new PointF(rect.left, rect.top);
         PointF imageBottomRight = new PointF(rect.right, rect.bottom);
 
         PointF viewTopLeft = convertPointFromImageArea(imageTopLeft);

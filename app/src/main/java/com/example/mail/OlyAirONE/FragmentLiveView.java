@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -76,6 +77,8 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
 
     private Boolean AEB = false;
     private Boolean timelapse = false;
+    private Boolean faceDetect = false;
+
     String[] aebSettingsArr;
     int aebCounter = 0;
     // private List<String> focusModesList;
@@ -93,6 +96,8 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private MediaPlayer shutterSoundPlayer;
     private Boolean enabledTouchShutter = false;
     private Boolean enabledFocusLock = false;
+    private PointF currFocusPoint = new PointF(0, 0);
+    boolean focusing = false;
     private CameraLiveImageView liveImageView;
     private OLYCamera camera;
     //private int takeModeCounter = 0;
@@ -375,9 +380,36 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                         //Log.d(TAG, "LevelGauge: "+name);
                         break;
                     case "DetectedHumanFaces":
-                      Log.d(TAG, "faces: "+camera.getDetectedHumanFaces());
-                      //todo: implement face recognition
-                       liveImageView.showFocusFrame(camera.getDetectedHumanFaces().get("facerecognize1"),CameraLiveImageView.FocusFrameStatus.Focused);
+                        if (faceDetect) {
+                            Map<String, RectF> faceMap = camera.getDetectedHumanFaces();
+                            if (!faceMap.isEmpty()) {
+                                //Log.d(TAG, "faces: " + camera.getDetectedHumanFaces());
+                                ArrayList<RectF> recList = new ArrayList<RectF>();
+                                for (String key : faceMap.keySet()) {
+                                    recList.add(faceMap.get(key));
+                                }
+                                if (focusing) {
+                                    Log.d(TAG, "returning");
+                                    return;
+                                }
+                                RectF rectF = faceMap.get("facerecognize1");
+                                PointF point = new PointF(rectF.centerX(), rectF.centerY()-(rectF.height()/4));
+                                float newLength = point.length();
+                                float oldLength = currFocusPoint.length();
+                                float offset = Math.abs(newLength - oldLength);
+                                float width = liveImageView.getIntrinsicContentSizeWidth();
+
+                                //Log.d(TAG, "focusing: " + focusing + " offset: " + offset + " width: " + width + " oldpoint: " + currFocusPoint + " new point: " + point);
+                                if (currFocusPoint != null && offset >= 0.1)//if offset is bigger than 10% of screenwidth, refocus
+                                    unlockAutoFocus();
+                                if (!enabledFocusLock) {
+                                    currFocusPoint = point;
+                                    focusing= true;
+                                    lockAutoFocus(point);
+                                }
+                                liveImageView.showFocusFrame(recList, CameraLiveImageView.FocusFrameStatus.Focused, 1);
+                            }
+                        }
                         break;
                 }
             }
@@ -423,7 +455,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     //------------------------
 
     public void onShutterTouched(MotionEvent event) {
-        Log.d(TAG,"shuttertouched: ");
+        Log.d(TAG, "shuttertouched: ");
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             shutterImageViewDidTouchDown();
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -490,7 +522,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     // UI events
 
     private void imageViewDidTouchDown(MotionEvent event) {
-        Log.d(TAG,"imageViewDidTouchDown");
+        Log.d(TAG, "imageViewDidTouchDown");
         OLYCamera.ActionType actionType = camera.getActionType();
 
         // If the focus point is out of area, ignore the touch.
@@ -522,8 +554,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             }
         } else {
             // Touch AF mode
-            if (actionType == OLYCamera.ActionType.Single ||
-                    actionType == OLYCamera.ActionType.Sequential) {
+            if (actionType == OLYCamera.ActionType.Single || actionType == OLYCamera.ActionType.Sequential) {
                 lockAutoFocus(point);
             }
         }
@@ -619,6 +650,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             @Override
             public void onProgress(OLYCamera camera, OLYCamera.TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
                 if (progress == OLYCamera.TakingProgress.EndFocusing) {
+
                     if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                         // Lock succeed.
                         enabledFocusLock = true;
@@ -658,7 +690,10 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
 
             @Override
             public void onCompleted() {
+                Log.d(TAG, "focusing complete");
+
                 // No operation.
+                focusing = false;
             }
 
             @Override
@@ -671,6 +706,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                     ee.printStackTrace();
                 }
                 enabledFocusLock = false;
+                focusing = false;
                 mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
                 liveImageView.hideFocusFrame();
@@ -1459,6 +1495,10 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                 updateRecordingLayoutVisibility();
             }
         });
+    }
+
+    public void setEnabledFaceScan(Boolean bool) {
+        faceDetect = bool;
     }
 
     public void setEnabledTouchShutter(Boolean bool) {

@@ -733,6 +733,12 @@ public class CameraActivity extends FragmentActivity
                 String value = preferences.getString(name, null);
                 if (value != null) {
                     Log.d(TAG, "Name: " + name + "  Value: " + value);
+                    if(name.equals("FACE_SCAN")){
+                        if(value.equals("<FACE_SCAN/FACE_SCAN_OFF>"))
+                            fLiveView.setEnabledFaceScan(false);
+                        else
+                            fLiveView.setEnabledFaceScan(true);
+                    }
                     values.put(name, value);
                    /* try {
                         Log.d(TAG, "setting: " + name);
