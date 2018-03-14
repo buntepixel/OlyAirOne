@@ -5,9 +5,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.HorizontalScrollView;
 
-/**
- * Created by mail on 13/10/2016.
- */
 
 /**
  * A {@link HorizontalScrollView} with an {@link OnScrollChangedListener} interface
@@ -19,8 +16,8 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
     private static final String TAG = ObservableHorizontalScrollView.class.getSimpleName();
 
 
-    int scrollBarWidth;
-    boolean setScroll = false;
+    private int scrollBarWidth;
+    public boolean setScroll = false;
 
     private OnScrollChangedListener mOnScrollChangedListener;
 

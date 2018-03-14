@@ -10,6 +10,7 @@ import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,18 +19,18 @@ import java.util.Map;
 public class CamSettingsActivity extends AppCompatActivity implements ExpandableListAdapter.CallParentActivtiy {
     private static final String TAG = CamSettingsActivity.class.getSimpleName();
 
-    List<String> groupList;
-    List<String> childList;
-    Map<String, List<String>> categoryColl;
-    ExpandableListView expListView;
-    SharedPreferences preferences;
+    private List<String> groupList;
+    private List<String> childList;
+    private Map<String, List<String>> categoryColl;
+    private ExpandableListView expListView;
+    private SharedPreferences preferences;
     public static final String AEB_IMAGETAG = "aebimage";
     public static final String AEB_SPREADTAG = "aebspread";
     public static final String TL_INTERVALL = "intervall";
     public static final String TL_NBIMAGES = "nbImages";
 
 
-    private final Map<String, String> aeb_NbPic = new HashMap<String, String>() {{
+    private final Map<String, String> aeb_NbPic = new LinkedHashMap<String, String>() {{
         put("3 Pictures", "<NBPIC/3>");
         put("5 Pictures", "<NBPIC/5>");
         put("7 Pictures", "<NBPIC/7>");
@@ -42,14 +43,14 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         put("3 EV", "<SPREAD/3>");
     }};
 
-    private final Map<String, String> aspectRatio = new HashMap<String, String>() {{
+    private final Map<String, String> aspectRatio = new LinkedHashMap<String, String>() {{
         put("4:3 ", "<ASPECT_RATIO/04_03>");
         put("3:2", "<ASPECT_RATIO/03_02>");
         put("16:9", "<ASPECT_RATIO/16_09>");
         put("3:4", "<ASPECT_RATIO/03_04>");
         put("1:1", "<ASPECT_RATIO/06_06>");
     }};
-    private final Map<String, String> jpgCompression = new HashMap<String, String>() {
+    private final Map<String, String> jpgCompression = new LinkedHashMap<String, String>() {
         {
             put("Super Fine", "<COMPRESSIBILITY_RATIO/CMP_2_7>>");
             put("Fine", "<COMPRESSIBILITY_RATIO/CMP_4>");
@@ -57,7 +58,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
             put("Basic", "<COMPRESSIBILITY_RATIO/CMP_12>");
         }
     };
-    private final Map<String, String> imageSize = new HashMap<String, String>() {
+    private final Map<String, String> imageSize = new LinkedHashMap<String, String>() {
         {
             put("4608x3456", "<IMAGESIZE/4608x3456>");
             put("2560x1920", "<IMAGESIZE/2560x1920>");
@@ -74,14 +75,14 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     }};
 
 
-    private final Map<String, String> movieQuality = new HashMap<String, String>() {{
+    private final Map<String, String> movieQuality = new LinkedHashMap<String, String>() {{
         put("Full HD (Fine Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_FINE>");
         put("Full HD (Normal Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_NORMAL>");
         put("HD (Fine Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_HD_FINE>");
         put("HD (Normal Quality)", "<QUALITY_MOVIE/QUALITY_MOVIE_HD_NORMAL>");
         put("Clip Full HD (1920x1080)", "<QUALITY_MOVIE/QUALITY_MOVIE_SHORT_MOVIE>");
     }};
-    private final Map<String, String> clipRecordTime = new HashMap<String, String>() {{
+    private final Map<String, String> clipRecordTime = new LinkedHashMap<String, String>() {{
         put("1 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/1>");
         put("2 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/2>");
         put("3 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/3>");
@@ -92,7 +93,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         put("8 sec", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/8>");
     }};
 
-    private final Map<String, String> continousShootingSpeed = new HashMap<String, String>() {{
+    private final Map<String, String> continousShootingSpeed = new LinkedHashMap<String, String>() {{
         put("1fps", "<CONTINUOUS_SHOOTING_VELOCITY/1>");
         put("2fps", "<CONTINUOUS_SHOOTING_VELOCITY/2>");
         put("3fps", "<CONTINUOUS_SHOOTING_VELOCITY/3>");
@@ -104,18 +105,18 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         put("9fps", "<CONTINUOUS_SHOOTING_VELOCITY/9>");
         put("10fps", "<CONTINUOUS_SHOOTING_VELOCITY/10>");
     }};
-    private final Map<String, String> selfTimer = new HashMap<String, String>() {{
+    private final Map<String, String> selfTimer = new LinkedHashMap<String, String>() {{
         put("3sec", "<SELF_TIMER/3>");
         put("7sec", "<SELF_TIMER/7>");
         put("10sec", "<SELF_TIMER/10>");
         put("15sec", "<SELF_TIMER/15>");
     }};
-    private final Map<String, String> faceDetection = new HashMap<String, String>() {{
+    private final Map<String, String> faceDetection = new LinkedHashMap<String, String>() {{
         put("Face Priority Off", "<FACE_SCAN/FACE_SCAN_OFF>");
         put("Face Priority On", "<FACE_SCAN/FACE_SCAN_ON>");
         put("Closest Eye Priority", "<FACE_SCAN/FACE_SCAN_NEAR>");
     }};
-    private final Map<String, String> empty = new HashMap<String, String>() {{
+    private final Map<String, String> empty = new LinkedHashMap<String, String>() {{
         put("empty", "empty");
     }};
 
@@ -213,8 +214,8 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         String[] TL = {"Enable","setup"};
         String[] image = {"aspect ratio", "image size", "jpg compression", "image destination", "save raw image","generate preview image"};
         String[] movie = {"quality", "clip record time"};
-        String[] focusing = {"touch shutter", "face detection"};
-        String[] shooting = {"continous shooting vel","self timer"};
+        String[] focusing = { "face detection"};
+        String[] shooting = {"touch shutter","continous shooting vel"};
         String[] network = {"SSID(wifi name)"};
         String[] info = {"Camera Version","CameraKit Version","CameraKit BuildNumber","App Version"};
         String[] impressum = {"Impressum"};
@@ -249,10 +250,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
     private void loadChild(String[] childArr) {
         childList = new ArrayList<String>();
-        for (String child : childArr) {
-
-            childList.add(child);
-        }
+        Collections.addAll(childList, childArr);
     }
 
     // Convert pixel to dip

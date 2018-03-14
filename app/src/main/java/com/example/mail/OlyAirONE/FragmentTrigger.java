@@ -26,7 +26,8 @@ public class FragmentTrigger extends Fragment
     private boolean time, aparture, exposureAdj, iso, wb;
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
 
-    OLYCamera camera;
+
+    private OLYCamera camera;
     private ImageView iv_driveMode;
     private ImageView iv_meteringMode;
     private ImageView iv_shutter;

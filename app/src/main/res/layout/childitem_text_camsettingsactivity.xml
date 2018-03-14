@@ -7,7 +7,6 @@
         android:id="@+id/tv_tv_discription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_marginStart="@dimen/ListView_childItem_horizMargin"
         android:inputType="none"/>
     <TextView
@@ -20,7 +19,6 @@
         android:id="@+id/tv_tv_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_marginEnd="@dimen/ListView_childItem_horizMargin"
         android:textAlignment="viewEnd"
         />

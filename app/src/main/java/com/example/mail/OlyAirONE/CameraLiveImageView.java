@@ -234,9 +234,7 @@ public class CameraLiveImageView extends View {
         }
         showingFocusFrame = true;
         focusFrameStatus = status;
-        for(RectF rectF: rectArrList){
-            focusFrameRect.add(rectF);
-        }
+        focusFrameRect.addAll(rectArrList);
 
         refreshCanvas();
 
@@ -275,12 +273,12 @@ public class CameraLiveImageView extends View {
                 final int srcWidth;
                 final int srcHeight;
                 if ((imageRotationDegrees == 0) || (imageRotationDegrees == 180)) {
-                    srcWidth = (int) imageBitmap.getWidth();
-                    srcHeight = (int) imageBitmap.getHeight();
+                    srcWidth = imageBitmap.getWidth();
+                    srcHeight = imageBitmap.getHeight();
                 } else {
                     // Replaces width and height.
-                    srcWidth = (int) imageBitmap.getHeight();
-                    srcHeight = (int) imageBitmap.getWidth();
+                    srcWidth = imageBitmap.getHeight();
+                    srcHeight = imageBitmap.getWidth();
                 }
                 final int dstWidth;
                 final int dstHeight;
@@ -319,7 +317,7 @@ public class CameraLiveImageView extends View {
                 }
 
                 // Draws the bitmap.
-                Rect imageRect = new Rect(0, 0, (int) imageBitmap.getWidth(), (int) imageBitmap.getHeight());
+                Rect imageRect = new Rect(0, 0, imageBitmap.getWidth(), imageBitmap.getHeight());
                 canvas.drawBitmap(imageBitmap, imageRect, viewRect, null);
 
             } else {

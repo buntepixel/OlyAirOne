@@ -33,14 +33,14 @@ public class ConnectToCamActivity extends Activity {
     private WifiManager mWifiManager;
     private ScanForWifiAcessPoints wifiScanReceiver;
 
-    private ImageView waitconnect;
+
     private String target;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG,"onCreate");
+        Log.d(TAG, "onCreate");
 
         setContentView(R.layout.activity_connect_to_cam);
         //initializes necessary components
@@ -87,7 +87,7 @@ public class ConnectToCamActivity extends Activity {
     private void init() {
         mWifiManager = (WifiManager) this.getApplicationContext().getSystemService(WIFI_SERVICE);
         //Animation Icon
-        waitconnect = findViewById(R.id.iv_waitconnect);
+        ImageView waitconnect = findViewById(R.id.iv_waitconnect);
         Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.waitconnect);
         waitconnect.startAnimation(myAnim);
 
@@ -225,7 +225,6 @@ public class ConnectToCamActivity extends Activity {
                 Toast.makeText(this, "Couldn't find a network that matches your saved configuration. " +
                         "Please check if Cams Wifi is enabled,\nor check your credentials in the Settings page.", Toast.LENGTH_LONG).show();
                 finish();
-                return;
             }
             // return;
         } catch (Exception e) {
@@ -235,7 +234,7 @@ public class ConnectToCamActivity extends Activity {
         }
     }
 
-    public void startNextActivity(Context context) {
+    private void startNextActivity(Context context) {
         Intent switchToNextActivtiy;
         Log.d(TAG, "starting next Activtiy TARGET: " + target);
         if (target.equals("cam")) {
@@ -243,7 +242,7 @@ public class ConnectToCamActivity extends Activity {
         } else if (target.equals("imageView")) {
             switchToNextActivtiy = new Intent(context, ImageViewActivity.class);
         } else {
-            Toast.makeText(getBaseContext(),"Something went wrong Returning to main screen",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Something went wrong Returning to main screen", Toast.LENGTH_SHORT).show();
             switchToNextActivtiy = new Intent(context, MainActivity.class);
         }
 

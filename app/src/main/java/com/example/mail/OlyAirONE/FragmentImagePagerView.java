@@ -62,7 +62,7 @@ public class FragmentImagePagerView extends Fragment {
     private RelativeLayout infoLayout;
 
     private TextView info_FileName;
-    FragmentManager fm;
+    private FragmentManager fm;
 
     private LruCache<String, Bitmap> imageCache;
     Executor connectionExecutor = Executors.newFixedThreadPool(1);

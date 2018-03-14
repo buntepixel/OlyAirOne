@@ -17,7 +17,8 @@ import android.view.animation.Transformation;
 
 public class HorizontalProgressBar extends View{
     //actual dot radius
-    private int mDotRadius = 5;
+    Paint paint = new Paint();
+
 
     //Bounced Dot Radius
     private int mBounceDotRadius = 8;
@@ -45,7 +46,6 @@ public class HorizontalProgressBar extends View{
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        Paint paint = new Paint();
 
         //set the color for the dot that you want to draw
         paint.setColor(Color.parseColor("#fd583f"));
@@ -54,12 +54,6 @@ public class HorizontalProgressBar extends View{
         createDot(canvas,paint);
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        //Animation called when attaching to the window, i.e to your screen
-       // startAnimation();
-    }
 
     private void createDot(Canvas canvas, Paint paint) {
 
@@ -69,7 +63,7 @@ public class HorizontalProgressBar extends View{
                 canvas.drawCircle(10+(i*20), mBounceDotRadius, mBounceDotRadius, paint);
             }else {
 
-                canvas.drawCircle(10+(i*20), mBounceDotRadius, mDotRadius, paint);
+                canvas.drawCircle(10+(i*20), mBounceDotRadius, 5, paint);
             }
         }
 
@@ -84,9 +78,7 @@ public class HorizontalProgressBar extends View{
 
 
         //calculate the view width
-        int calculatedWidth = (20*9);
-
-        width = calculatedWidth;
+        width = (20*9);
         height = (mBounceDotRadius*2);
 
 

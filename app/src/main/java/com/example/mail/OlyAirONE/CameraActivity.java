@@ -62,24 +62,24 @@ public class CameraActivity extends FragmentActivity
     public static final String CAMERA_PROPERTY_ISO_SENSITIVITY = "ISO";
     public static final String CAMERA_PROPERTY_WHITE_BALANCE = "WB";
 
-    public static final String CAMERA_PROPERTY_IMAGE_PREVIEW = "RECVIEW";
-    public static final String CAMERA_LIVEVIEWSIZE = "LIVEVIESIZE";
+    private static final String CAMERA_PROPERTY_IMAGE_PREVIEW = "RECVIEW";
+    private static final String CAMERA_LIVEVIEWSIZE = "LIVEVIESIZE";
 
 
     private static List<String> takeModeStrings;
 
-    Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
     static int currTakeMode = 0;
 
-    FragmentManager fm;
-    FragmentTrigger fTrigger;
-    FragmentLiveView fLiveView;
-    FragmentSettings fSettings;
-    FragmentSlidebarMasterAperture apartureFragment;
-    FragmentSlidebarMasterIso mFragmentIso;
-    FragmentSlidebarMasterWb wbFragment;
-    FragmentSlidebarMasterShutter shutterSpeedFragment;
-    FragmentSlidebarMasterExposureCorr exposureCorrFragment;
+    private FragmentManager fm;
+    private FragmentTrigger fTrigger;
+    private FragmentLiveView fLiveView;
+    private FragmentSettings fSettings;
+    private FragmentSlidebarMasterAperture apartureFragment;
+    private FragmentSlidebarMasterIso mFragmentIso;
+    private FragmentSlidebarMasterWb wbFragment;
+    private FragmentSlidebarMasterShutter shutterSpeedFragment;
+    private FragmentSlidebarMasterExposureCorr exposureCorrFragment;
     static OLYCamera camera = null;
 
     //-----------------
@@ -240,18 +240,9 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onButtonsInteraction(int settingsType) {
-        // Toast.makeText(getParent(), settingsType, Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "settingsType: " + settingsType);
-        Log.d(TAG, "CurrentDriveMode" + currTakeMode);
-        //removeVisibleSliderFragments();
-
         try {
-            //Log.d(TAG,"visFrag"+ fm.getFragments().toString());
-            int fragLayout;
-            Log.d(TAG, "currdriveMode: " + currTakeMode);
             //if Manual mode we have 2 fragment sliders
             if (currTakeMode == 4 && settingsType <= 1) {
-                Log.d(TAG, "Manual Mode;");
                 generalPressed(shutterSpeedFragment, CAMERA_PROPERTY_SHUTTER_SPEED, R.id.fl_FragCont_ExpApart2);
                 generalPressed(apartureFragment, CAMERA_PROPERTY_APERTURE_VALUE, R.id.fl_FragCont_ExpApart1);
 
@@ -384,7 +375,6 @@ public class CameraActivity extends FragmentActivity
                 setTakeModeInFragments(currTakeMode);
             } catch (OLYCameraKitException e) {
                 e.printStackTrace();
-                return;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -408,7 +398,7 @@ public class CameraActivity extends FragmentActivity
     //------------------------
     private void setTakeModeInFragments(int mode) {
         Log.d(TAG, "Mode: " + mode);
-       // fSettings = (FragmentSettings) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
+        // fSettings = (FragmentSettings) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
         if (fSettings != null) {
             fSettings.UpdateSliderButtons();
             fTrigger.setTakeMode(mode);
@@ -452,14 +442,10 @@ public class CameraActivity extends FragmentActivity
 
     }
 
-    private void generalPressed(FragmentSlidebarMaster myFragment, final String propertyName, int frameLayoutToAppear) {
+    private void generalPressed(FragmentSlidebarMaster myFragment, final String propertyName, int frameLayout) {
         //getting possible values
         List<String> valueList = getCamPropertyValues(propertyName);
         if (valueList == null || valueList.size() == 0) return;
-        //Todo: this is ugly find other way
-        //set possible values for display
-        fSettings.SetExposureCorrValues(valueList);
-
         //get Value
         String value = getCamPropertyValue(propertyName);
         Log.d(TAG, "Value: " + value);
@@ -468,21 +454,21 @@ public class CameraActivity extends FragmentActivity
             android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             //Remove Fragment showing
-            final FragmentSlidebarMaster myFrag = (FragmentSlidebarMaster) fm.findFragmentById(frameLayoutToAppear);
+            final FragmentSlidebarMaster myFrag = (FragmentSlidebarMaster) fm.findFragmentById(frameLayout);
 
             Log.d(TAG, "myFrag: " + myFrag + " myFragment: " + myFragment);
             if (myFrag == myFragment) {
                 ft.remove(myFrag);
                 ft.commit();
-                return;
             } else {
                 if (myFrag != null) {
-                    Log.d(TAG, "Exists");
-                    ft.replace(frameLayoutToAppear, myFragment, propertyName);
-
+                    Log.d(TAG, "Exists, Value: "+value);
                     //set slider to curr value
                     myFrag.SetSliderBarValIdx(value);
+                    ft.replace(frameLayout, myFragment, propertyName);
 
+
+                    //if we had 2 sliders remove the 2nd
                     FragmentSlidebarMaster myFrag2 = (FragmentSlidebarMaster) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
                     if (myFrag2 != null)
                         ft.remove(myFrag2);
@@ -496,7 +482,7 @@ public class CameraActivity extends FragmentActivity
                             fSettings.SetSliderResult(value, propertyName);
                         }
                     });
-                    ft.add(frameLayoutToAppear, myFragment, propertyName);
+                    ft.add(frameLayout, myFragment, propertyName);
                 }
                 ft.commit();
             }
@@ -583,7 +569,7 @@ public class CameraActivity extends FragmentActivity
             return retVal;
         }
         if (value == null) return retVal;
-       // inView.setSelected(true);//todo: can be deleted?????
+        // inView.setSelected(true);//todo: can be deleted?????
         try {
             int index = valueList.indexOf(value) + 1;//get Index of current value and increment
             //Log.d(TAG, "Index: " + index);
@@ -733,8 +719,8 @@ public class CameraActivity extends FragmentActivity
                 String value = preferences.getString(name, null);
                 if (value != null) {
                     Log.d(TAG, "Name: " + name + "  Value: " + value);
-                    if(name.equals("FACE_SCAN")){
-                        if(value.equals("<FACE_SCAN/FACE_SCAN_OFF>"))
+                    if (name.equals("FACE_SCAN")) {
+                        if (value.equals("<FACE_SCAN/FACE_SCAN_OFF>"))
                             fLiveView.setEnabledFaceScan(false);
                         else
                             fLiveView.setEnabledFaceScan(true);

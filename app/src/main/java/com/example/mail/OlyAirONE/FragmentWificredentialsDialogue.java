@@ -20,11 +20,11 @@ public class FragmentWificredentialsDialogue extends DialogFragment {
     private static final String TAG = FragmentWificredentialsDialogue.class.getSimpleName();
 
     static FragmentWificredentialsDialogue newInstance() {
-        FragmentWificredentialsDialogue f = new FragmentWificredentialsDialogue();
-        return f;
+        return  new FragmentWificredentialsDialogue();
+
     }
 
-    EditText ssid, pw;
+    private  EditText ssid, pw;
     private SaveCredentialsListener mListener;
 
     public interface SaveCredentialsListener {

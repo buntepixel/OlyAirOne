@@ -22,10 +22,10 @@ import jp.co.olympus.camerakit.OLYCamera;
 
 public abstract class FragmentSlidebarMaster extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
     private static final String TAG = FragmentSlidebarMaster.class.getSimpleName();
-    OLYCamera camera;
-    protected List<String> myString;
+    private OLYCamera camera;
+    private  List<String> myString;
     private sliderValue sliderValueListener;
-    protected int mySliderValIndex = -1;
+    private  int mySliderValIndex = -1;
     private ScrollingValuePicker mScrollingValuePicker;
     //-----------------
     //   Setup
@@ -147,11 +147,9 @@ public abstract class FragmentSlidebarMaster extends Fragment implements ViewTre
         }
     }
 
-    public boolean SetSliderBarValIdx(int index) {
+    private  void SetSliderBarValIdx(int index) {
         Log.d(TAG, "setting SlideBar to: " + index);
-
         mySliderValIndex = index;
-        return true;
     }
 
     //-----------------

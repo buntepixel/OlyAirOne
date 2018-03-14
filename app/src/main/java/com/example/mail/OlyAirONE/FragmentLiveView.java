@@ -52,7 +52,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         View.OnClickListener, View.OnTouchListener {
     private static final String TAG = FragmentLiveView.class.getSimpleName();
 
-    int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
+    private int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
             R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
 
 
@@ -67,10 +67,10 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
 
     private LinearLayout ll_tl_timeLapse;
     private LinearLayout ll_tl_nextCapture;
-    private TextView tv_tl_totalImages;
     private TextView tv_tl_doneImages;
-    private TextView tv_tl_intervall;
     private TextView tv_tl_nextCapture;
+
+    private TextView tv_countdown;
     private int tl_nbImages;
     private int tl_intervall;
 
@@ -79,8 +79,9 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private Boolean timelapse = false;
     private Boolean faceDetect = false;
 
-    String[] aebSettingsArr;
-    int aebCounter = 0;
+    private String[] aebSettingsArr;
+    private int aebCounter = 0;
+
     // private List<String> focusModesList;
     private TextView takemodeTextView;
     private TextView shutterSpeedTextView;
@@ -100,9 +101,8 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     boolean focusing = false;
     private CameraLiveImageView liveImageView;
     private OLYCamera camera;
-    //private int takeModeCounter = 0;
     private OnLiveViewInteractionListener mOnLiveViewInteractionListener;
-    Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
 
 
     @SuppressWarnings("serial")
@@ -182,6 +182,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         View view = inflater.inflate(R.layout.fragment_live_view, container, false);
         view.setId(View.generateViewId());
         liveImageView = view.findViewById(R.id.cameraLiveImageView);
+        ;
 
         iv_batteryLevelImageView = view.findViewById(R.id.batteryLevelImageView);
         remainingRecordableImagesTextView = view.findViewById(R.id.tv_SdCardSpaceRemain);
@@ -200,9 +201,9 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         ll_tl_timeLapse.setVisibility(View.INVISIBLE);
         ll_tl_nextCapture = view.findViewById(R.id.ll_tl_nextCapture);
         ll_tl_nextCapture.setVisibility(View.INVISIBLE);
-        tv_tl_totalImages = view.findViewById(R.id.tv_tl_totalImages);
+        TextView tv_tl_totalImages = view.findViewById(R.id.tv_tl_totalImages);
         tv_tl_doneImages = view.findViewById(R.id.tv_tl_doneImages);
-        tv_tl_intervall = view.findViewById(R.id.tv_tl_interval);
+        TextView tv_tl_intervall = view.findViewById(R.id.tv_tl_interval);
         tv_tl_nextCapture = view.findViewById(R.id.tv_tl_nextCapture);
 
         SharedPreferences preferences = getContext().getSharedPreferences(getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
@@ -393,7 +394,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                                     return;
                                 }
                                 RectF rectF = faceMap.get("facerecognize1");
-                                PointF point = new PointF(rectF.centerX(), rectF.centerY()-(rectF.height()/4));
+                                PointF point = new PointF(rectF.centerX(), rectF.centerY() - (rectF.height() / 4));
                                 float newLength = point.length();
                                 float oldLength = currFocusPoint.length();
                                 float offset = Math.abs(newLength - oldLength);
@@ -404,7 +405,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                                     unlockAutoFocus();
                                 if (!enabledFocusLock) {
                                     currFocusPoint = point;
-                                    focusing= true;
+                                    focusing = true;
                                     lockAutoFocus(point);
                                 }
                                 liveImageView.showFocusFrame(recList, CameraLiveImageView.FocusFrameStatus.Focused, 1);
@@ -536,10 +537,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                 startTimelapse();
             } else if (AEB) {
                 takeAEBSequence();
-                return;
-            }
-            // Touch Shutter mode
-            else if (actionType == OLYCamera.ActionType.Single) {
+            } else if (actionType == OLYCamera.ActionType.Single) {            // Touch Shutter mode
                 takePictureWithPoint(point);
             } else if (actionType == OLYCamera.ActionType.Sequential) {
                 startTakingPictureWithPoint(point);

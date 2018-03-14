@@ -23,19 +23,16 @@ import java.util.Map;
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
-/**
- * Created by mail on 14/06/2017.
- */
 
 public class FragmentSettings extends Fragment
         implements View.OnClickListener {
     private static final String TAG = FragmentSettings.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
-    private  String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
-    private String [] expVals;
+    private String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
+    private String[] expVals;
     //private int takeMode;
-    OLYCamera camera;
+    private OLYCamera camera;
 
     private static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
     private static final String CAMERA_PROPERTY_METERING_MODE = "AE";
@@ -80,11 +77,11 @@ public class FragmentSettings extends Fragment
         void onButtonsInteraction(int settingsType);
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         camera = CameraActivity.camera;
-        Log.d(TAG, " camera Conntected: camera set:"+ camera.isConnected());
         setRetainInstance(true);
     }
 
@@ -95,13 +92,12 @@ public class FragmentSettings extends Fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         view.setId(View.generateViewId());
 
-        CreateSettings( view);
+        CreateSettings(view);
         return view;
     }
 
     @Override
     public void onClick(View v) {
-        Log.d(TAG, "Click: " + v);
         if (v == ll_expTime) {
             settingsFragmListener.onButtonsInteraction(0);
         } else if (v == ll_fStop) {
@@ -115,22 +111,32 @@ public class FragmentSettings extends Fragment
         }
     }
 
+    private List<String> getCamPropertyValues(String propertyName) {
+        try {
+            Log.d(TAG,"Camera is connected: "+ camera.isConnected()+" RunMode: "+camera.getRunMode());
+            List<String> values = camera.getCameraPropertyValueList(propertyName);
+            Log.d(TAG, "getCamPropertyValues" + values);
+
+            return values;
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         //update values and set onclickListeners
         updateAllValues();
     }
 
 
-    private RelativeLayout CreateSettings( View rootView) {
+    private void CreateSettings(View rootView) {
         RelativeLayout relativeLayout = rootView.findViewById(R.id.rl_settings);
 
         SetupButtons(relativeLayout);
-        return relativeLayout;
     }
 
     private void SetupButtons(RelativeLayout relativeLayout) {
@@ -147,7 +153,7 @@ public class FragmentSettings extends Fragment
         relativeLayout.addView(right_LinearLayout);
     }
 
-    public void SetButtonsBool(boolean time, boolean aparture, boolean exposureAdj, boolean iso, boolean wb) {
+    private void SetButtonsBool(boolean time, boolean aparture, boolean exposureAdj, boolean iso, boolean wb) {
         this.time = time;
         this.aparture = aparture;
         this.exposureAdj = exposureAdj;
@@ -156,7 +162,7 @@ public class FragmentSettings extends Fragment
     }
 
     public void UpdateSliderButtons() {
-        Log.d(TAG,"UpdateSliderButtons"+CameraActivity.currTakeMode);
+        Log.d(TAG, "UpdateSliderButtons" + CameraActivity.currTakeMode);
         switch (CameraActivity.currTakeMode) {
             case 0://iAuto
                 SetButtonsBool(false, false, false, false, false);
@@ -190,9 +196,6 @@ public class FragmentSettings extends Fragment
         updateAllValues();
     }
 
-    public void SetExposureCorrValues(List<String> values) {
-        possibleExpCorrValues = values;
-    }
 
     public void SetSliderResult(String property, String value) {
         try {
@@ -217,16 +220,15 @@ public class FragmentSettings extends Fragment
                 iv_Wb.setImageResource(whiteBalanceIconList.get(value));
                 break;
             case "EXPREV":
-                String myVal = camera.getCameraPropertyValueTitle(value);
-                tv_expOffset.setText(myVal);
-                int myIndex = possibleExpCorrValues.indexOf(value);
+                tv_expOffset.setText(camera.getCameraPropertyValueTitle(value));
+               /* int myIndex = possibleExpCorrValues.indexOf(value);
                 expCorr.SetLineParams(myIndex);
-                break;
+                break;*/
         }
     }
 
     //UPDATES
-    public void updateAllValues() {
+    private void updateAllValues() {
         updateWbImageView();
         updateIsoTxtView();
         updateApartureTextView();
@@ -234,12 +236,12 @@ public class FragmentSettings extends Fragment
         updateExposureCompTxtView();
     }
 
-    public void refresh(){
+    public void refresh() {
         getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
 
     private void updateWbImageView() {
-        Log.d(TAG, "updating Wb");
+        Log.d(TAG, "updating Wb"+camera.isConnected());
         if (camera != null && camera.isConnected())
             updatePropertyImageView(iv_Wb, whiteBalanceIconList, CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE);
         if (wb) {
@@ -352,12 +354,10 @@ public class FragmentSettings extends Fragment
 
 
         if (propValue == null) {
-            return;
         } else {
             textView.setText(camera.getCameraPropertyValueTitle(propValue));
         }
     }
-
 
 
     private LinearLayout CreateExpTFstop(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
@@ -513,7 +513,6 @@ public class FragmentSettings extends Fragment
         super.onAttach(context);
         try {
             settingsFragmListener = (OnSettingsFragmInteractionListener) context;
-
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnSettingsFragmInteractionListener");
         }

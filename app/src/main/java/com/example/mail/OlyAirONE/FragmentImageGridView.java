@@ -72,15 +72,15 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
     private boolean downloading;
 
     private Menu optionsMenue;
-    MenuItem dropdown;
-    CountDownTimer timer;
-    Boolean selectionChbx = false;
+    private MenuItem dropdown;
+    private CountDownTimer timer;
+    private Boolean selectionChbx = false;
     private ArrayList<OLYCameraFileInfo> selectionList;
     private List<OLYCameraFileInfo> contentList;
     private int contentIndex;
 
     private ExecutorService executor;
-    Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
 
     private LruCache<String, Bitmap> imageCache;
     OLYCamera camera;
@@ -234,10 +234,7 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
                     camera.downloadImage(fileInfo.getDirectoryPath() + "/" + fileInfo.getFilename(), myDownloadsize, new OLYCamera.DownloadImageCallback() {
                         @Override
                         public void onProgress(ProgressEvent e) {
-                            if (e.getProgress() < 1)
-                                downloading = true;
-                            else
-                                downloading = false;
+                            downloading = e.getProgress() < 1;
                             // Log.d(TAG, "progress: " + e.getProgress() + " downloading: " + downloading);
                         }
 

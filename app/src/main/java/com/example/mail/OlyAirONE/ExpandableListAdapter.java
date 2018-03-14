@@ -177,7 +177,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                             setting = listener.getSetting("RECVIEW", "<RECVIEW/ON>");
                             cbx.setTag("RECVIEW");//tag used in on click listener
                         }
-                    } else if (groupPosition == 4) {
+                    } else if (groupPosition == 5) {
                         if (childPosition == 0) {
                             setting = listener.getSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
                             cbx.setTag("TOUCHSHUTTER");//tag used in on click listener
@@ -226,16 +226,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     }
 
                 } else if (groupPosition == 4) { //if focus settings
-                    if (childPosition == 1) {
+                    if (childPosition == 0) {
                         spinnerPosition = setAdapterValues(adapter, listener.getFaceDetectionMap(), "FACE_SCAN", "<FACE_SCAN/FACE_SCAN_ON>");
                     } else {
                         adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
                 } else if (groupPosition == 5) { //if movie settings
-                    if (childPosition == 0) {
+                    if (childPosition == 1) {
                         spinnerPosition = setAdapterValues(adapter, listener.getContinousShootingSpeedMap(), "CONTINUOUS_SHOOTING_VELOCITY", "<CONTINUOUS_SHOOTING_VELOCITY/5>");
-                    } else if (childPosition == 1) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getSelfTimerMap(), "SELF_TIMER", "<SELF_TIMER/10>");
                     } else {
                         adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
@@ -287,7 +285,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     } else if (childPosition == 3) {
                         txtcontent.setText(listener.getSetting("LensVersion", "necessary Infos"));
                     }
-                }else if(groupPosition ==8){
+                } else if (groupPosition == 8) {
                     txtcontent.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
                     txtcontent.setText("\nsupport@thegoodplace.eu\nChristian Freisleder\nWilderich-Lang-Str.7\n80634 Munich(Germany)");
                 }
@@ -350,9 +348,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             case 4:
                 switch (childPosition) {//Focusing
                     case 0:
-                        return CHECKBOX;//touchshutter
-
-                    case 1:
                         return SPINNER;//faceDetection
                     default:
                         return CHILD_TYPE_UNDEFINED;
@@ -360,9 +355,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             case 5:
                 switch (childPosition) {//Shooting
                     case 0:
-                        return SPINNER;//continousShootingVel
+                        return  CHECKBOX;//touchshutter
                     case 1:
-                        return SPINNER;//selfTimer
+                        return SPINNER;//continousShootingVel
                     default:
                         return CHILD_TYPE_UNDEFINED;
                 }
@@ -565,12 +560,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         listener.saveSetting(CamSettingsActivity.AEB_SPREADTAG, expSprVal[numberPicker.getValue()]);
                         Log.d(TAG, "numberpicker changed to val: " + expSprVal[numberPicker.getValue()]);
                     } else if (numberPicker.getTag() == "np_total_100" || numberPicker.getTag() == "np_total_10" || numberPicker.getTag() == "np_total_1") {
-                        String nb = "";
+                        StringBuilder nb = new StringBuilder();
                         for (NumberPicker nbp : npNbImgArr) {
-                            nb = nb + String.valueOf(nbp.getValue());
+                            nb.append(String.valueOf(nbp.getValue()));
                         }
                         Log.d(TAG, "TimeLapse NbOf Images: " + nb);
-                        listener.saveSetting(CamSettingsActivity.TL_NBIMAGES, nb);
+                        listener.saveSetting(CamSettingsActivity.TL_NBIMAGES, nb.toString());
                     } else if (numberPicker.getTag() == "np_intervall_hrs" || numberPicker.getTag() == "np_intervall_min" || numberPicker.getTag() == "np_intervall_sec") {
                         long intervallSec = (((npIntervArr[0].getValue() * 60) + npIntervArr[1].getValue()) * 60) + npIntervArr[2].getValue();
                         Log.d(TAG, "intervallSec: " + String.valueOf(intervallSec));
@@ -613,7 +608,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 listener.saveSetting("TIMELAPSE", "<TIMELAPSE/ON>");
             else
                 listener.saveSetting("TIMELAPSE", "<TIMELAPSE/OFF>");
+        } else if (view.getTag() == "SELF_TIMERACTIVE"){
+            if (checked)
+                listener.saveSetting("SELF_TIMERACTIVE", "<TIMELAPSE/ON>");
+            else
+                listener.saveSetting("SELF_TIMERACTIVE", "<TIMELAPSE/OFF>");
         }
+
     }
 
     @Override

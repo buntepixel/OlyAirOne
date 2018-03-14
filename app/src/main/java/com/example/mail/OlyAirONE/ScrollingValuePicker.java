@@ -34,7 +34,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
     private List<String> content;
     private int txtPadding = 25;
     private List<Integer> contentWidthList = new ArrayList<Integer>();
-    public boolean snappingSlider = false;
+    private  boolean snappingSlider = false;
 
 
     @SuppressWarnings("serial")
@@ -79,7 +79,7 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         return currContentIndex;
     }
 
-    public ScrollingValueInteraction mValueInteractionListener;
+    private  ScrollingValueInteraction mValueInteractionListener;
 
 
     public interface ScrollingValueInteraction {

@@ -7,15 +7,13 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-/**
- * Created by mail on 21/10/2016.
- */
+
 
 public class ExposureCorrection extends View {
     private int mNbStrokes = 31;
     private int mStrokeGap = 10;
-    private int mLineCenter = 15;
     private int mhighlightIdx = 15;
+    Paint paint = new Paint();
 
     private static final String TAG = ExposureCorrection.class.getSimpleName();
 
@@ -31,29 +29,19 @@ public class ExposureCorrection extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        //Animation called when attaching to the window, i.e to your screen
-        //startAnimation();
-    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int height = 40;
         //calculate the view width
-        int calculatedWidth = (mNbStrokes * mStrokeGap);
-
-        int width = calculatedWidth;
-
-        setMeasuredDimension(width, height);
+        setMeasuredDimension((mNbStrokes * mStrokeGap), height);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Paint paint = new Paint();
+
         //set the color for the dot that you want to draw
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.STROKE);
@@ -71,6 +59,8 @@ public class ExposureCorrection extends View {
         int width = getWidth();
         int height = getHeight();
         int startLine, endLine;
+        int mLineCenter = 15;
+
         //strokes next to each other
         for (int i = 0; i < mNbStrokes; i++) {
             startLine = height / 3;
@@ -103,7 +93,7 @@ public class ExposureCorrection extends View {
     }
 
     public void SetLineParams(int endIndex) {
-        Log.d(TAG, "seting Param to: "+ endIndex);
+        Log.d(TAG, "seting Param to: " + endIndex);
         mhighlightIdx = endIndex;
         invalidate();
     }

@@ -38,9 +38,8 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
-    Executor connectionExecutor = Executors.newFixedThreadPool(2);
+    private Executor connectionExecutor = Executors.newFixedThreadPool(2);
 
-    private SharedPreferences preferences;
     public static final String PREFS_NAME = "AirOnePrefs";
 
 
@@ -48,7 +47,6 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);/**/
-        preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         Log.d(TAG, "SET PrefsObj");
         iv_Camera = findViewById(R.id.iv_Camera);
         iv_ViewImages = findViewById(R.id.iv_viewImages);
@@ -109,7 +107,6 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
                     camera.connect(OLYCamera.ConnectionType.WiFi);
                 } catch (OLYCameraKitException e) {
                     e.printStackTrace();
-                    return;
                 }
             }
         });

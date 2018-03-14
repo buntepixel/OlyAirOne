@@ -19,8 +19,8 @@ import jp.co.olympus.camerakit.OLYCameraKitException;
 public class ImageViewActivity extends AppCompatActivity implements OLYCameraConnectionListener, FragmentImageGridView.ImagerGridViewInteractionListener {
     private static final String TAG = ImageViewActivity.class.getSimpleName();
     public static OLYCamera camera;
-    FragmentImageGridView fImgGridView;
-    FragmentImagePagerView fPagerViewFragment;
+    private FragmentImageGridView fImgGridView;
+    private FragmentImagePagerView fPagerViewFragment;
 
     public static final String FRAGMENT_TAG_IMGGRIDVIEW = "imgGridView";
     public static final String FRAGMENT_TAG_IMGPAGEVIEWE = "imgPageView";
