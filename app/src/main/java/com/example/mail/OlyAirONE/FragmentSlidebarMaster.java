@@ -99,7 +99,6 @@ public abstract class FragmentSlidebarMaster extends Fragment implements ViewTre
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
         outState.putInt("mySliderValIndex", mySliderValIndex);
         Log.d(TAG, "Save Instance State" + mySliderValIndex);
     }
@@ -156,7 +155,7 @@ public abstract class FragmentSlidebarMaster extends Fragment implements ViewTre
     //   Updates
     //-----------------
     public void updateBundle(List<String> myString, String value) {
-        Log.d(TAG, "Updating Bundle");
+        //Log.d(TAG, "Updating Bundle");
         Bundle args = new Bundle();
         ArrayList<String> myArrList = new ArrayList();
         myArrList.addAll(myString);
@@ -164,6 +163,7 @@ public abstract class FragmentSlidebarMaster extends Fragment implements ViewTre
         args.putString("value", value);
         setArguments(args);
     }
+
 
     //-----------------
     //   Interaction

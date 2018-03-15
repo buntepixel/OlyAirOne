@@ -50,9 +50,11 @@ public class FragmentSettings extends Fragment
     private LinearLayout ll_Wb;
     private TextView tv_expOffset;
     private LinearLayout ll_expOffset;
-
-
+    private LinearLayout ll_expBarContainer;
     private ExposureCorrection expCorr;
+    private int expOffsetIdx;
+
+
     private List<String> possibleExpCorrValues;
 
 
@@ -77,6 +79,10 @@ public class FragmentSettings extends Fragment
         void onButtonsInteraction(int settingsType);
     }
 
+    public void SetPossibelExposureValues(List<String> values) {
+        Log.d(TAG, "Setting ExprevVals");
+        possibleExpCorrValues = values;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,14 +94,30 @@ public class FragmentSettings extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        if (savedInstanceState != null)
+            savedInstanceState.getInt("ExposureOffset", expOffsetIdx);
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         view.setId(View.generateViewId());
 
         CreateSettings(view);
+       // Log.d(TAG,"loaded expoffsetIdx: "+expOffsetIdx);
+        expCorr.SetLineParams(expOffsetIdx);
         return view;
     }
 
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //update values and set onclickListeners
+        updateAllValues();
+    }
+
+    private void CreateSettings(View rootView) {
+        RelativeLayout relativeLayout = rootView.findViewById(R.id.rl_settings);
+        SetupButtons(relativeLayout);
+    }
     @Override
     public void onClick(View v) {
         if (v == ll_expTime) {
@@ -109,34 +131,6 @@ public class FragmentSettings extends Fragment
         } else if (v == ll_Wb) {
             settingsFragmListener.onButtonsInteraction(4);
         }
-    }
-
-    private List<String> getCamPropertyValues(String propertyName) {
-        try {
-            Log.d(TAG,"Camera is connected: "+ camera.isConnected()+" RunMode: "+camera.getRunMode());
-            List<String> values = camera.getCameraPropertyValueList(propertyName);
-            Log.d(TAG, "getCamPropertyValues" + values);
-
-            return values;
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        //update values and set onclickListeners
-        updateAllValues();
-    }
-
-
-    private void CreateSettings(View rootView) {
-        RelativeLayout relativeLayout = rootView.findViewById(R.id.rl_settings);
-
-        SetupButtons(relativeLayout);
     }
 
     private void SetupButtons(RelativeLayout relativeLayout) {
@@ -163,6 +157,11 @@ public class FragmentSettings extends Fragment
 
     public void UpdateSliderButtons() {
         Log.d(TAG, "UpdateSliderButtons" + CameraActivity.currTakeMode);
+        if (CameraActivity.currTakeMode > 0 && CameraActivity.currTakeMode < 4 || CameraActivity.currTakeMode > 4) {
+            ll_expBarContainer.setVisibility(View.VISIBLE);
+        } else {
+            ll_expBarContainer.setVisibility(View.GONE);
+        }
         switch (CameraActivity.currTakeMode) {
             case 0://iAuto
                 SetButtonsBool(false, false, false, false, false);
@@ -196,6 +195,13 @@ public class FragmentSettings extends Fragment
         updateAllValues();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG,"saved expoffsetIdx: "+expOffsetIdx);
+
+        outState.putInt("ExposureOffset", expOffsetIdx);
+    }
 
     public void SetSliderResult(String property, String value) {
         try {
@@ -216,15 +222,20 @@ public class FragmentSettings extends Fragment
                 tv_iso.setText(camera.getCameraPropertyValueTitle(value));
                 break;
             case "WB":
-                Log.d(TAG, "CameraValue: " + camera.getCameraPropertyValueTitle(value));
                 iv_Wb.setImageResource(whiteBalanceIconList.get(value));
                 break;
             case "EXPREV":
                 tv_expOffset.setText(camera.getCameraPropertyValueTitle(value));
-               /* int myIndex = possibleExpCorrValues.indexOf(value);
-                expCorr.SetLineParams(myIndex);
-                break;*/
+                setExpCorrVisual(value);
+                break;
         }
+    }
+
+    private void setExpCorrVisual(String value) {
+        int myIndex = possibleExpCorrValues.indexOf(value);
+        Log.d(TAG, "Index: " + myIndex+ " value: "+value+" possiblevals: "+possibleExpCorrValues);
+        expOffsetIdx = myIndex;
+        expCorr.SetLineParams(myIndex);
     }
 
     //UPDATES
@@ -233,15 +244,14 @@ public class FragmentSettings extends Fragment
         updateIsoTxtView();
         updateApartureTextView();
         updateShutterSpTextView();
-        updateExposureCompTxtView();
-    }
-
-    public void refresh() {
-        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        String value = updateExposureCompTxtView();
+        if(value!=null){
+            setExpCorrVisual(value);
+        }
     }
 
     private void updateWbImageView() {
-        Log.d(TAG, "updating Wb"+camera.isConnected());
+        Log.d(TAG, "updating Wb" + camera.isConnected());
         if (camera != null && camera.isConnected())
             updatePropertyImageView(iv_Wb, whiteBalanceIconList, CameraActivity.CAMERA_PROPERTY_WHITE_BALANCE);
         if (wb) {
@@ -298,10 +308,11 @@ public class FragmentSettings extends Fragment
         }
     }
 
-    private void updateExposureCompTxtView() {
+    private String updateExposureCompTxtView() {
         Log.d(TAG, "updating ExposureCompensation");
+        String value = null;
         if (camera != null && camera.isConnected())
-            updatePropertyTxtView(tv_expOffset, CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+           value=  updatePropertyTxtView(tv_expOffset, CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
         if (exposureAdj) {
             tv_expOffset.setEnabled(true);
             ll_expOffset.setOnClickListener(this);
@@ -310,8 +321,24 @@ public class FragmentSettings extends Fragment
             tv_expOffset.setText("0.0");
             ll_expOffset.setOnClickListener(null);
         }
-
-
+        return value;
+    }
+    private String updatePropertyTxtView(TextView textView, String propertyName) {
+        textView.setEnabled(camera.canSetCameraProperty(propertyName));
+        Log.d(TAG, "UpdateTextView: " + propertyName);
+        String propValue;
+        try {
+            propValue = camera.getCameraPropertyValue(propertyName);
+            Log.d(TAG, "PropName: " + propValue);
+        } catch (OLYCameraKitException e) {
+            e.printStackTrace();
+            return null;
+        }
+        if (propValue == null) {
+        } else {
+            textView.setText(camera.getCameraPropertyValueTitle(propValue));
+        }
+        return propValue;
     }
 
     private void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
@@ -339,26 +366,6 @@ public class FragmentSettings extends Fragment
             imageView.setImageDrawable(null);
         }
     }
-
-    private void updatePropertyTxtView(TextView textView, String propertyName) {
-        textView.setEnabled(camera.canSetCameraProperty(propertyName));
-        Log.d(TAG, "UpdateTextView: " + propertyName);
-        String propValue;
-        try {
-            propValue = camera.getCameraPropertyValue(propertyName);
-            Log.d(TAG, "PropName: " + propValue);
-        } catch (OLYCameraKitException e) {
-            e.printStackTrace();
-            return;
-        }
-
-
-        if (propValue == null) {
-        } else {
-            textView.setText(camera.getCameraPropertyValueTitle(propValue));
-        }
-    }
-
 
     private LinearLayout CreateExpTFstop(ColorStateList colorStateList, int padding, LinearLayout alignLayout) {
         LinearLayout root_linearLayout = new LinearLayout(getActivity());
@@ -428,39 +435,38 @@ public class FragmentSettings extends Fragment
 
         ll_expOffset.addView(tv_expOffset);
         //Expcorr Layout only if manual Mode
-        if (CameraActivity.currTakeMode > 0 && CameraActivity.currTakeMode < 4) {
-            LinearLayout containerLLayout = new LinearLayout(getActivity());
-            LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            containerLLayout.setLayoutParams(linParams);
-            containerLLayout.setGravity(Gravity.CENTER_VERTICAL);
-            containerLLayout.setOrientation(LinearLayout.HORIZONTAL);
-            containerLLayout.setWeightSum(8);
-            ll_expOffset.addView(containerLLayout);
+        ll_expBarContainer = new LinearLayout(getActivity());
+        LinearLayout.LayoutParams linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll_expBarContainer.setLayoutParams(linParams);
+        ll_expBarContainer.setGravity(Gravity.CENTER_VERTICAL);
+        ll_expBarContainer.setOrientation(LinearLayout.HORIZONTAL);
+        ll_expBarContainer.setWeightSum(8);
+        ll_expOffset.addView(ll_expBarContainer);
 
-            TextView leftText = new TextView(getActivity());
-            leftText.setGravity(Gravity.CENTER);
-            leftText.setMinWidth(10);
+        TextView leftText = new TextView(getActivity());
+        leftText.setGravity(Gravity.CENTER);
+        leftText.setMinWidth(10);
 
-            leftText.setText("-");
-            leftText.setWidth(30);
-            leftText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextLightWhite));
-            leftText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-            containerLLayout.addView(leftText);
+        leftText.setText("-");
+        leftText.setWidth(30);
+        leftText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextLightWhite));
+        leftText.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+        ll_expBarContainer.addView(leftText);
 
 
-            linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            expCorr.setLayoutParams(linParams);
+        linParams = (new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        expCorr.setLayoutParams(linParams);
 
-            containerLLayout.addView(expCorr);
+        ll_expBarContainer.addView(expCorr);
 
-            TextView rightText = new TextView(getActivity());
-            rightText.setGravity(Gravity.CENTER);
-            rightText.setWidth(30);
-            rightText.setText("+");
-            rightText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextLightWhite));
-            rightText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
-            containerLLayout.addView(rightText);
-        }
+        TextView rightText = new TextView(getActivity());
+        rightText.setGravity(Gravity.CENTER);
+        rightText.setWidth(30);
+        rightText.setText("+");
+        rightText.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorTextLightWhite));
+        rightText.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+        ll_expBarContainer.addView(rightText);
+
         return ll_expOffset;
     }
 

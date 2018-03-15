@@ -5,6 +5,8 @@
     android:id="@+id/rl_MainFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/Black"
+
     >
     <FrameLayout
         android:id="@+id/fl_FragCont_cameraLiveImageView"
