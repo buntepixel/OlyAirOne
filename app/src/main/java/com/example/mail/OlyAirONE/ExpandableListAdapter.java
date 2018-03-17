@@ -35,8 +35,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private static final int CHILD_TYPE_UNDEFINED = 4;
     private static final int TEXT = 5;
 
-    private final String[] strVal = {"3", "5", "7", "9", "11"};
-    private final String[] expSprVal = {"1", "2", "3"};
+    private final String[] AEB_nbImgVal = {"3", "5", "7", "9", "11"};
+    private final String[] AEB_expSprVal = {"1", "2", "3"};
     private NumberPicker[] npNbImgArr;
     private NumberPicker[] npIntervArr;
 
@@ -462,15 +462,15 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private void setup_AEB(View convertView) {
 
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
-        setupNumberPicker(np_nbImagesVal, strVal, getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0])), false, CamSettingsActivity.AEB_IMAGETAG);
+        setupNumberPicker(np_nbImagesVal, AEB_nbImgVal, getArrIdFromValue(AEB_nbImgVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, AEB_nbImgVal[0])), false, CamSettingsActivity.AEB_IMAGETAG);
         Log.d(TAG, "savedVal: " + listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, "default"));
-        int tmp = getArrIdFromValue(strVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[0]));
+        int tmp = getArrIdFromValue(AEB_nbImgVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, AEB_nbImgVal[0]));
         Log.d(TAG, "savedArrVal: " + tmp);
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        setupNumberPicker(np_exposureSpreadVal, expSprVal, getArrIdFromValue(expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, strVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
+        setupNumberPicker(np_exposureSpreadVal, AEB_expSprVal, getArrIdFromValue(AEB_expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, AEB_nbImgVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
 
-        //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, expSprVal[0])));
+        //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, AEB_expSprVal[0])));
     }
 
     private void setup_TL(View convertView) {
@@ -555,10 +555,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             public void run() {
                 if (newVal == numberPicker.getValue()) {//make sure picker scroll stopped
                     if (numberPicker.getTag() == CamSettingsActivity.AEB_IMAGETAG) {
-                        listener.saveSetting(CamSettingsActivity.AEB_IMAGETAG, strVal[numberPicker.getValue()]);
+                        listener.saveSetting(CamSettingsActivity.AEB_IMAGETAG, AEB_nbImgVal[numberPicker.getValue()]);
                     } else if (numberPicker.getTag() == CamSettingsActivity.AEB_SPREADTAG) {
-                        listener.saveSetting(CamSettingsActivity.AEB_SPREADTAG, expSprVal[numberPicker.getValue()]);
-                        Log.d(TAG, "numberpicker changed to val: " + expSprVal[numberPicker.getValue()]);
+                        listener.saveSetting(CamSettingsActivity.AEB_SPREADTAG, AEB_expSprVal[numberPicker.getValue()]);
+                        Log.d(TAG, "numberpicker changed to val: " + AEB_expSprVal[numberPicker.getValue()]);
                     } else if (numberPicker.getTag() == "np_total_100" || numberPicker.getTag() == "np_total_10" || numberPicker.getTag() == "np_total_1") {
                         StringBuilder nb = new StringBuilder();
                         for (NumberPicker nbp : npNbImgArr) {
@@ -608,12 +608,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 listener.saveSetting("TIMELAPSE", "<TIMELAPSE/ON>");
             else
                 listener.saveSetting("TIMELAPSE", "<TIMELAPSE/OFF>");
-        } else if (view.getTag() == "SELF_TIMERACTIVE"){
+        }/* else if (view.getTag() == "SELF_TIMERACTIVE"){
             if (checked)
                 listener.saveSetting("SELF_TIMERACTIVE", "<TIMELAPSE/ON>");
             else
                 listener.saveSetting("SELF_TIMERACTIVE", "<TIMELAPSE/OFF>");
-        }
+        }*/
 
     }
 

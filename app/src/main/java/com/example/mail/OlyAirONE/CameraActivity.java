@@ -81,6 +81,7 @@ public class CameraActivity extends FragmentActivity
     private FragmentSlidebarMasterShutter shutterSpeedFragment;
     private FragmentSlidebarMasterExposureCorr exposureCorrFragment;
     static OLYCamera camera = null;
+    private SharedPreferences preferences;
 
 
     public static List<String> getTakeModeStrings() {
@@ -98,6 +99,7 @@ public class CameraActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        preferences = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
 
         //--------------------------
         //setContentView(R.layout.activity_camera);
@@ -234,10 +236,7 @@ public class CameraActivity extends FragmentActivity
     }
 
     //..............
-    @Override
-    public void onEnabledFocusLock(Boolean focusLockState) {
 
-    }
 
     @Override
     public void onButtonsInteraction(int settingsType) {
@@ -700,7 +699,9 @@ public class CameraActivity extends FragmentActivity
 
 
     private void restoreCamSettings(SharedPreferences preferences) {
-
+        if (preferences.getBoolean("firstTimeGetPref", true)) {
+            SetInitSettings();
+        }
         if (camera.isConnected()) {
             Map<String, String> values = new HashMap<>();
             for (String name : Arrays.asList(
@@ -734,12 +735,6 @@ public class CameraActivity extends FragmentActivity
                             fLiveView.setEnabledFaceScan(true);
                     }
                     values.put(name, value);
-                   /* try {
-                        Log.d(TAG, "setting: " + name);
-                        camera.setCameraPropertyValue(name, value);
-                    } catch (OLYCameraKitException e) {
-                        Log.w(TAG, "To change the camera properties has failed: " + e.getMessage());
-                    }*/
                 }
             }
             Log.d(TAG, "camvalues to set: " + values.size());
@@ -757,12 +752,36 @@ public class CameraActivity extends FragmentActivity
             fLiveView.setEnabledTouchShutter(touchShutterEnabled);
             Boolean timeLapseEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TIMELAPSE", "<TIMELAPSE/ON>")));
             fLiveView.setEnabledTimeLapse(timeLapseEnabled);
-      /*      Boolean rawEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("RAW", "<RAW/ON>")));
-            fLiveView.setEnabledTimeLapse(timeLapseEnabled);*/
+            Boolean rawEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("RAW", "<RAW/ON>")));
             fLiveView.updateRecordTypeText();
         }
     }
 
+    private void SetInitSettings() {
+        SharedPreferences.Editor editor = preferences.edit();
+      /*  editor.putString(CamSettingsActivity.AEB_SPREADTAG, "<SPREAD/1>");
+        editor.putString(CamSettingsActivity.AEB_IMAGETAG, "<NBPIC/3>");*/
+
+        /*editor.putString(CamSettingsActivity.TL_INTERVALL, "<NBPIC/3>");
+        editor.putString(CamSettingsActivity.TL_NBIMAGES, "<NBPIC/3>");*/
+        editor.putString("ASPECT_RATIO", "<ASPECT_RATIO/06_06>");
+        editor.putString("COMPRESSIBILITY_RATIO", "<COMPRESSIBILITY_RATIO/CMP_4>");
+        editor.putString("IMAGESIZE", "<IMAGESIZE/4608x3456>");
+        editor.putString("DESTINATION_FILE", "<DESTINATION_FILE/DESTINATION_FILE_MEDIA>");
+        editor.putString("QUALITY_MOVIE", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_NORMAL>");
+        editor.putString("QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/5>");
+        editor.putString("CONTINUOUS_SHOOTING_VELOCITY", "<CONTINUOUS_SHOOTING_VELOCITY/6>");
+        editor.putString("FACE_SCAN", "<FACE_SCAN/FACE_SCAN_ON>");
+        editor.putString("RAW", "<RAW/ON>");
+        editor.putString("RECVIEW", "<RECVIEW/ON>");
+        editor.putString("TIMELAPSE", "<TIMELAPSE/OFF>");
+        editor.putString("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
+        editor.putBoolean("firstTimeGetPref",false);
+
+
+        editor.apply();
+
+    }
 
 }
 

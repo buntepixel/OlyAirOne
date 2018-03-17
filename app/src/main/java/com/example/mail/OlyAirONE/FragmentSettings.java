@@ -52,7 +52,7 @@ public class FragmentSettings extends Fragment
     private LinearLayout ll_expOffset;
     private LinearLayout ll_expBarContainer;
     private ExposureCorrection expCorr;
-    private int expOffsetIdx;
+    private int expOffsetIdx = 15;
 
 
     private List<String> possibleExpCorrValues;
@@ -100,11 +100,10 @@ public class FragmentSettings extends Fragment
         view.setId(View.generateViewId());
 
         CreateSettings(view);
-       // Log.d(TAG,"loaded expoffsetIdx: "+expOffsetIdx);
+        Log.d(TAG, "loaded expoffsetIdx: " + expOffsetIdx);
         expCorr.SetLineParams(expOffsetIdx);
         return view;
     }
-
 
 
     @Override
@@ -118,6 +117,7 @@ public class FragmentSettings extends Fragment
         RelativeLayout relativeLayout = rootView.findViewById(R.id.rl_settings);
         SetupButtons(relativeLayout);
     }
+
     @Override
     public void onClick(View v) {
         if (v == ll_expTime) {
@@ -198,7 +198,7 @@ public class FragmentSettings extends Fragment
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(TAG,"saved expoffsetIdx: "+expOffsetIdx);
+        Log.d(TAG, "saved expoffsetIdx: " + expOffsetIdx);
 
         outState.putInt("ExposureOffset", expOffsetIdx);
     }
@@ -226,14 +226,15 @@ public class FragmentSettings extends Fragment
                 break;
             case "EXPREV":
                 tv_expOffset.setText(camera.getCameraPropertyValueTitle(value));
-                setExpCorrVisual(value);
+                if (value != null)
+                    setExpCorrVisual(value);
                 break;
         }
     }
 
     private void setExpCorrVisual(String value) {
         int myIndex = possibleExpCorrValues.indexOf(value);
-        Log.d(TAG, "Index: " + myIndex+ " value: "+value+" possiblevals: "+possibleExpCorrValues);
+        Log.d(TAG, "Index: " + myIndex + " value: " + value + " possiblevals: " + possibleExpCorrValues);
         expOffsetIdx = myIndex;
         expCorr.SetLineParams(myIndex);
     }
@@ -245,7 +246,7 @@ public class FragmentSettings extends Fragment
         updateApartureTextView();
         updateShutterSpTextView();
         String value = updateExposureCompTxtView();
-        if(value!=null){
+        if (value != null) {
             setExpCorrVisual(value);
         }
     }
@@ -312,7 +313,7 @@ public class FragmentSettings extends Fragment
         Log.d(TAG, "updating ExposureCompensation");
         String value = null;
         if (camera != null && camera.isConnected())
-           value=  updatePropertyTxtView(tv_expOffset, CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+            value = updatePropertyTxtView(tv_expOffset, CameraActivity.CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
         if (exposureAdj) {
             tv_expOffset.setEnabled(true);
             ll_expOffset.setOnClickListener(this);
@@ -323,6 +324,7 @@ public class FragmentSettings extends Fragment
         }
         return value;
     }
+
     private String updatePropertyTxtView(TextView textView, String propertyName) {
         textView.setEnabled(camera.canSetCameraProperty(propertyName));
         Log.d(TAG, "UpdateTextView: " + propertyName);

@@ -270,11 +270,4 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         return null;
     }
 
-
-   /* @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menue.activity_camsettings, menu);
-        return true;
-    }*/
 }

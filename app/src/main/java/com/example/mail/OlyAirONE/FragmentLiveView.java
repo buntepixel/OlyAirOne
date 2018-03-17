@@ -138,13 +138,12 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
 
         void onDriveModeButtonPressed(int currDriveMode);
 
-        void onEnabledFocusLock(Boolean focusLockState);
-
         void updateDriveModeImage();
 
         void onRecordVideoPressed(Boolean bool);
 
     }
+
     // ------------------
     //  setters
     // ------------------
@@ -172,6 +171,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             }
         });
     }
+
 
     //----------------------
     //   Creation
@@ -470,10 +470,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                                 for (String key : faceMap.keySet()) {
                                     recList.add(faceMap.get(key));
                                 }
-                                if (focusing) {
-                                    Log.d(TAG, "returning");
-                                    return;
-                                }
+
                                 RectF rectF = faceMap.get("facerecognize1");
                                 PointF point = new PointF(rectF.centerX(), rectF.centerY() - (rectF.height() / 4));
                                 float newLength = point.length();
@@ -481,15 +478,17 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                                 float offset = Math.abs(newLength - oldLength);
                                 float width = liveImageView.getIntrinsicContentSizeWidth();
 
-                                //Log.d(TAG, "focusing: " + focusing + " offset: " + offset + " width: " + width + " oldpoint: " + currFocusPoint + " new point: " + point);
-                                if (currFocusPoint != null && offset >= 0.1)//if offset is bigger than 10% of screenwidth, refocus
+                                if (currFocusPoint != null && offset >= 0.1) {//if offset is bigger than 10% of screenwidth, refocus
                                     unlockAutoFocus();
-                                if (!enabledFocusLock) {
+                                    Log.d(TAG, "unlocking focus");
+                                }
+                                if (!enabledFocusLock && !focusing) {
                                     currFocusPoint = point;
                                     focusing = true;
                                     lockAutoFocus(point);
+                                    Log.d(TAG, "returning");
+                                    liveImageView.showFocusFrame(recList, CameraLiveImageView.FocusFrameStatus.Focused, 1);
                                 }
-                                liveImageView.showFocusFrame(recList, CameraLiveImageView.FocusFrameStatus.Focused, 1);
                             }
                         }
                         break;
@@ -510,6 +509,18 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
 
     @Override
     public void onChangeAutoFocusResult(OLYCamera camera, OLYCameraAutoFocusResult result) {
+    /*    switch (result.getResult()){
+
+            case "ok":
+                Log.d(TAG,"result: ok");
+                break;
+            case "ng":
+                Log.d(TAG,"result: ng");
+                break;
+            case "none":
+                Log.d(TAG,"result: none");
+                break;
+        }*/
     }
 
     //-------------------------
@@ -762,7 +773,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                 ee.printStackTrace();
             }
             enabledFocusLock = false;
-            mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
+            focusing = false;
             liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
@@ -776,7 +787,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                     if (autoFocusResult.getResult().equals("ok") && autoFocusResult.getRect() != null) {
                         // Lock succeed.
                         enabledFocusLock = true;
-                        mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
                         focusedSoundPlayer.start();
                         RectF postFocusFrameRect = autoFocusResult.getRect();
@@ -791,8 +801,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                             ee.printStackTrace();
                         }
                         enabledFocusLock = false;
-                        mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
-
                         liveImageView.hideFocusFrame();
                     } else {
                         // Lock failed.
@@ -803,7 +811,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                             ee.printStackTrace();
                         }
                         enabledFocusLock = false;
-                        mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
 
                         liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
                     }
@@ -813,13 +820,12 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             @Override
             public void onCompleted() {
                 Log.d(TAG, "focusing complete");
-
-                // No operation.
                 focusing = false;
             }
 
             @Override
             public void onErrorOccurred(Exception e) {
+                focusing = false;
                 // Lock failed.
                 try {
                     camera.clearAutoFocusPoint();
@@ -828,9 +834,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                     ee.printStackTrace();
                 }
                 enabledFocusLock = false;
-                focusing = false;
-                mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
-
                 liveImageView.hideFocusFrame();
 
                 final String message = e.getMessage();
@@ -855,8 +858,8 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         } catch (OLYCameraKitException e) {
             e.printStackTrace();
         }
-
         enabledFocusLock = false;
+        focusing = false;
         liveImageView.hideFocusFrame();
     }
 
@@ -962,8 +965,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                 ee.printStackTrace();
             }
             enabledFocusLock = false;
-            mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
-
             liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
@@ -1107,8 +1108,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                 ee.printStackTrace();
             }
             enabledFocusLock = false;
-            mOnLiveViewInteractionListener.onEnabledFocusLock(enabledFocusLock);
-
             liveImageView.showFocusFrame(preFocusFrameRect, CameraLiveImageView.FocusFrameStatus.Failed, 1.0);
             return;
         }
@@ -1459,8 +1458,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             Log.d(TAG, "Reset aebCounter to: " + aebCounter + " AEBBool: " + AEB);
         }
     }
-
-
 
 
     // ------------------

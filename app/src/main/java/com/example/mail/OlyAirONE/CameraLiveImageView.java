@@ -48,7 +48,6 @@ public class CameraLiveImageView extends View {
     private FocusFrameStatus focusFrameStatus;
     private ArrayList<RectF> focusFrameRect;
     private Timer focusFrameHideTimer;
-
     public CameraLiveImageView(Context context) {
         super(context);
         initComponent();
