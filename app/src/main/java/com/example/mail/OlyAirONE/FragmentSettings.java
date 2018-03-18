@@ -17,7 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import jp.co.olympus.camerakit.OLYCamera;
@@ -55,7 +54,6 @@ public class FragmentSettings extends Fragment
     private int expOffsetIdx = 15;
 
 
-    private List<String> possibleExpCorrValues;
 
 
     private OnSettingsFragmInteractionListener settingsFragmListener;
@@ -79,10 +77,7 @@ public class FragmentSettings extends Fragment
         void onButtonsInteraction(int settingsType);
     }
 
-    public void SetPossibelExposureValues(List<String> values) {
-        Log.d(TAG, "Setting ExprevVals");
-        possibleExpCorrValues = values;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -233,8 +228,10 @@ public class FragmentSettings extends Fragment
     }
 
     private void setExpCorrVisual(String value) {
-        int myIndex = possibleExpCorrValues.indexOf(value);
-        Log.d(TAG, "Index: " + myIndex + " value: " + value + " possiblevals: " + possibleExpCorrValues);
+        if(CameraActivity.possibleExpCorrValues==null)
+            return;
+        int myIndex = CameraActivity.possibleExpCorrValues.indexOf(value);
+        Log.d(TAG, "Index: " + myIndex + " value: " + value + " possiblevals: " + CameraActivity.possibleExpCorrValues);
         expOffsetIdx = myIndex;
         expCorr.SetLineParams(myIndex);
     }

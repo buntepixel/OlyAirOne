@@ -82,6 +82,7 @@ public class CameraActivity extends FragmentActivity
     private FragmentSlidebarMasterExposureCorr exposureCorrFragment;
     static OLYCamera camera = null;
     private SharedPreferences preferences;
+    public static List<String> possibleExpCorrValues;
 
 
     public static List<String> getTakeModeStrings() {
@@ -216,6 +217,9 @@ public class CameraActivity extends FragmentActivity
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            possibleExpCorrValues = getCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
+            Log.d(TAG, "possibelvals: " + possibleExpCorrValues.toString());
+
             currTakeMode = currDriveMode;
             setTakeModeInFragments(currDriveMode);
         } catch (Exception e) {
@@ -373,16 +377,18 @@ public class CameraActivity extends FragmentActivity
     private void onConnectedToCamera() {
         try {
             Log.d(TAG, "Connected to Cam");
-            createSliderFragments();
             fTrigger.setCamera(camera);
             try {
                 //get Takemode strings for static variable
                 takeModeStrings = camera.getCameraPropertyValueList(CAMERA_PROPERTY_TAKE_MODE);
                 currTakeMode = takeModeStrings.indexOf(camera.getCameraPropertyValue(CAMERA_PROPERTY_TAKE_MODE));
-                setTakeModeInFragments(currTakeMode);
+                possibleExpCorrValues = camera.getCameraPropertyValueList(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
             } catch (OLYCameraKitException e) {
                 e.printStackTrace();
             }
+            setTakeModeInFragments(currTakeMode);
+            createSliderFragments();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -419,13 +425,11 @@ public class CameraActivity extends FragmentActivity
     private void createSliderFragments() {
         //create slider fragments.
         Log.d(TAG, "Creating Slider Fragments");
-        List<String> expValues = getCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
         apartureFragment = FragmentSlidebarMasterAperture.newInstance(getCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), getCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
         shutterSpeedFragment = FragmentSlidebarMasterShutter.newInstance(getCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), getCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
-        exposureCorrFragment = FragmentSlidebarMasterExposureCorr.newInstance(expValues, getCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
+        exposureCorrFragment = FragmentSlidebarMasterExposureCorr.newInstance(possibleExpCorrValues, getCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
         mFragmentIso = FragmentSlidebarMasterIso.newInstance(getCamPropertyValues(CAMERA_PROPERTY_ISO_SENSITIVITY), getCamPropertyValue(CAMERA_PROPERTY_ISO_SENSITIVITY));
         wbFragment = FragmentSlidebarMasterWb.newInstance(getCamPropertyValues(CAMERA_PROPERTY_WHITE_BALANCE), getCamPropertyValue(CAMERA_PROPERTY_WHITE_BALANCE));
-        fSettings.SetPossibelExposureValues(expValues);
     }
 
     private void removeVisibleSliderFragments() {
@@ -776,7 +780,7 @@ public class CameraActivity extends FragmentActivity
         editor.putString("RECVIEW", "<RECVIEW/ON>");
         editor.putString("TIMELAPSE", "<TIMELAPSE/OFF>");
         editor.putString("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
-        editor.putBoolean("firstTimeGetPref",false);
+        editor.putBoolean("firstTimeGetPref", false);
 
 
         editor.apply();
