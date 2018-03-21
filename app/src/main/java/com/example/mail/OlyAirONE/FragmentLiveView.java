@@ -71,6 +71,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private TextView tv_tl_nextCapture;
 
     private TextView tv_countdown;
+    private boolean isDoingTimelapse;
     private int tl_nbImages;
     private int tl_intervall;
 
@@ -1207,11 +1208,16 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     // Timelapse
     //-------------------
     private void startTimelapse() {
-        timeLapseDialogue("you're doing " + tl_nbImages + " images with a \ninterval of " + tl_intervall + " seconds", "Start Timelapse", "Cancel");
+        if (isDoingTimelapse)
+            presentMessage(getString(R.string.timelapse), getString(R.string.tl_alreadyTimelapsing));
+        else
+            timeLapseDialogue(getString(R.string.timelapseInfoA) + tl_nbImages + getString(R.string.timelapseInfoB) + tl_intervall
+                    + getString(R.string.timelapseInfoC), getString(R.string.timelapseInfo_btnPos), getString(R.string.timelapseInfo_btnNeg));
     }
 
     private void takeTimelapse() {
-
+        isDoingTimelapse = true;
+        //Todo: lock focus on 1st releas
         if (camera.isTakingPicture() || camera.isRecordingVideo()) {
             Log.d(TAG, "returning as is busy");
             return;
@@ -1235,6 +1241,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                         counter++;
                         updateTimelapseStats(String.valueOf(counter));
                         if (counter == tl_nbImages) {//exit if we are done
+                            isDoingTimelapse = false;
                             nextCaptureVisible(false);
                             return;
                         }

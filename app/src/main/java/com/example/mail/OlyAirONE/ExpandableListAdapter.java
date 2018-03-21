@@ -210,8 +210,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         spinnerPosition = setAdapterValues(adapter, listener.getImageSizeMap(), "IMAGESIZE", "<IMAGESIZE/4608x3456>");
                     } else if (childPosition == 2) {
                         spinnerPosition = setAdapterValues(adapter, listener.getJpgCompressionMap(), "COMPRESSIBILITY_RATIO", "<COMPRESSIBILITY_RATIO/CMP_4>");
-                    } else if (childPosition == 3) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getImageSaveDestinationMap(), "DESTINATION_FILE", "<DESTINATION_FILE/DESTINATION_FILE_MEDIA>");
                     } else {
                         adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
                     }
@@ -328,10 +326,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                     case 2:
                         return SPINNER;//jpgCompression
                     case 3:
-                        return SPINNER;//ImageDestination
-                    case 4:
                         return CHECKBOX;//RawImageSaving
-                    case 5:
+                    case 4:
                         return CHECKBOX;//Create preview image
                     default:
                         return CHILD_TYPE_UNDEFINED;
@@ -355,7 +351,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             case 5:
                 switch (childPosition) {//Shooting
                     case 0:
-                        return  CHECKBOX;//touchshutter
+                        return CHECKBOX;//touchshutter
                     case 1:
                         return SPINNER;//continousShootingVel
                     default:
@@ -460,17 +456,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
 
     private void setup_AEB(View convertView) {
-
         NumberPicker np_nbImagesVal = convertView.findViewById(R.id.np_nbImagesVal);
         setupNumberPicker(np_nbImagesVal, AEB_nbImgVal, getArrIdFromValue(AEB_nbImgVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, AEB_nbImgVal[0])), false, CamSettingsActivity.AEB_IMAGETAG);
-        Log.d(TAG, "savedVal: " + listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, "default"));
-        int tmp = getArrIdFromValue(AEB_nbImgVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, AEB_nbImgVal[0]));
-        Log.d(TAG, "savedArrVal: " + tmp);
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
         setupNumberPicker(np_exposureSpreadVal, AEB_expSprVal, getArrIdFromValue(AEB_expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, AEB_nbImgVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
-
-        //np_exposureSpreadVal.setValue(Integer.parseInt(listener.getSetting(AEB_SPREADTAG, AEB_expSprVal[0])));
     }
 
     private void setup_TL(View convertView) {
@@ -516,7 +506,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     }
 
     private void setupNumberPicker(NumberPicker np, Integer minVal, Integer maxVal, Integer startVal, Boolean wrap, String tag) {
-//Todo: fix null ref on very first init
         np.setMinValue(minVal); //from array first value
         np.setMaxValue(maxVal); //to array last value
         np.setTag(tag);
@@ -526,7 +515,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     }
 
     private void setupNumberPicker(NumberPicker np, String[] strVal, int startValue, Boolean wrap, String tag) {
-        setupNumberPicker(np, 0, strVal.length - 1, 0, wrap, tag);
+        setupNumberPicker(np, 0, strVal.length - 1, startValue, wrap, tag);
         np.setDisplayedValues(strVal);
     }
 
@@ -556,6 +545,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 if (newVal == numberPicker.getValue()) {//make sure picker scroll stopped
                     if (numberPicker.getTag() == CamSettingsActivity.AEB_IMAGETAG) {
                         listener.saveSetting(CamSettingsActivity.AEB_IMAGETAG, AEB_nbImgVal[numberPicker.getValue()]);
+                        Log.d(TAG, "numberpicker changed to val: " + AEB_nbImgVal[numberPicker.getValue()]);
+
                     } else if (numberPicker.getTag() == CamSettingsActivity.AEB_SPREADTAG) {
                         listener.saveSetting(CamSettingsActivity.AEB_SPREADTAG, AEB_expSprVal[numberPicker.getValue()]);
                         Log.d(TAG, "numberpicker changed to val: " + AEB_expSprVal[numberPicker.getValue()]);

@@ -129,6 +129,14 @@
     <string name="gv_ifo_deleting">Deleting</string>
     <string name="gv_ifo_downloading">Downloading</string>
     <string name="btn_camera">Camera</string>
+    <string name="tl_alreadyTimelapsing">doing Timelapse already wait for it to finish</string>
+    <string name="timelapse">Timelapse</string>
+    <string name="timelapseInfoA">you\'re doing</string>
+    <string name="timelapseInfoB">images with a  interval of</string>
+    <string name="timelapseInfoC">seconds</string>
+    <string name="timelapseInfo_btnPos">Start Timelapse</string>
+    <string name="timelapseInfo_btnNeg">Cancel</string>
+    <string name="timelapse_intervall_time">Intervall time</string>
 
 
 </resources>

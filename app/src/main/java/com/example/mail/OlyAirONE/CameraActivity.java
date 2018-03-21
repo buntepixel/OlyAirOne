@@ -704,6 +704,7 @@ public class CameraActivity extends FragmentActivity
 
     private void restoreCamSettings(SharedPreferences preferences) {
         if (preferences.getBoolean("firstTimeGetPref", true)) {
+            Log.d(TAG,"initsettings");
             SetInitSettings();
         }
         if (camera.isConnected()) {
