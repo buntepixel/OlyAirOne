@@ -1,6 +1,8 @@
 package com.example.mail.OlyAirONE;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,7 +43,6 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         if (savedInstanceState != null) {
             currFragStr = savedInstanceState.getString("currFragStr");
             Log.d(TAG, "currFragStr: " + currFragStr);
-
             if (currFragStr.equals(FRAGMENT_TAG_IMGGRIDVIEW))
                 fImgGridView = (FragmentImageGridView) fm.getFragment(savedInstanceState, currFragStr);
             else if (currFragStr.equals(FRAGMENT_TAG_IMGPAGEVIEWE))
@@ -69,10 +70,10 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         super.onResume();
         Log.d(TAG, "START Resume");
         if (!camera.isConnected()) {
-            Log.d(TAG, "Cam Is NOT connected");
+           // Log.d(TAG, "Cam Is NOT connected");
             startConnectingCamera();
         } else {
-            Log.d(TAG, "Cam Is connected");
+           // Log.d(TAG, "Cam Is connected");
             onConnectedToCamera();
         }
         Log.d(TAG, "END Resume");
@@ -140,26 +141,13 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
 
     private void onConnectedToCamera() {
         Log.d(TAG, "Connected to Cam");
-        if (currFragStr != null && currFragStr.equals(FRAGMENT_TAG_IMGGRIDVIEW)) {
-            FragmentImageGridView frag = (FragmentImageGridView) fm.findFragmentById(R.id.fl_imgViewAction_content);
-            if (frag == null) {
-                android.app.FragmentTransaction transaction = fm.beginTransaction();
-                Log.d(TAG, "Frag = imgGridView: ");
-                transaction.add(R.id.fl_imgViewAction_content, fImgGridView, FRAGMENT_TAG_IMGGRIDVIEW);
-                transaction.commit();
-            }
-
-        } else if (currFragStr != null && currFragStr.equals(FRAGMENT_TAG_IMGPAGEVIEWE)) {
-            Log.d(TAG, "Frag = pagerView: ");
-            FragmentImagePagerView frag = (FragmentImagePagerView) fm.findFragmentById(R.id.fl_imgViewAction_content);
-            if (frag == null) {
-                android.app.FragmentTransaction transaction = fm.beginTransaction();
-                transaction.add(R.id.fl_imgViewAction_content, fPagerViewFragment, FRAGMENT_TAG_IMGPAGEVIEWE);
-                transaction.commit();
-            }
+        Fragment currFrag = fm.findFragmentById(R.id.fl_imgViewAction_content);
+        if (currFrag == null) {
+            FragmentTransaction transaction = fm.beginTransaction();
+            transaction.add(R.id.fl_imgViewAction_content, fImgGridView, FRAGMENT_TAG_IMGGRIDVIEW);
+            transaction.commit();
         }
     }
-
 
 
     @Override
