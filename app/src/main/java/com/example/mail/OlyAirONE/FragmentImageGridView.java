@@ -18,7 +18,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -73,11 +72,9 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
 
     private Menu optionsMenue;
     private MenuItem dropdown;
-    private CountDownTimer timer;
     private Boolean selectionChbx = false;
     private ArrayList<OLYCameraFileInfo> selectionList;
     private List<OLYCameraFileInfo> contentList;
-    private int contentIndex;
 
     private ExecutorService executor;
     private Executor connectionExecutor = Executors.newFixedThreadPool(1);
@@ -378,7 +375,7 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
 
     @Override
     public void onResume() {
-        selectionList.clear();
+       // selectionList.clear();
         if (camera.getRunMode() != OLYCamera.RunMode.Playback) {
             try {
                 camera.changeRunMode(OLYCamera.RunMode.Playback);
@@ -414,7 +411,6 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
         }
         super.onPause();
     }
-
 
     private void refresh() {
         contentList = null;
@@ -464,7 +460,6 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
                 });
             }
         });
-
     }
 
     @Override
@@ -552,6 +547,7 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
 
 
         public GridViewAdapter(LayoutInflater inflater) {
+
             this.inflater = inflater;
         }
 
@@ -597,10 +593,8 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
             OLYCameraFileInfo item = (OLYCameraFileInfo) getItem(position);
 
             if (selectionChbx) {//set checked if previously checked
-                Log.d(TAG, "pos: " + position);
-
                 viewHolder.chbxView.setVisibility(View.VISIBLE);
-                //viewHolder.chbxView.setChecked(selectionPosArr[position]);
+                viewHolder.chbxView.setChecked(selectionList.contains(this.getItem(position)));
             }
             if (item == null) {
                 viewHolder.imageView.setImageDrawable(null);
@@ -634,12 +628,6 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
 
     }
 
-    private class GridViewOnItemClickListener implements AdapterView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-        }
-    }
 
     private class GridViewOnScrollListener implements AbsListView.OnScrollListener {
         @Override
