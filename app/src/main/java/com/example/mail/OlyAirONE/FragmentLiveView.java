@@ -16,17 +16,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,14 +57,12 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         View.OnClickListener, View.OnTouchListener {
     private static final String TAG = FragmentLiveView.class.getSimpleName();
 
-    private int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
-            R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
-
 
     private ImageView iv_batteryLevelImageView;
     private TextView remainingRecordableImagesTextView;
     private TextView focusModeTextView;
     private ImageButton ib_TakeMode;
+    private Button ib_ProgMode;
     private ImageView iv_AEB;
     private ImageView iv_recording;
     private LinearLayout ll_recording;
@@ -92,7 +95,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private OnLiveViewInteractionListener mOnLiveViewInteractionListener;
     private Executor connectionExecutor = Executors.newFixedThreadPool(1);
 
-    private int driveMode;
 
     @SuppressWarnings("serial")
     private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
@@ -108,7 +110,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         }
     };
     @SuppressWarnings("serial")
-    private static final Map<String, Integer> takeModeIconsList = new HashMap<String, Integer>() {
+    private static final Map<String, Integer> takeModeIconsList = new LinkedHashMap<String, Integer>() {
         {
             put("<TAKEMODE/iAuto>", R.drawable.ic_iautomode);
             put("<TAKEMODE/P>", R.drawable.ic_programmmode);
@@ -119,6 +121,50 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             put("<TAKEMODE/movie>", R.drawable.ic_videomode);
         }
     };
+    private static final Map<String, Integer> takeModesMap = new LinkedHashMap<String, Integer>() {
+        {
+            put("iAuto", 0);
+            put("Programm Mode", 1);
+            put("Aperture-priority", 2);
+            put("Shutter-priority", 3);
+            put("Manual mode", 4);
+            put("Movie mode", 6);
+        }
+    };
+    private static final Map<String, Integer> programmModesMap = new LinkedHashMap<String, Integer>() {
+        {
+            put("FLAT", 0);
+            put("NATURAL", 1);
+            put("Monotone", 2);
+            put("Portrait", 3);
+            put("I FINISH", 4);
+            put("ePortrait", 5);
+            put("COLOR CREATOR", 6);
+            put("POPART", 7);
+            put("FANTASIC FOCUS", 8);
+            put("DAYDREAM", 9);
+            put("LIGHT TONE", 10);
+            put("ROUGH MONOCHROME", 11);
+            put("TOY PHOTO", 12);
+            put("MINIATURE", 13);
+            put("CROSS PROCESS", 14);
+            put("GENTLE SEPIA", 15);
+            put("DRAMATIC TONE", 16);
+            put("LIGNE CLAIR", 17);
+            put("PASTEL", 18);
+            put("VINTAGE", 19);
+            put("PARTCOLOR", 20);
+        }
+    };
+    private String[] programmModeArr = new String[]{"<COLORTONE/FLAT>", "<COLORTONE/NATURAL>", "<COLORTONE/Monotone>", "<COLORTONE/Portrait>", "<COLORTONE/I_FINISH>",
+            "<COLORTONE/ePortrait>", "<COLORTONE/COLOR_CREATOR>", "<COLORTONE/POPART>", "<COLORTONE/FANTASIC_FOCUS>", "<COLORTONE/DAYDREAM>",
+            "<COLORTONE/LIGHT_TONE>", "<COLORTONE/ROUGH_MONOCHROME>", "<COLORTONE/TOY_PHOTO>", "<COLORTONE/MINIATURE>", "<COLORTONE/CROSS_PROCESS>",
+            "<COLORTONE/GENTLE_SEPIA>", "<COLORTONE/DRAMATIC_TONE>", "<COLORTONE/LIGNE_CLAIR>", "<COLORTONE/PASTEL>", "<COLORTONE/VINTAGE>",
+            "<COLORTONE/PARTCOLOR>"};
+
+    private int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
+            R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
+
     @SuppressWarnings("serial")
     private static final Map<String, Integer> batteryIconList = new HashMap<String, Integer>() {
         {
@@ -134,6 +180,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             put("<BATTERY_LEVEL/SUPPLY_FULL>", R.drawable.tt_icn_battery_supply_full);
         }
     };
+
 
     public interface OnLiveViewInteractionListener {
 
@@ -214,6 +261,8 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         ib_TakeMode = view.findViewById(R.id.ib_RecordMode);
         ib_TakeMode.setImageResource(takeModeDrawablesArr[CameraActivity.currTakeMode]);
 
+        ib_ProgMode = view.findViewById(R.id.bn_PictureMode);
+
         iv_AEB = view.findViewById(R.id.iv_Bracketing);
         tv_RecordType = view.findViewById(R.id.tv_RecordType);
 
@@ -239,6 +288,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
 
         focusModeTextView.setOnClickListener(this);
         ib_TakeMode.setOnClickListener(this);
+        ib_ProgMode.setOnClickListener(this);
         liveImageView.setOnTouchListener(this);
         iv_AEB.setOnClickListener(this);
         return view;
@@ -251,6 +301,8 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         if (camera == null) {
             camera = CameraActivity.getCamera();
         }
+
+
     }
 
     @Override
@@ -277,7 +329,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                 updateImageViews();
             }
         });
-
     }
 
     //----------------------
@@ -318,7 +369,10 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         if (v == focusModeTextView) {
             focusModeTextViewDidTap();
         } else if (v == ib_TakeMode) {
-            takeModeDidTap();
+            // takeModeDidTap();
+            ShowTakeModePopupMenue(v, takeModesMap);
+        } else if (v == ib_ProgMode) {
+            ShowProgModePopupMenue(v, programmModesMap);
         } else if (v == iv_AEB) {
             if (timelapse) {
                 Toast.makeText(this.getContext(), "Bracketing not possible in combination with timelapse. Go to your settings and disable timelapse", Toast.LENGTH_LONG).show();
@@ -341,6 +395,50 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             }
         }
         return true;
+    }
+
+    private void ShowTakeModePopupMenue(View view, Map<String, Integer> inMap) {
+        PopupMenu menue = new PopupMenu(getActivity(), view);
+        menue.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                String title = menuItem.getTitle().toString();
+                CameraActivity.currTakeMode = takeModesMap.get(title);
+                takeModeDidTap();
+                return false;
+            }
+        });
+        for (String item : inMap.keySet()) {
+            menue.getMenu().add(item);
+        }
+        MenuInflater inflater = menue.getMenuInflater();
+        inflater.inflate(R.menu.popupmenue, menue.getMenu());
+        menue.show();
+    }
+
+    private void ShowProgModePopupMenue(View view, Map<String, Integer> inMap) {
+        final PopupMenu menue = new PopupMenu(getActivity(), view);
+        menue.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                String title = menuItem.getTitle().toString();
+                Integer index = programmModesMap.get(title);
+                String property = programmModeArr[index];
+                ib_ProgMode.setText(title);
+                try {
+                    camera.setCameraPropertyValue("COLORTONE", property);
+                } catch (OLYCameraKitException ex) {
+                    ex.printStackTrace();
+                }
+                return false;
+            }
+        });
+        for (String item : inMap.keySet()) {
+            menue.getMenu().add(item);
+        }
+        MenuInflater inflater = menue.getMenuInflater();
+        inflater.inflate(R.menu.popupmenue, menue.getMenu());
+        menue.show();
     }
 
     public void onShutterTouched(MotionEvent event) {
@@ -385,7 +483,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private void takeModeDidTap() {
         Log.d(TAG, "takeModeDidTap");
         //updateTakeModeImageView();
-        CameraActivity.currTakeMode = (CameraActivity.currTakeMode + 1) % takeModeDrawablesArr.length;
+        // CameraActivity.currTakeMode = (CameraActivity.currTakeMode + 1) % takeModeDrawablesArr.length;
         ib_TakeMode.setImageResource(takeModeDrawablesArr[CameraActivity.currTakeMode]);
         updateRecordingLayoutVisibility();
         triggerTakeModeUpdate(CameraActivity.currTakeMode);
@@ -1470,13 +1568,17 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     // ------------------
     // Updates
     // ------------------
-    public void triggerTakeModeUpdate(int takeModeCounter) {
-        if (takeModeCounter != CameraActivity.SHOOTING_MODE_MOVIE)
+    public void triggerTakeModeUpdate(int currTakeMode) {
+        if (currTakeMode != CameraActivity.SHOOTING_MODE_MOVIE)
             updateFocusModeTextView(CameraActivity.CAMERA_PROPERTY_FOCUS_STILL);
-        //ib_TakeMode.setImageResource(takeModeDrawablesArr[takeModeCounter]);
+        if (currTakeMode == CameraActivity.SHOOTING_MODE_P) {
+            ib_ProgMode.setVisibility(View.VISIBLE);
+        } else
+            ib_ProgMode.setVisibility(View.GONE);
+        //ib_TakeMode.setImageResource(takeModeDrawablesArr[currTakeMode]);
         if (mOnLiveViewInteractionListener != null) {
-            mOnLiveViewInteractionListener.onDriveModeButtonPressed(takeModeCounter);
-            Log.d(TAG, "mOnliveView... shootingmodeCounter: " + takeModeCounter);
+            mOnLiveViewInteractionListener.onDriveModeButtonPressed(currTakeMode);
+            Log.d(TAG, "mOnliveView... shootingmodeCounter: " + currTakeMode);
         }
     }
 
@@ -1486,7 +1588,9 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             public void run() {
                 Log.d(TAG, "updateimageViews: " + CameraActivity.currTakeMode);
                 //updateTakeModeImageView();
-                ib_TakeMode.setImageResource(takeModeDrawablesArr[CameraActivity.currTakeMode]);
+                 ib_TakeMode.setImageResource(takeModeDrawablesArr[CameraActivity.currTakeMode]);
+                 if(CameraActivity.currTakeMode==CameraActivity.SHOOTING_MODE_P)
+                     ib_ProgMode.setVisibility(View.VISIBLE);
                 updateBatteryLevelImageView();
                 updateRemainingRecordableImagesTextView();
                 updateRecordTypeText();

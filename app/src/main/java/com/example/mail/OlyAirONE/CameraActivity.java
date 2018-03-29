@@ -47,7 +47,7 @@ public class CameraActivity extends FragmentActivity
     public static final int SHOOTING_MODE_S = 3;
     public static final int SHOOTING_MODE_M = 4;
     public static final int SHOOTING_MODE_ART = 5;
-    public static final int SHOOTING_MODE_MOVIE = 6;
+    public static final int SHOOTING_MODE_MOVIE = 5;
 
 
     public static final String CAMERA_SETTINGS = "OlyAirOneCamSettings";
@@ -218,7 +218,6 @@ public class CameraActivity extends FragmentActivity
                 e.printStackTrace();
             }
             possibleExpCorrValues = getCamPropertyValues(CAMERA_PROPERTY_EXPOSURE_COMPENSATION);
-            Log.d(TAG, "possibelvals: " + possibleExpCorrValues.toString());
 
             currTakeMode = currDriveMode;
             setTakeModeInFragments(currDriveMode);

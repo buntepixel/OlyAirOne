@@ -21,6 +21,15 @@
         android:layout_marginTop="@dimen/LiveViewTopMarg"
         android:src="@drawable/ic_iautomode"/>
 
+    <Button
+        android:id="@+id/bn_PictureMode"
+        android:layout_width="78dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/ib_RecordMode"
+        android:text="Mode"
+        android:visibility="gone"
+        />
 
     <LinearLayout
         android:id="@+id/ll_remainingPicAndStuff"
@@ -145,8 +154,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Timelapse:"
                 android:layout_marginRight="@dimen/textspacer_smalltxt"
+                android:text="Timelapse:"
                 android:textAlignment="gravity"
                 android:textColor="@color/button_text_states"
                 android:textSize="@dimen/small_txt"/>
@@ -186,8 +195,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="interval:"
                 android:layout_marginRight="@dimen/textspacer_smalltxt"
+                android:text="interval:"
                 android:textColor="@color/button_text_states"
                 android:textSize="@dimen/small_txt"/>
 
@@ -195,17 +204,17 @@
                 android:id="@+id/tv_tl_interval"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="120"
                 android:textColor="@color/button_text_states"
-                android:textSize="@dimen/small_txt"
-                android:text="120"/>
+                android:textSize="@dimen/small_txt"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/textspacer_smalltxt"
+                android:text="sec"
                 android:textColor="@color/button_text_states"
-                android:textSize="@dimen/small_txt"
-                android:text="sec"/>
+                android:textSize="@dimen/small_txt"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -223,26 +232,26 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/textspacer_smalltxt"
             android:layout_marginRight="@dimen/textspacer_smalltxt"
+            android:text="next capture in:"
             android:textColor="@color/button_text_states"
-            android:textSize="@dimen/small_txt"
-            android:text="next capture in:"/>
+            android:textSize="@dimen/small_txt"/>
 
         <TextView
             android:id="@+id/tv_tl_nextCapture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="50"
             android:textColor="@color/button_text_states"
-            android:textSize="@dimen/small_txt"
-            android:text="50"/>
+            android:textSize="@dimen/small_txt"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/textspacer_smalltxt"
             android:layout_marginRight="@dimen/textspacer_smalltxt"
+            android:text="sec"
             android:textColor="@color/button_text_states"
-            android:textSize="@dimen/small_txt"
-            android:text="sec"/>
+            android:textSize="@dimen/small_txt"/>
     </LinearLayout>
 
 
