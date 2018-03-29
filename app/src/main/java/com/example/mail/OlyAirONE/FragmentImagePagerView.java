@@ -49,6 +49,7 @@ import java.util.concurrent.Executors;
 import jp.co.olympus.camerakit.OLYCamera;
 import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
+import jp.co.olympus.camerakit.OLYCameraKitException;
 
 public class FragmentImagePagerView extends Fragment {
     private static final String TAG = FragmentImagePagerView.class.getSimpleName();
@@ -128,7 +129,7 @@ public class FragmentImagePagerView extends Fragment {
         boolean doDownload = false;
         float downloadSize = 0;
         Log.d(TAG, "itemId:  " + item.getItemId() + "needed: " + R.id.action_download_1024x768);
-        if (item.getItemId() == android.R.id.home) {
+        if (item.getItemId() == R.id.home) {
             fm.popBackStack();
         } else if (item.getItemId() == R.id.action_download_original_size) {
             Log.d(TAG, "Ori:  " + item.getItemId());
@@ -150,6 +151,10 @@ public class FragmentImagePagerView extends Fragment {
             Log.d(TAG, "1024:  " + item.getItemId());
             downloadSize = OLYCamera.IMAGE_RESIZE_1024;
             doDownload = true;
+        } else if (item.getItemId() == R.id.action_delete) {
+            Log.d(TAG, "DELETE:  " + item.getItemId());
+
+            deleteImage();
         }
 
         if (doDownload) {
@@ -359,6 +364,24 @@ public class FragmentImagePagerView extends Fragment {
 
     }
 
+    private void deleteImage() {
+        OLYCameraFileInfo file = contentList.get(contentIndex);
+        String path = file.getDirectoryPath() + "/" + file.getFilename();
+        try {
+            if (camera.getRunMode() != OLYCamera.RunMode.Playmaintenance) {
+                camera.changeRunMode(OLYCamera.RunMode.Playmaintenance);
+            }
+            camera.eraseContent(path);
+            camera.changeRunMode(OLYCamera.RunMode.Playback);
+        } catch (OLYCameraKitException ex) {
+            ex.printStackTrace();
+        }
+        if(contentIndex== contentList.size()-1){
+            contentIndex--;
+        }else
+            contentIndex++;
+        viewPager.setCurrentItem(contentIndex);
+    }
 
     // -------------------------------------------------------------------------
     // Helpers
