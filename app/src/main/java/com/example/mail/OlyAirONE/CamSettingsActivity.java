@@ -167,7 +167,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
     @Override
     public void saveSetting(String property, String value) {
-        Log.d(TAG, "save: prop: "+property+"  val: "+value);
+        Log.wtf(TAG, "save: prop: "+property+"  val: "+value);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(property, value);
         editor.apply();
@@ -177,7 +177,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     public String getSetting(String property, String defvalue) {
         try {
             String value = preferences.getString(property, defvalue ) ;
-            Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
+            Log.wtf(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
             return  value;
         }catch (ClassCastException e){
             e.printStackTrace();

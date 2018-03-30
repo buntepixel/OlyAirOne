@@ -170,10 +170,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                             cbx.setTag("TIMELAPSE");//tag used in on click listener
                         }
                     } else if (groupPosition == 2) {
-                        if (childPosition == 4) {
+                        if (childPosition == 3) {
                             setting = listener.getSetting("RAW", "<RAW/ON>");
                             cbx.setTag("RAW");//tag used in on click listener
-                        } else if (childPosition == 5) {
+                        } else if (childPosition == 4) {
                             setting = listener.getSetting("RECVIEW", "<RECVIEW/ON>");
                             cbx.setTag("RECVIEW");//tag used in on click listener
                         }

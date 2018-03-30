@@ -110,13 +110,13 @@ public class CameraActivity extends FragmentActivity
         // we could end up with overlapping fragments.
         //Log.d(TAG, "ONCreate");
         if (savedInstanceState != null) {
-            Log.d(TAG, ":::::::::::::::::::setsavedInstances::::::::::::::::::::::");
+           Log.wtf(TAG, ":::::::::::::::::::setsavedInstances::::::::::::::::::::::");
             fSettings = (FragmentSettings) fm.getFragment(savedInstanceState, FRAGMENT_TAG_SETTINGS);
             fTrigger = (FragmentTrigger) fm.getFragment(savedInstanceState, FRAGMENT_TAG_TRIGGER);
             fLiveView = (FragmentLiveView) fm.getFragment(savedInstanceState, FRAGMENT_TAG_LIVEVIEW);
             return;
         }
-        Log.d(TAG, "onCreate__" + "Creating Camera Object");
+       Log.wtf(TAG, "onCreate__" + "Creating Camera Object");
         camera = new OLYCamera();
         camera.setContext(this);
         camera.setConnectionListener(this);
@@ -127,13 +127,13 @@ public class CameraActivity extends FragmentActivity
         fSettings = new FragmentSettings();
         fLiveView = new FragmentLiveView();
 
-        Log.d(TAG, "onResume__" + "bevoreCommit");
+       Log.wtf(TAG, "onResume__" + "bevoreCommit");
         android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.add(R.id.fl_FragCont_Trigger, fTrigger, FRAGMENT_TAG_TRIGGER);
         fragmentTransaction.add(R.id.fl_FragCont_Settings, fSettings, FRAGMENT_TAG_SETTINGS);
         fragmentTransaction.add(R.id.fl_FragCont_cameraLiveImageView, fLiveView, FRAGMENT_TAG_LIVEVIEW);
         fragmentTransaction.commit();
-        Log.d(TAG, "onResume__" + "AfterCommit");
+       Log.wtf(TAG, "onResume__" + "AfterCommit");
 
     }
 
@@ -146,15 +146,15 @@ public class CameraActivity extends FragmentActivity
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "START Resume");
+       Log.wtf(TAG, "START Resume");
         if (!camera.isConnected()) {
-            Log.d(TAG, "Cam Is NOT connected");
+           Log.wtf(TAG, "Cam Is NOT connected");
             startConnectingCamera();
         } else {
-            Log.d(TAG, "Cam Is connected");
+           Log.wtf(TAG, "Cam Is connected");
             onConnectedToCamera();
         }
-        Log.d(TAG, "END Resume");
+       Log.wtf(TAG, "END Resume");
     }
 
     //-----------------
@@ -169,7 +169,7 @@ public class CameraActivity extends FragmentActivity
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(TAG, ":::::::::::::::::::::::::::SaveInstanceState:::::::::::::::::::::::");
+       Log.wtf(TAG, ":::::::::::::::::::::::::::SaveInstanceState:::::::::::::::::::::::");
         if (fm.findFragmentByTag(FRAGMENT_TAG_LIVEVIEW) != null)
             fm.putFragment(outState, FRAGMENT_TAG_LIVEVIEW, fLiveView);
         if (fm.findFragmentByTag(FRAGMENT_TAG_SETTINGS) != null)
@@ -224,7 +224,7 @@ public class CameraActivity extends FragmentActivity
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);
             System.err.println(TAG + e.getMessage());
-            Log.d(TAG, stackTrace);
+           Log.wtf(TAG, stackTrace);
         }
     }
 
@@ -296,7 +296,7 @@ public class CameraActivity extends FragmentActivity
     //    Connecting Camera
     //------------------------
     private void startConnectingCamera() {
-        Log.d(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
+       Log.wtf(TAG, "startConnectingCamera__" + "Adding trigger fragment to View");
         connectionExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -305,7 +305,7 @@ public class CameraActivity extends FragmentActivity
                 while (!canConnect) {
                     canConnect = camera.canConnect(OLYCamera.ConnectionType.WiFi, 0);
                 }
-                Log.d(TAG, "startConnectingCamera__" + "OLYCamera.ConnectionType.WiFi");
+               Log.wtf(TAG, "startConnectingCamera__" + "OLYCamera.ConnectionType.WiFi");
                 try {
                     camera.connect(OLYCamera.ConnectionType.WiFi);
                 } catch (OLYCameraKitException e) {
@@ -319,24 +319,24 @@ public class CameraActivity extends FragmentActivity
                     alertConnectingFailed(e);
                     return;
                 }
-                Log.d(TAG, "startConnectingCamera__" + "OLYCamera.RunMode.Recording");
+               Log.wtf(TAG, "startConnectingCamera__" + "OLYCamera.RunMode.Recording");
                 try {
                     camera.changeRunMode(OLYCamera.RunMode.Recording);
                 } catch (OLYCameraKitException e) {
                     alertConnectingFailed(e);
                     return;
                 }
-                Log.d(TAG, "startConnectingCamera__" + "Restores my settings");
+               Log.wtf(TAG, "startConnectingCamera__" + "Restores my settings");
                 // Restores my settings.
                 restoreCamSettings(preferences);
                 fLiveView.updateImageViews();//update Views
-                Log.d(TAG, "::::::::::::::::::::::::::::-----Restored Settings----:::::::::::::::::::::::::::::::::: ");
+               Log.wtf(TAG, "::::::::::::::::::::::::::::-----Restored Settings----:::::::::::::::::::::::::::::::::: ");
                 if (!camera.isAutoStartLiveView()) { // Please refer a document about OLYCamera.autoStartLiveView.
                     // Start the live-view.
                     // If you forget calling this method, live view will not be displayed on the screen.
                     try {
                         camera.startLiveView();
-                        Log.d(TAG, "StartedLiveView");
+                       Log.wtf(TAG, "StartedLiveView");
                     } catch (OLYCameraKitException e) {
                         Log.w(TAG, "To start the live-view is failed: " + e.getMessage());
                         return;
@@ -375,7 +375,7 @@ public class CameraActivity extends FragmentActivity
 
     private void onConnectedToCamera() {
         try {
-            Log.d(TAG, "Connected to Cam");
+           Log.wtf(TAG, "Connected to Cam");
             fTrigger.setCamera(camera);
             try {
                 //get Takemode strings for static variable
@@ -395,7 +395,7 @@ public class CameraActivity extends FragmentActivity
 
     @Override
     public void onDisconnectedByError(OLYCamera olyCamera, OLYCameraKitException e) {
-        Log.d(TAG, "LostConnection");
+       Log.wtf(TAG, "LostConnection");
         runOnUiThread(new Runnable() {
             public void run() {
                 Toast.makeText(getBaseContext(), "Connection to Camera Lost, please Reconnect", Toast.LENGTH_LONG).show();
@@ -409,7 +409,7 @@ public class CameraActivity extends FragmentActivity
     //     Helpers
     //------------------------
     private void setTakeModeInFragments(int mode) {
-        Log.d(TAG, "Mode: " + mode);
+       Log.wtf(TAG, "Mode: " + mode);
         // fSettings = (FragmentSettings) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_SETTINGS);
         if (fSettings != null) {
             fSettings.UpdateSliderButtons();
@@ -423,7 +423,7 @@ public class CameraActivity extends FragmentActivity
 
     private void createSliderFragments() {
         //create slider fragments.
-        Log.d(TAG, "Creating Slider Fragments");
+       Log.wtf(TAG, "Creating Slider Fragments");
         apartureFragment = FragmentSlidebarMasterAperture.newInstance(getCamPropertyValues(CAMERA_PROPERTY_APERTURE_VALUE), getCamPropertyValue(CAMERA_PROPERTY_APERTURE_VALUE));
         shutterSpeedFragment = FragmentSlidebarMasterShutter.newInstance(getCamPropertyValues(CAMERA_PROPERTY_SHUTTER_SPEED), getCamPropertyValue(CAMERA_PROPERTY_SHUTTER_SPEED));
         exposureCorrFragment = FragmentSlidebarMasterExposureCorr.newInstance(possibleExpCorrValues, getCamPropertyValue(CAMERA_PROPERTY_EXPOSURE_COMPENSATION));
@@ -433,17 +433,17 @@ public class CameraActivity extends FragmentActivity
 
     private void removeVisibleSliderFragments() {
         //if there is a fragment loaded remove it
-        Log.d(TAG, "RemoveVisFragment");
+       Log.wtf(TAG, "RemoveVisFragment");
         FragmentSlidebarMaster fragment1 = (FragmentSlidebarMaster) fm.findFragmentById(R.id.fl_FragCont_ExpApart1);
         if (fragment1 != null) {
             android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
             ft.setCustomAnimations(R.anim.slidedown, R.anim.slideup);
             ft.remove(fragment1);
-            Log.d(TAG, "Removing expApart1");
+           Log.wtf(TAG, "Removing expApart1");
             FragmentSlidebarMaster fragment2 = (FragmentSlidebarMaster) fm.findFragmentById(R.id.fl_FragCont_ExpApart2);
             if (fragment2 != null) {
                 ft.remove(fragment2);
-                Log.d(TAG, "Removing expApart2");
+               Log.wtf(TAG, "Removing expApart2");
             }
             ft.commit();
         }
@@ -460,7 +460,7 @@ public class CameraActivity extends FragmentActivity
         if (valueList == null || valueList.size() == 0) return;
         //get Value
         String value = getCamPropertyValue(propertyName);
-        Log.d(TAG, "Value: " + value);
+       Log.wtf(TAG, "Value: " + value);
         if (value == null) return;
         try {
             android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
@@ -468,13 +468,13 @@ public class CameraActivity extends FragmentActivity
             //Remove Fragment showing
             final FragmentSlidebarMaster myFrag = (FragmentSlidebarMaster) fm.findFragmentById(frameLayout);
 
-            Log.d(TAG, "myFrag: " + myFrag + " myFragment: " + myFragment);
+           Log.wtf(TAG, "myFrag: " + myFrag + " myFragment: " + myFragment);
             if (myFrag == myFragment) {
                 ft.remove(myFrag);
                 ft.commit();
             } else {
                 if (myFrag != null) {
-                    Log.d(TAG, "Exists, Value: " + value);
+                   Log.wtf(TAG, "Exists, Value: " + value);
                     myFragment.updateBundle(valueList, value);
                     ft.replace(frameLayout, myFragment, propertyName);
                     //set slider to curr value
@@ -485,7 +485,7 @@ public class CameraActivity extends FragmentActivity
                     if (myFrag2 != null)
                         ft.remove(myFrag2);
                 } else {
-                    Log.d(TAG, "New");
+                   Log.wtf(TAG, "New");
                     myFragment.updateBundle(valueList, value);
                     myFragment.setSliderValueListener(new FragmentSlidebarMaster.sliderValue() {
                         @Override
@@ -515,7 +515,7 @@ public class CameraActivity extends FragmentActivity
 
     public static String extractValue(String value) {
         try {
-            Log.d(TAG, "val: " + value);
+           Log.wtf(TAG, "val: " + value);
             String[] myStringArr = value.split("/");
             return myStringArr[1].substring(0, myStringArr[1].length() - 1);
         } catch (IndexOutOfBoundsException ex) {
@@ -586,7 +586,7 @@ public class CameraActivity extends FragmentActivity
             int listSize = valueList.size();
             //Log.d(TAG, "listSize: " + listSize);
             int moduloIndex = index % listSize;//wrap around if index out of range
-            Log.d(TAG, "Property: " + inPropertyName + " Value: " + valueList.get(moduloIndex));
+           Log.wtf(TAG, "Property: " + inPropertyName + " Value: " + valueList.get(moduloIndex));
             retVal = valueList.get(moduloIndex);//get correct value of List of possibel values and set in camera
             camera.setCameraPropertyValue(inPropertyName, retVal);
             return retVal;
@@ -599,11 +599,11 @@ public class CameraActivity extends FragmentActivity
     public static void updatePropertyImageView(ImageView imageView, Map<String, Integer> iconList, String propertyName) {
         try {
             imageView.setEnabled(camera.canSetCameraProperty(propertyName));
-            Log.d(TAG, "Update: " + propertyName);
+           Log.wtf(TAG, "Update: " + propertyName);
             String propValue;
             try {
                 propValue = camera.getCameraPropertyValue(propertyName);
-                Log.d(TAG, "PropVal: " + propValue);
+               Log.wtf(TAG, "PropVal: " + propValue);
 
             } catch (OLYCameraKitException e) {
                 e.printStackTrace();
@@ -621,7 +621,7 @@ public class CameraActivity extends FragmentActivity
 
 
     public static void updateImageView(ImageView imageView, Map<String, Integer> iconList, String propValue) {
-        Log.d(TAG, "update imageView: " + propValue);
+       Log.wtf(TAG, "update imageView: " + propValue);
         try {
             if (iconList.containsKey(propValue)) {
                 int resId = iconList.get(propValue);
@@ -640,7 +640,7 @@ public class CameraActivity extends FragmentActivity
     private void saveCamSettings() {
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
-        Log.d(TAG, "SavingCamSettings");
+       Log.wtf(TAG, "SavingCamSettings");
         // SharedPreferences settings = MainActivity.getPreferences();
         SharedPreferences settings = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -661,7 +661,7 @@ public class CameraActivity extends FragmentActivity
             )) {
                 value = camera.getCameraPropertyValue(name);
                 editor.putString(name, value);
-                Log.d(TAG, "Saved: " + name + "  =  " + value);
+               Log.wtf(TAG, "Saved: " + name + "  =  " + value);
             }
             live_view_quality = camera.getLiveViewSize();
             if (live_view_quality == OLYCamera.LiveViewSize.QUAD_VGA)
@@ -675,7 +675,7 @@ public class CameraActivity extends FragmentActivity
             else if (live_view_quality == OLYCamera.LiveViewSize.XGA)
                 editor.putString(CAMERA_LIVEVIEWSIZE, "XGA");
 
-            Log.d(TAG, "Saved: live_view_quality = " + settings.getString(CAMERA_LIVEVIEWSIZE, "noValue"));
+           Log.wtf(TAG, "Saved: live_view_quality = " + settings.getString(CAMERA_LIVEVIEWSIZE, "noValue"));
             //General Info for settings page
             editor.putString("KitVersion", OLYCamera.getVersion());
             editor.putString("KitBuildNumber", OLYCamera.getBuildNumber());
@@ -703,7 +703,7 @@ public class CameraActivity extends FragmentActivity
 
     private void restoreCamSettings(SharedPreferences preferences) {
         if (preferences.getBoolean("firstTimeGetPref", true)) {
-            Log.d(TAG,"initsettings");
+           Log.wtf(TAG,"initsettings");
             SetInitSettings();
         }
         if (camera.isConnected()) {
@@ -731,7 +731,7 @@ public class CameraActivity extends FragmentActivity
             )) {
                 String value = preferences.getString(name, null);
                 if (value != null) {
-                    Log.d(TAG, "Name: " + name + "  Value: " + value);
+                   Log.wtf(TAG, "Name: " + name + "  Value: " + value);
                     if (name.equals("FACE_SCAN")) {
                         if (value.equals("<FACE_SCAN/FACE_SCAN_OFF>"))
                             fLiveView.setEnabledFaceScan(false);
@@ -741,7 +741,7 @@ public class CameraActivity extends FragmentActivity
                     values.put(name, value);
                 }
             }
-            Log.d(TAG, "camvalues to set: " + values.size());
+           Log.wtf(TAG, "camvalues to set: " + values.size());
             if (values.size() > 0) {
                 try {
                     camera.setCameraPropertyValues(values);
