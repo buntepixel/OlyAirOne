@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -34,11 +35,8 @@ public class ConnectToCamActivity extends Activity {
 
     private WifiManager mWifiManager;
     private ScanForWifiAcessPoints wifiScanReceiver;
-    private Boolean isScanningWifi;
-
 
     private String target;
-    private int connectionAttempt = 0;
 
 
     @Override
@@ -46,14 +44,14 @@ public class ConnectToCamActivity extends Activity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         setContentView(R.layout.activity_connect_to_cam);
-
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentapiVersion >= 23) {
-            String[] PERMS_INITIAL = {
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-            };
+            TextView info = findViewById(R.id.tv_infotextGps);
+            info.setText("The improved Privacy settings in Android 6+, require you to grant position data acess in order to get wifi scan results.\nthis app does a network scan on connect to automatically try to connect to a previously configured Oly Air one Wifi");
+            String[] PERMS_INITIAL = {Manifest.permission.ACCESS_FINE_LOCATION,};
             ActivityCompat.requestPermissions(this, PERMS_INITIAL, 127);
         }
+
 
         //initializes necessary components
         target = getIntent().getExtras().getString("target", "none");
@@ -71,7 +69,7 @@ public class ConnectToCamActivity extends Activity {
                 if (credentials == null || credentials == "") {
                     showWifiCredentialsDialog();
                 } else
-                    connectToCamWifi();
+                    scanForWifiNetworks();
 
             } else {
                 alertDialogueBuilder("Wifi NOT enabled!\ngo to Wifi settings?", "Yes", "No", new Intent(Settings.ACTION_WIFI_SETTINGS));
@@ -84,8 +82,6 @@ public class ConnectToCamActivity extends Activity {
     }
 
     private void scanForWifiNetworks() {
-        connectionAttempt++;
-        Log.i(TAG, "connection attempt: " + connectionAttempt);
         if (android.os.Build.VERSION.SDK_INT >= 23) {
             LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -109,11 +105,12 @@ public class ConnectToCamActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        connectionAttempt = 0;
+        Log.i(TAG, "enter on Pause.");
         try {
+            if (wifiScanReceiver != null) {
+                Log.i(TAG, "unregister receiver on Pause.");
 
-            if (wifiScanReceiver != null){
-                unregisterReceiver(wifiScanReceiver);
+               // unregisterReceiver(wifiScanReceiver);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -128,14 +125,12 @@ public class ConnectToCamActivity extends Activity {
         ImageView waitconnect = findViewById(R.id.iv_waitconnect);
         Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.waitconnect);
         waitconnect.startAnimation(myAnim);
-
     }
 
     private void alertDialogueBuilder(String text, String btn_Pos, String btn_Neg, final Intent posIntent) {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage(text);
         builder1.setCancelable(true);
-
         builder1.setPositiveButton(
                 btn_Pos,
                 new DialogInterface.OnClickListener() {
@@ -209,14 +204,12 @@ public class ConnectToCamActivity extends Activity {
         return null;
     }
 
-    private Boolean connectToCamWifi() {
+    private void connectToCamWifi() {
         try {
             Log.i(TAG, "connecting to camWifi");
             //getting current wifi network
             String activeSSID = mWifiManager.getConnectionInfo().getSSID();
             Boolean foundTargetNwActive = false;
-
-
             String ssid = getWifiCredentials();
 
             String mySSID = "\"" + ssid + "\"";
@@ -228,7 +221,7 @@ public class ConnectToCamActivity extends Activity {
                 //Already Connectecd switching to camera Activity
                 Log.i(TAG, "Already Connected Switching toCamActivity");
                 startNextActivity(this);
-                return true;
+                return ;
             }
 
             //getting the Scan results of last scan
@@ -237,13 +230,13 @@ public class ConnectToCamActivity extends Activity {
             List<WifiConfiguration> myWifiConfigList = mWifiManager.getConfiguredNetworks();
             WifiConfiguration myWifiConfig = null;
             //Log.d(TAG, "Enter scanResults search: " + mySSID);
-            for (ScanResult result : myScanResults) {
+            for (ScanResult result : myScanResults) {//check if we can find the network
                 String scanSSID = "\"" + result.SSID + "\"";
-                //Log.d(TAG, "scanned SSid: " + result.SSID);
+                Log.d(TAG, "scanned SSid: " + result.SSID);
                 if (scanSSID != null && scanSSID.equals(mySSID)) {
                     Log.i(TAG, "FoundTargetNetwork::" + scanSSID);
                     foundTargetNwActive = true;
-                    for (WifiConfiguration config : myWifiConfigList) {
+                    for (WifiConfiguration config : myWifiConfigList) {//check if we have been logged in already
                         if (config.SSID != null && (config.SSID.equals(mySSID))) {
                             //parsing it to a empty wificonfiguration object
                             Log.i(TAG, "FoundConfig::" + config.SSID);
@@ -251,7 +244,7 @@ public class ConnectToCamActivity extends Activity {
                             //connecting to found Network
                             Log.i(TAG, "Setting Target Network: " + myWifiConfig.networkId);
                             mWifiManager.enableNetwork(myWifiConfig.networkId, true);
-                            return true;
+                            return;
                         }
                     }
                 }
@@ -259,26 +252,18 @@ public class ConnectToCamActivity extends Activity {
 
             if (myWifiConfig == null && foundTargetNwActive) {
                 Log.i(TAG, "Go to wifiSettings");
-                alertDialogueBuilder("Seems you're connecting the first time. Please enter your Password in the wifisettings", "Switch to wifi settings", "CANCEL", new Intent(Settings.ACTION_WIFI_SETTINGS));
+                alertDialogueBuilder("Seems you're connecting the first time. Please enter your Password  for Network:\n" + ssid + "\nin the wifisettings", "Switch to wifi settings", "CANCEL", new Intent(Settings.ACTION_WIFI_SETTINGS));
             } else {
-                if (connectionAttempt == 0) {
-                    isScanningWifi = true;
-                    scanForWifiNetworks();
-
-                    Toast.makeText(this, "Couldn't find a network that matches your saved configuration\n\n initializing network scan", Toast.LENGTH_LONG).show();
-                } else if (!isScanningWifi) {
-                    Toast.makeText(this, "Couldn't find a network that matches your saved configuration. " +
-                            "Please check if Cams Wifi is enabled,\nor check your credentials in the Settings page.", Toast.LENGTH_LONG).show();
-                    finish();
-                }
+                Toast.makeText(this, "Couldn't find a network that matches:\n. " + ssid +
+                        "\nPlease check if Cams Wifi is enabled,\nor check your credentials in the Settings page.", Toast.LENGTH_LONG).show();
+                finish();
             }
-            // return;
         } catch (Exception e) {
             String stackTrace = Log.getStackTraceString(e);
             System.err.println(TAG + e.getMessage());
             Log.i(TAG, stackTrace);
         }
-        return false;
+        return;
     }
 
     private void startNextActivity(Context context) {
@@ -311,7 +296,6 @@ public class ConnectToCamActivity extends Activity {
                /* if (credentials == null || credentials.equals("")) {
                     showWifiCredentialsDialog();
                 } else*/
-                isScanningWifi = false;
                 connectToCamWifi();
             } //connection changed
             else if (intent.getAction().equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {

@@ -198,7 +198,6 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
             saveImageToPhone(downloadSize);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -376,13 +375,13 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
     @Override
     public void onResume() {
        // selectionList.clear();
-        if (camera.getRunMode() != OLYCamera.RunMode.Playback) {
+        /*if (camera.getRunMode() != OLYCamera.RunMode.Playback) {
             try {
                 camera.changeRunMode(OLYCamera.RunMode.Playback);
             } catch (OLYCameraKitException ex) {
                 ex.printStackTrace();
             }
-        }
+        }*/
         super.onResume();
         connectionExecutor.execute(new Runnable() {
             @Override
@@ -414,6 +413,20 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
 
     private void refresh() {
         contentList = null;
+        if (camera.getRunMode() != OLYCamera.RunMode.Playback) {
+            try {
+                camera.changeRunMode(OLYCamera.RunMode.Playback);
+            } catch (OLYCameraKitException ex) {
+                ex.printStackTrace();
+            }
+        }
+        while (camera.getRunMode() != OLYCamera.RunMode.Playback){
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
         Log.d(TAG, "refreshing list");
         camera.downloadContentList(new OLYCamera.DownloadContentListCallback() {
             @Override

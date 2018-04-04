@@ -1,11 +1,14 @@
 package com.example.mail.OlyAirONE;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -35,7 +38,12 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_view);
-
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 127);
+            }
+        }
         camera = new OLYCamera();
         camera.setContext(getApplicationContext());
         camera.setConnectionListener(this);
@@ -70,10 +78,10 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
         super.onResume();
         Log.d(TAG, "START Resume");
         if (!camera.isConnected()) {
-           // Log.d(TAG, "Cam Is NOT connected");
+            // Log.d(TAG, "Cam Is NOT connected");
             startConnectingCamera();
         } else {
-           // Log.d(TAG, "Cam Is connected");
+            // Log.d(TAG, "Cam Is connected");
             onConnectedToCamera();
         }
         Log.d(TAG, "END Resume");
