@@ -28,7 +28,7 @@ public class FragmentSettings extends Fragment
     private static final String TAG = FragmentSettings.class.getSimpleName();
 
     private boolean time, aparture, exposureAdj, iso, wb;
-    private String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
+    private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
     private String[] expVals;
     //private int takeMode;
     private OLYCamera camera;

@@ -10,16 +10,16 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
 /**
  * ScalableImageView displays the image.
  */
-public class ScalableImageView extends ImageView {
+public class ScalableImageView extends AppCompatImageView {
 	
 	private enum GestureMode {
 		None,
@@ -346,16 +346,6 @@ public class ScalableImageView extends ImageView {
 	
 	// The content in view can scroll to horizontal.
 	public boolean canHorizontalScroll() {
-		if (mScale == mScaleMin) {
-			return false;
-		}
-		if (mGestureMode == GestureMode.None) {
-			return false;
-		}
-		
-		// TODO: Please improve UX.
-		// If the view rectangle is touching to the edge of the image, the view cannot be scrolled.
-		
-		return true;
+		return !(mScale == mScaleMin) && mGestureMode != GestureMode.None;
 	}
 }

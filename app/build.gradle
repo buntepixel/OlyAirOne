@@ -12,10 +12,20 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+    signingConfigs {
+        release {
+            storeFile file("myreleasekey.keystore")
+            storePassword System.console().readLine("\nKeystore password: ")
+            keyAlias "MyReleaseKey"
+            keyPassword System.console().readLine("\nKey password: ")
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     productFlavors {
@@ -23,16 +33,17 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-vector-drawable:26.0.2'
+    implementation 'com.android.support:support-vector-drawable:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.android.support:design:26.1.0'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.0.2'
-    compile 'com.android.support:support-v4:26.0.2'
-    compile 'com.google.android.gms:play-services-plus:11.0.1'
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.google.android.gms:play-services-plus:12.0.1'
     testCompile 'junit:junit:4.12'
     implementation files('D:/Coding/ANDROID/OlyAirONE/lib/olycamerakit.jar')
+    implementation 'com.android.support:exifinterface:26.1.0'
 }

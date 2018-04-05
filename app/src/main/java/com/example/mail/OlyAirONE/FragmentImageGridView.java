@@ -58,6 +58,8 @@ import jp.co.olympus.camerakit.OLYCamera.ProgressEvent;
 import jp.co.olympus.camerakit.OLYCameraFileInfo;
 import jp.co.olympus.camerakit.OLYCameraKitException;
 
+
+
 public class FragmentImageGridView extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private static final String TAG = FragmentImageGridView.class.getSimpleName();
 
@@ -71,16 +73,15 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
     private boolean downloading;
 
     private Menu optionsMenue;
-    private MenuItem dropdown;
     private Boolean selectionChbx = false;
     private ArrayList<OLYCameraFileInfo> selectionList;
     private List<OLYCameraFileInfo> contentList;
 
     private ExecutorService executor;
-    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    private final Executor connectionExecutor = Executors.newFixedThreadPool(1);
 
     private LruCache<String, Bitmap> imageCache;
-    OLYCamera camera;
+    private OLYCamera camera;
 
     private ImagerGridViewInteractionListener listener;
 
@@ -96,9 +97,9 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         executor = Executors.newFixedThreadPool(1);
-        imageCache = new LruCache<String, Bitmap>(100);
+        imageCache = new LruCache<>(100);
         camera = ImageViewActivity.camera;
-        selectionList = new ArrayList<OLYCameraFileInfo>();
+        selectionList = new ArrayList<>();
         setHasOptionsMenu(true);
         setRetainInstance(true);
     }
@@ -106,18 +107,18 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_image_grid_view, container, false);
-        gridView = (GridView) view.findViewById(R.id.gv_imagegridview);
+        gridView = view.findViewById(R.id.gv_imagegridview);
         GridViewAdapter gridViewAdapter = new GridViewAdapter(inflater);
         gridView.setAdapter(gridViewAdapter);
         gridView.setTag(gridViewAdapter);
         gridView.setOnItemClickListener(this);
         gridView.setOnItemLongClickListener(this);
         gridView.setOnScrollListener(new GridViewOnScrollListener());
-        infoLayout = (RelativeLayout) view.findViewById(R.id.rl_ifo_totalLayout);
+        infoLayout = view.findViewById(R.id.rl_ifo_totalLayout);
         info_task = view.findViewById((R.id.tv_ifo_task));
         info_FileName = view.findViewById(R.id.tv_ifo_filename);
-        info_currNb = (TextView) view.findViewById(R.id.tv_ifo_itemNr);
-        info_totalNb = (TextView) view.findViewById(R.id.tv_ifo_totalNr);
+        info_currNb = view.findViewById(R.id.tv_ifo_itemNr);
+        info_totalNb = view.findViewById(R.id.tv_ifo_totalNr);
 
         return view;
     }
@@ -126,7 +127,7 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         optionsMenue = menu;
         inflater.inflate(R.menu.image_grid_view, menu);
-        dropdown = menu.findItem(R.id.action_download);
+        MenuItem dropdown = menu.findItem(R.id.action_download);
         //dropdown.setOnMenuItemClickListener()
 
         ActionBar bar = getActivity().getActionBar();
@@ -444,7 +445,7 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
                     }
                 });
 
-                List<OLYCameraFileInfo> shouldBeRemovedItems = new ArrayList<OLYCameraFileInfo>();
+                List<OLYCameraFileInfo> shouldBeRemovedItems = new ArrayList<>();
                 for (OLYCameraFileInfo item : list) {
                     String path = item.getFilename().toLowerCase(Locale.getDefault());
                     if (!path.endsWith(".jpg") && !path.endsWith(".mov")) {
@@ -547,9 +548,9 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
 
     private static class GridCellViewHolder {
         private final String TAG = GridCellViewHolder.class.getSimpleName();
-        public ImageView imageView;
-        public ImageView iconView;
-        public CheckBox chbxView;
+        ImageView imageView;
+        ImageView iconView;
+        CheckBox chbxView;
     }
 
     private class GridViewAdapter extends BaseAdapter {
@@ -559,7 +560,7 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
         GridCellViewHolder viewHolder;
 
 
-        public GridViewAdapter(LayoutInflater inflater) {
+        GridViewAdapter(LayoutInflater inflater) {
 
             this.inflater = inflater;
         }
@@ -595,9 +596,9 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
                 convertView = inflater.inflate(R.layout.view_grid_cell, parent, false);
 
                 viewHolder = new GridCellViewHolder();
-                viewHolder.imageView = (ImageView) convertView.findViewById(R.id.iv_gv_preview);
-                viewHolder.iconView = (ImageView) convertView.findViewById(R.id.iv_gv_icon);
-                viewHolder.chbxView = (CheckBox) convertView.findViewById(R.id.chbx_gv_delete);
+                viewHolder.imageView = convertView.findViewById(R.id.iv_gv_preview);
+                viewHolder.iconView = convertView.findViewById(R.id.iv_gv_icon);
+                viewHolder.chbxView = convertView.findViewById(R.id.chbx_gv_delete);
 
                 convertView.setTag(viewHolder);
             } else {
@@ -666,7 +667,7 @@ public class FragmentImageGridView extends Fragment implements AdapterView.OnIte
         private final GridCellViewHolder viewHolder;
         private final String path;
 
-        public ThumbnailLoader(GridCellViewHolder viewHolder, String path) {
+        ThumbnailLoader(GridCellViewHolder viewHolder, String path) {
             this.viewHolder = viewHolder;
             this.path = path;
         }

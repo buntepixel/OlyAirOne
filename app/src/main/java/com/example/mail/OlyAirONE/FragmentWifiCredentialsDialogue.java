@@ -16,11 +16,11 @@ import android.widget.EditText;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FragmentWificredentialsDialogue extends DialogFragment {
-    private static final String TAG = FragmentWificredentialsDialogue.class.getSimpleName();
+public class FragmentWifiCredentialsDialogue extends DialogFragment {
+    private static final String TAG = FragmentWifiCredentialsDialogue.class.getSimpleName();
 
-    static FragmentWificredentialsDialogue newInstance() {
-        return  new FragmentWificredentialsDialogue();
+    static FragmentWifiCredentialsDialogue newInstance() {
+        return  new FragmentWifiCredentialsDialogue();
 
     }
 
@@ -40,9 +40,9 @@ public class FragmentWificredentialsDialogue extends DialogFragment {
                              Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.dialogue_wificredentials, container, false);
-        Button save = (Button) v.findViewById(R.id.btn_save);
-        Button cancel = (Button) v.findViewById(R.id.btn_cancel);
-        ssid = (EditText) v.findViewById(R.id.et_SSID);
+        Button save = v.findViewById(R.id.btn_save);
+        Button cancel = v.findViewById(R.id.btn_cancel);
+        ssid = v.findViewById(R.id.et_SSID);
 
 
         save.setOnClickListener(new View.OnClickListener() {
@@ -57,7 +57,7 @@ public class FragmentWificredentialsDialogue extends DialogFragment {
                         SharedPreferences mySettings = context.getSharedPreferences(context.getResources().getString(R.string.pref_SharedPrefs), Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = mySettings.edit();
                         editor.putString(getResources().getString(R.string.pref_ssid), ssid.getText().toString());
-                        editor.commit();
+                        editor.apply();
                         mListener.OnSaveCredentials(ssid.getText().toString());
                         Log.d(TAG, "saveCredEnd");
                     }

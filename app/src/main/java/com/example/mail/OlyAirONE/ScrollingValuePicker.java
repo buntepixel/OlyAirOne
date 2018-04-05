@@ -30,11 +30,11 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
     private LinearLayout mCenterContainer;
     private int mCenterContainerWidth;
     private int currContentIndex;
-    private ObservableHorizontalScrollView obsScrollView;
+    private final ObservableHorizontalScrollView obsScrollView;
     private List<String> content;
-    private int txtPadding = 25;
-    private List<Integer> contentWidthList = new ArrayList<Integer>();
-    private  boolean snappingSlider = false;
+    private final int txtPadding = 25;
+    private final List<Integer> contentWidthList = new ArrayList<>();
+    private final boolean snappingSlider = false;
 
 
     @SuppressWarnings("serial")
@@ -74,10 +74,6 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
             put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
         }
     };
-
-    public int getCurrValueIndex() {
-        return currContentIndex;
-    }
 
     private  ScrollingValueInteraction mValueInteractionListener;
 
@@ -127,8 +123,8 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
             // Create a horizontal (by default) LinearLayout as our child container
             final LinearLayout ll_contentContainer = new LinearLayout(context);
             ll_contentContainer.setId(View.generateViewId());
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+         /*   LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);*/
             obsScrollView.addView(ll_contentContainer);
             mCenterContainer = ll_contentContainer;
 
@@ -167,10 +163,12 @@ public class ScrollingValuePicker extends FrameLayout implements View.OnClickLis
         setSelScrollBarValSelected(index);//highlight selection
     }
 
-    public void smoothScrollTo(int index) {
-        obsScrollView.smoothScrollTo(getScrollPos(index), 0);
-        setSelScrollBarValSelected(index);
-    }
+// --Commented out by Inspection START (5/04/2018 20:40):
+//    public void smoothScrollTo(int index) {
+//        obsScrollView.smoothScrollTo(getScrollPos(index), 0);
+//        setSelScrollBarValSelected(index);
+//    }
+// --Commented out by Inspection STOP (5/04/2018 20:40)
 
     private void setSelScrollBarValSelected(int index) {
         //index+1 since we have the spacers

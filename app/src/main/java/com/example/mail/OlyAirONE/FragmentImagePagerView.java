@@ -80,7 +80,7 @@ public class FragmentImagePagerView extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imageCache = new LruCache<String, Bitmap>(5);
+        imageCache = new LruCache<>(5);
         setHasOptionsMenu(true);
         setRetainInstance(true);
         fm = getFragmentManager();
@@ -91,13 +91,13 @@ public class FragmentImagePagerView extends Fragment {
 
         layoutInflater = inflater;
         View view = layoutInflater.inflate(R.layout.fragment_image_pager_view, container, false);
-        viewPager = (ViewPager) view.findViewById(R.id.viewPager1);
+        viewPager = view.findViewById(R.id.viewPager1);
         ImagePagerAdapter pagerAdaptor = new ImagePagerAdapter();
         viewPager.setAdapter(pagerAdaptor);
         ImagePageChangeListener pageChangeListener = new ImagePageChangeListener();
         viewPager.addOnPageChangeListener(pageChangeListener);
-        infoLayout = (RelativeLayout) view.findViewById(R.id.rl_ifo_totalLayout);
-        info_FileName = (TextView) view.findViewById(R.id.tv_ifo_filename);
+        infoLayout = view.findViewById(R.id.rl_ifo_totalLayout);
+        info_FileName = view.findViewById(R.id.tv_ifo_filename);
 
         return view;
     }
@@ -129,32 +129,40 @@ public class FragmentImagePagerView extends Fragment {
         boolean doDownload = false;
         float downloadSize = 0;
         Log.d(TAG, "itemId:  " + item.getItemId() + "needed: " + R.id.action_download_1024x768);
-        if (item.getItemId() == R.id.home) {
-            fm.popBackStack();
-        } else if (item.getItemId() == R.id.action_download_original_size) {
-            Log.d(TAG, "Ori:  " + item.getItemId());
-            downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
-            doDownload = true;
-        } else if (item.getItemId() == R.id.action_download_2048x1536) {
-            Log.d(TAG, "2048:  " + item.getItemId());
-            downloadSize = OLYCamera.IMAGE_RESIZE_2048;
-            doDownload = true;
-        } else if (item.getItemId() == R.id.action_download_1920x1440) {
-            Log.d(TAG, "1920:  " + item.getItemId());
-            downloadSize = OLYCamera.IMAGE_RESIZE_1920;
-            doDownload = true;
-        } else if (item.getItemId() == R.id.action_download_1600x1200) {
-            Log.d(TAG, "1600:  " + item.getItemId());
-            downloadSize = OLYCamera.IMAGE_RESIZE_1600;
-            doDownload = true;
-        } else if (item.getItemId() == R.id.action_download_1024x768) {
-            Log.d(TAG, "1024:  " + item.getItemId());
-            downloadSize = OLYCamera.IMAGE_RESIZE_1024;
-            doDownload = true;
-        } else if (item.getItemId() == R.id.action_delete) {
-            Log.d(TAG, "DELETE:  " + item.getItemId());
+        switch (item.getItemId()) {
+            case R.id.home:
+                fm.popBackStack();
+                break;
+            case R.id.action_download_original_size:
+                Log.d(TAG, "Ori:  " + item.getItemId());
+                downloadSize = OLYCamera.IMAGE_RESIZE_NONE;
+                doDownload = true;
+                break;
+            case R.id.action_download_2048x1536:
+                Log.d(TAG, "2048:  " + item.getItemId());
+                downloadSize = OLYCamera.IMAGE_RESIZE_2048;
+                doDownload = true;
+                break;
+            case R.id.action_download_1920x1440:
+                Log.d(TAG, "1920:  " + item.getItemId());
+                downloadSize = OLYCamera.IMAGE_RESIZE_1920;
+                doDownload = true;
+                break;
+            case R.id.action_download_1600x1200:
+                Log.d(TAG, "1600:  " + item.getItemId());
+                downloadSize = OLYCamera.IMAGE_RESIZE_1600;
+                doDownload = true;
+                break;
+            case R.id.action_download_1024x768:
+                Log.d(TAG, "1024:  " + item.getItemId());
+                downloadSize = OLYCamera.IMAGE_RESIZE_1024;
+                doDownload = true;
+                break;
+            case R.id.action_delete:
+                Log.d(TAG, "DELETE:  " + item.getItemId());
 
-            deleteImage();
+                deleteImage();
+                break;
         }
 
         if (doDownload) {

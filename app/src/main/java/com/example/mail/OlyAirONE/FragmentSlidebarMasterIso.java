@@ -18,8 +18,7 @@ public class FragmentSlidebarMasterIso extends FragmentSlidebarMaster {
         Log.d(TAG, "SliderBarValues: " + myString.size());
 
         Bundle args = new Bundle();
-        ArrayList<String> myArrList = new ArrayList();
-        myArrList.addAll(myString);
+        ArrayList<String> myArrList = new ArrayList(myString);
         args.putStringArrayList("myString",myArrList );
         args.putString("value", value);
         myFragment.setArguments(args);

@@ -65,7 +65,7 @@ public class CameraLiveImageView extends View {
 
     private void initComponent() {
         imageScaleType = ScaleType.FIT_CENTER;
-        focusFrameRect = new ArrayList<RectF>();
+        focusFrameRect = new ArrayList<>();
     }
 
     @Override
@@ -183,10 +183,7 @@ public class CameraLiveImageView extends View {
      * @return true if the image is not null or empty and the point is located within the rectangle; otherwise, false.
      */
     public boolean isContainsPoint(PointF point) {
-        if (point == null) {
-            return false;
-        }
-        return (new RectF(0, 0, 1, 1)).contains(point.x, point.y);
+        return point != null && (new RectF(0, 0, 1, 1)).contains(point.x, point.y);
     }
 
     /**
@@ -213,7 +210,7 @@ public class CameraLiveImageView extends View {
         showFocusFrame(rect, status, 0);
     }
     public void showFocusFrame(RectF rect, FocusFrameStatus status, double duration) {
-        ArrayList<RectF> rectArrList = new ArrayList<RectF>();
+        ArrayList<RectF> rectArrList = new ArrayList<>();
         rectArrList.add(rect);
         showFocusFrame(rectArrList,status,duration);
     }
@@ -338,7 +335,7 @@ public class CameraLiveImageView extends View {
                 imageWidth = imageBitmap.getHeight();
                 imageHeight = imageBitmap.getWidth();
             }
-            ArrayList<RectF> focusRectOnView = new ArrayList<RectF>();
+            ArrayList<RectF> focusRectOnView = new ArrayList<>();
             for (RectF rectF : focusFrameRect) {
                 RectF focusRectOnImage = OLYCamera.convertRectOnViewfinderIntoLiveImage(rectF, imageWidth, imageHeight, imageRotationDegrees);
                 focusRectOnView.add(convertRectFromImageArea(focusRectOnImage));

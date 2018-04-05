@@ -38,7 +38,7 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
-    private Executor connectionExecutor = Executors.newFixedThreadPool(2);
+    private final Executor connectionExecutor = Executors.newFixedThreadPool(2);
 
     public static final String PREFS_NAME = "AirOnePrefs";
 
@@ -91,8 +91,7 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
 
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-        View myView = super.onCreateView(parent, name, context, attrs);
-        return myView;
+        return super.onCreateView(parent, name, context, attrs);
     }
 
     private void startConnectingCamera() {
@@ -152,7 +151,11 @@ public class MainActivity extends Activity implements View.OnClickListener, OLYC
                     Log.d(TAG, "entering runnable: " + camera.isConnected());
 
                     while (!camera.isConnected()) {
-
+                        try {
+                            Thread.sleep(10);
+                        }catch (InterruptedException ex){
+                            ex.printStackTrace();
+                        }
                     }
                     try {
                         Log.d(TAG, "trying to disconnect");

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener,
+class ExpandableListAdapter extends BaseExpandableListAdapter implements AdapterView.OnItemSelectedListener, View.OnClickListener,
         NumberPicker.OnValueChangeListener {
     private static final String TAG = ExpandableListAdapter.class.getSimpleName();
 
@@ -40,11 +40,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private NumberPicker[] npNbImgArr;
     private NumberPicker[] npIntervArr;
 
-    private Activity context;
-    private Map<String, List<String>> myChilds;
-    private List<String> myParents;
+    private final Activity context;
+    private final Map<String, List<String>> myChilds;
+    private final List<String> myParents;
     private final Map<String, String> dropdownVals = new HashMap<>();
-    private CallParentActivtiy listener;
+    private final CallParentActivtiy listener;
 
 
     ExpandableListAdapter(Activity context, List<String> parent, Map<String, List<String>> childs, CallParentActivtiy listener) {
@@ -62,7 +62,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
         Map<String, String> getImageSizeMap();
 
-        Map<String, String> getImageSaveDestinationMap();
+        // --Commented out by Inspection (5/04/2018 20:38):Map<String, String> getImageSaveDestinationMap();
 
         Map<String, String> getMovieQualityMap();
 
@@ -70,7 +70,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
         Map<String, String> getContinousShootingSpeedMap();
 
-        Map<String, String> getSelfTimerMap();
+        // --Commented out by Inspection (5/04/2018 20:38):Map<String, String> getSelfTimerMap();
 
         Map<String, String> getFaceDetectionMap();
 
@@ -164,24 +164,28 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 CheckBox cbx = convertView.findViewById(R.id.chbx_chbx);
                 if (cbx != null) {
                     String setting = "";
-                    if (groupPosition == 1) {
-                        if (childPosition == 0) {
-                            setting = listener.getSetting("TIMELAPSE", "<TIMELAPSE/OFF>");
-                            cbx.setTag("TIMELAPSE");//tag used in on click listener
-                        }
-                    } else if (groupPosition == 2) {
-                        if (childPosition == 3) {
-                            setting = listener.getSetting("RAW", "<RAW/ON>");
-                            cbx.setTag("RAW");//tag used in on click listener
-                        } else if (childPosition == 4) {
-                            setting = listener.getSetting("RECVIEW", "<RECVIEW/ON>");
-                            cbx.setTag("RECVIEW");//tag used in on click listener
-                        }
-                    } else if (groupPosition == 5) {
-                        if (childPosition == 0) {
-                            setting = listener.getSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
-                            cbx.setTag("TOUCHSHUTTER");//tag used in on click listener
-                        }
+                    switch (groupPosition) {
+                        case 1:
+                            if (childPosition == 0) {
+                                setting = listener.getSetting("TIMELAPSE", "<TIMELAPSE/OFF>");
+                                cbx.setTag("TIMELAPSE");//tag used in on click listener
+                            }
+                            break;
+                        case 2:
+                            if (childPosition == 3) {
+                                setting = listener.getSetting("RAW", "<RAW/ON>");
+                                cbx.setTag("RAW");//tag used in on click listener
+                            } else if (childPosition == 4) {
+                                setting = listener.getSetting("RECVIEW", "<RECVIEW/ON>");
+                                cbx.setTag("RECVIEW");//tag used in on click listener
+                            }
+                            break;
+                        case 5:
+                            if (childPosition == 0) {
+                                setting = listener.getSetting("TOUCHSHUTTER", "<TOUCHSHUTTER/ON>");
+                                cbx.setTag("TOUCHSHUTTER");//tag used in on click listener
+                            }
+                            break;
                     }
                     cbx.setOnClickListener(this);
                     Log.d(TAG, "setting Value: " + setting);
@@ -203,38 +207,52 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 txt.setText(child);
                 ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
                 int spinnerPosition = -1;
-                if (groupPosition == 2) {//if Image Settings
-                    if (childPosition == 0) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getAspectRatioMap(), "ASPECT_RATIO", "<ASPECT_RATIO/04_03>");
-                    } else if (childPosition == 1) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getImageSizeMap(), "IMAGESIZE", "<IMAGESIZE/4608x3456>");
-                    } else if (childPosition == 2) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getJpgCompressionMap(), "COMPRESSIBILITY_RATIO", "<COMPRESSIBILITY_RATIO/CMP_4>");
-                    } else {
-                        adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
-                    }
+                switch (groupPosition) {
+                    case 2: //if Image Settings
+                        switch (childPosition) {
+                            case 0:
+                                spinnerPosition = setAdapterValues(adapter, listener.getAspectRatioMap(), "ASPECT_RATIO", "<ASPECT_RATIO/04_03>");
+                                break;
+                            case 1:
+                                spinnerPosition = setAdapterValues(adapter, listener.getImageSizeMap(), "IMAGESIZE", "<IMAGESIZE/4608x3456>");
+                                break;
+                            case 2:
+                                spinnerPosition = setAdapterValues(adapter, listener.getJpgCompressionMap(), "COMPRESSIBILITY_RATIO", "<COMPRESSIBILITY_RATIO/CMP_4>");
+                                break;
+                            default:
+                                adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
+                                break;
+                        }
 
-                } else if (groupPosition == 3) { //if movie settings
-                    if (childPosition == 0) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getMovieQualityMap(), "QUALITY_MOVIE", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_NORMAL>");
-                    } else if (childPosition == 1) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getClipRecordTimeMap(), "QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/5>");
-                    } else {
-                        adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
-                    }
+                        break;
+                    case 3:  //if movie settings
+                        switch (childPosition) {
+                            case 0:
+                                spinnerPosition = setAdapterValues(adapter, listener.getMovieQualityMap(), "QUALITY_MOVIE", "<QUALITY_MOVIE/QUALITY_MOVIE_FULL_HD_NORMAL>");
+                                break;
+                            case 1:
+                                spinnerPosition = setAdapterValues(adapter, listener.getClipRecordTimeMap(), "QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME", "<QUALITY_MOVIE_SHORT_MOVIE_RECORD_TIME/5>");
+                                break;
+                            default:
+                                adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
+                                break;
+                        }
 
-                } else if (groupPosition == 4) { //if focus settings
-                    if (childPosition == 0) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getFaceDetectionMap(), "FACE_SCAN", "<FACE_SCAN/FACE_SCAN_ON>");
-                    } else {
-                        adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
-                    }
-                } else if (groupPosition == 5) { //if movie settings
-                    if (childPosition == 1) {
-                        spinnerPosition = setAdapterValues(adapter, listener.getContinousShootingSpeedMap(), "CONTINUOUS_SHOOTING_VELOCITY", "<CONTINUOUS_SHOOTING_VELOCITY/5>");
-                    } else {
-                        adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
-                    }
+                        break;
+                    case 4:  //if focus settings
+                        if (childPosition == 0) {
+                            spinnerPosition = setAdapterValues(adapter, listener.getFaceDetectionMap(), "FACE_SCAN", "<FACE_SCAN/FACE_SCAN_ON>");
+                        } else {
+                            adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
+                        }
+                        break;
+                    case 5:  //if movie settings
+                        if (childPosition == 1) {
+                            spinnerPosition = setAdapterValues(adapter, listener.getContinousShootingSpeedMap(), "CONTINUOUS_SHOOTING_VELOCITY", "<CONTINUOUS_SHOOTING_VELOCITY/5>");
+                        } else {
+                            adapter.addAll(listener.getEmptyMap().keySet().toArray(new CharSequence[0]));
+                        }
+                        break;
                 }
                 // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
@@ -274,14 +292,19 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 txt.setText(child);
                 txtcontent = convertView.findViewById(R.id.tv_tv_content);
                 if (groupPosition == 7) {
-                    if (childPosition == 0) {
-                        txtcontent.setText(listener.getSetting("CameraVersion", "First connect "));
-                    } else if (childPosition == 1) {
-                        txtcontent.setText(listener.getSetting("KitVersion", "to Camera"));
-                    } else if (childPosition == 2) {
-                        txtcontent.setText(listener.getSetting("KitBuildNumber", "to retrieve"));
-                    } else if (childPosition == 3) {
-                        txtcontent.setText(listener.getSetting("LensVersion", "necessary Infos"));
+                    switch (childPosition) {
+                        case 0:
+                            txtcontent.setText(listener.getSetting("CameraVersion", "First connect "));
+                            break;
+                        case 1:
+                            txtcontent.setText(listener.getSetting("KitVersion", "to Camera"));
+                            break;
+                        case 2:
+                            txtcontent.setText(listener.getSetting("KitBuildNumber", "to retrieve"));
+                            break;
+                        case 3:
+                            txtcontent.setText(listener.getSetting("LensVersion", "necessary Infos"));
+                            break;
                     }
                 } else if (groupPosition == 8) {
                     txtcontent.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
@@ -460,7 +483,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         setupNumberPicker(np_nbImagesVal, AEB_nbImgVal, getArrIdFromValue(AEB_nbImgVal, listener.getSetting(CamSettingsActivity.AEB_IMAGETAG, AEB_nbImgVal[0])), false, CamSettingsActivity.AEB_IMAGETAG);
 
         NumberPicker np_exposureSpreadVal = convertView.findViewById(R.id.np_exposureSpreadVal);
-        setupNumberPicker(np_exposureSpreadVal, AEB_expSprVal, getArrIdFromValue(AEB_expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, AEB_nbImgVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
+        setupNumberPicker(np_exposureSpreadVal, AEB_expSprVal, getArrIdFromValue(AEB_expSprVal, listener.getSetting(CamSettingsActivity.AEB_SPREADTAG, AEB_expSprVal[0])), false, CamSettingsActivity.AEB_SPREADTAG);
     }
 
     private void setup_TL(View convertView) {

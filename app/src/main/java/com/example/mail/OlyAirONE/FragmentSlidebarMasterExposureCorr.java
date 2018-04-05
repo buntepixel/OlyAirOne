@@ -16,8 +16,7 @@ public class FragmentSlidebarMasterExposureCorr extends FragmentSlidebarMaster {
         FragmentSlidebarMasterExposureCorr myFragment = new FragmentSlidebarMasterExposureCorr();
 
         Bundle args = new Bundle();
-        ArrayList<String> myArrList = new ArrayList();
-        myArrList.addAll(myString);
+        ArrayList<String> myArrList = new ArrayList(myString);
         args.putStringArrayList("myString",myArrList );
         args.putString("value", value);
         myFragment.setArguments(args);

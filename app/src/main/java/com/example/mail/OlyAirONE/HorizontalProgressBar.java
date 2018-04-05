@@ -17,17 +17,17 @@ import android.view.animation.Transformation;
 
 public class HorizontalProgressBar extends View{
     //actual dot radius
-    Paint paint = new Paint();
+    private final Paint paint = new Paint();
 
 
     //Bounced Dot Radius
-    private int mBounceDotRadius = 8;
+    private final int mBounceDotRadius = 8;
 
     //to get identified in which position dot has to bounce
     private int  mDotPosition;
 
     //specify how many dots you need in a progressbar
-    private int mDotAmount = 10;
+    private final int mDotAmount = 10;
 
     public HorizontalProgressBar(Context context) {
         super(context);

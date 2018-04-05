@@ -23,9 +23,9 @@ import jp.co.olympus.camerakit.OLYCamera;
 public abstract class FragmentSlidebarMaster extends Fragment implements ViewTreeObserver.OnPreDrawListener, ScrollingValuePicker.ScrollingValueInteraction {
     private static final String TAG = FragmentSlidebarMaster.class.getSimpleName();
     private OLYCamera camera;
-    private  List<String> myString;
+    private List<String> myString;
     private sliderValue sliderValueListener;
-    private  int mySliderValIndex = -1;
+    private int mySliderValIndex = -1;
     private ScrollingValuePicker mScrollingValuePicker;
     //-----------------
     //   Setup
@@ -43,7 +43,7 @@ public abstract class FragmentSlidebarMaster extends Fragment implements ViewTre
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "OnCreate");
-        camera = CameraActivity.getCamera();
+        camera = CameraActivity.camera;
     }
 
 
@@ -137,16 +137,14 @@ public abstract class FragmentSlidebarMaster extends Fragment implements ViewTre
         myString = inStringArr;
     }
 
-    public boolean SetSliderBarValIdx(String value) {
+    public void SetSliderBarValIdx(String value) {
         if (myString != null && myString.size() > 0) {
             SetSliderBarValIdx(myString.indexOf(value));
-            return true;
         } else {
-            return false;
         }
     }
 
-    private  void SetSliderBarValIdx(int index) {
+    private void SetSliderBarValIdx(int index) {
         Log.d(TAG, "setting SlideBar to: " + index);
         mySliderValIndex = index;
     }
@@ -157,11 +155,13 @@ public abstract class FragmentSlidebarMaster extends Fragment implements ViewTre
     public void updateBundle(List<String> myString, String value) {
         //Log.d(TAG, "Updating Bundle");
         Bundle args = new Bundle();
-        ArrayList<String> myArrList = new ArrayList();
-        myArrList.addAll(myString);
+
+        ArrayList<String> myArrList = new ArrayList(myString);
         args.putStringArrayList("myString", myArrList);
         args.putString("value", value);
         setArguments(args);
+
+
     }
 
 

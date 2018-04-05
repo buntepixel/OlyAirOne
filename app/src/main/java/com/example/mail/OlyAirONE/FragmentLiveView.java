@@ -73,7 +73,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private TextView tv_tl_doneImages;
     private TextView tv_tl_nextCapture;
 
-    private TextView tv_countdown;
     private boolean isDoingTimelapse;
     private int tl_nbImages;
     private int tl_intervall;
@@ -89,26 +88,28 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private Boolean enabledTouchShutter = false;
     private Boolean enabledFocusLock = false;
     private PointF currFocusPoint = new PointF(0, 0);
-    boolean focusing = false;
+    private boolean focusing = false;
     private CameraLiveImageView liveImageView;
     private OLYCamera camera;
     private OnLiveViewInteractionListener mOnLiveViewInteractionListener;
-    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    private final Executor connectionExecutor = Executors.newFixedThreadPool(1);
 
 
-    @SuppressWarnings("serial")
-    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
-        {
-            put("<WB/WB_AUTO>", R.drawable.icn_wb_setting_wbauto);
-            put("<WB/MWB_SHADE>", R.drawable.icn_wb_setting_16);
-            put("<WB/MWB_CLOUD>", R.drawable.icn_wb_setting_17);
-            put("<WB/MWB_FINE>", R.drawable.icn_wb_setting_18);
-            put("<WB/MWB_LAMP>", R.drawable.icn_wb_setting_20);
-            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
-            put("<WB/MWB_WATER_1>", R.drawable.icn_wb_setting_64);
-            put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
-        }
-    };
+// --Commented out by Inspection START (5/04/2018 20:43):
+//    @SuppressWarnings("serial")
+//    private static final Map<String, Integer> whiteBalanceIconList = new HashMap<String, Integer>() {
+//        {
+//            put("<WB/WB_AUTO>", R.drawable.icn_wb_setting_wbauto);
+//            put("<WB/MWB_SHADE>", R.drawable.icn_wb_setting_16);
+//            put("<WB/MWB_CLOUD>", R.drawable.icn_wb_setting_17);
+//            put("<WB/MWB_FINE>", R.drawable.icn_wb_setting_18);
+//            put("<WB/MWB_LAMP>", R.drawable.icn_wb_setting_20);
+//            put("<WB/MWB_FLUORESCENCE1>", R.drawable.icn_wb_setting_35);
+//            put("<WB/MWB_WATER_1>", R.drawable.icn_wb_setting_64);
+//            put("<WB/WB_CUSTOM1>", R.drawable.icn_wb_setting_512);
+//        }
+//    };
+// --Commented out by Inspection STOP (5/04/2018 20:43)
     @SuppressWarnings("serial")
     private static final Map<String, Integer> takeModeIconsList = new LinkedHashMap<String, Integer>() {
         {
@@ -156,13 +157,13 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             put("PARTCOLOR", 20);
         }
     };
-    private String[] programmModeArr = new String[]{"<COLORTONE/FLAT>", "<COLORTONE/NATURAL>", "<COLORTONE/Monotone>", "<COLORTONE/Portrait>", "<COLORTONE/I_FINISH>",
+    private final String[] programmModeArr = new String[]{"<COLORTONE/FLAT>", "<COLORTONE/NATURAL>", "<COLORTONE/Monotone>", "<COLORTONE/Portrait>", "<COLORTONE/I_FINISH>",
             "<COLORTONE/ePortrait>", "<COLORTONE/COLOR_CREATOR>", "<COLORTONE/POPART>", "<COLORTONE/FANTASIC_FOCUS>", "<COLORTONE/DAYDREAM>",
             "<COLORTONE/LIGHT_TONE>", "<COLORTONE/ROUGH_MONOCHROME>", "<COLORTONE/TOY_PHOTO>", "<COLORTONE/MINIATURE>", "<COLORTONE/CROSS_PROCESS>",
             "<COLORTONE/GENTLE_SEPIA>", "<COLORTONE/DRAMATIC_TONE>", "<COLORTONE/LIGNE_CLAIR>", "<COLORTONE/PASTEL>", "<COLORTONE/VINTAGE>",
             "<COLORTONE/PARTCOLOR>"};
 
-    private int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
+    private final int[] takeModeDrawablesArr = new int[]{R.drawable.ic_iautomode, R.drawable.ic_programmmode, R.drawable.ic_aparturemode,
             R.drawable.ic_shuttermode, R.drawable.ic_manualmode, R.drawable.ic_artmode, R.drawable.ic_videomode};
 
     @SuppressWarnings("serial")
@@ -299,7 +300,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         super.onActivityCreated(savedInstanceState);
         Log.d(TAG, "onActivityCreated");
         if (camera == null) {
-            camera = CameraActivity.getCamera();
+            camera = CameraActivity.camera;
         }
 
 
@@ -485,6 +486,13 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         //updateTakeModeImageView();
         // CameraActivity.currTakeMode = (CameraActivity.currTakeMode + 1) % takeModeDrawablesArr.length;
         ib_TakeMode.setImageResource(takeModeDrawablesArr[CameraActivity.currTakeMode]);
+        if(CameraActivity.currTakeMode!= 1){
+            try {
+                camera.setCameraPropertyValue("COLORTONE", programmModeArr[1]);
+            } catch (OLYCameraKitException ex) {
+                ex.printStackTrace();
+            }
+        }
         updateRecordingLayoutVisibility();
         triggerTakeModeUpdate(CameraActivity.currTakeMode);
     }
@@ -565,7 +573,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                             Map<String, RectF> faceMap = camera.getDetectedHumanFaces();
                             if (!faceMap.isEmpty()) {
                                 //Log.d(TAG, "faces: " + camera.getDetectedHumanFaces());
-                                ArrayList<RectF> recList = new ArrayList<RectF>();
+                                ArrayList<RectF> recList = new ArrayList<>();
                                 for (String key : faceMap.keySet()) {
                                     recList.add(faceMap.get(key));
                                 }
@@ -575,8 +583,6 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
                                 float newLength = point.length();
                                 float oldLength = currFocusPoint.length();
                                 float offset = Math.abs(newLength - oldLength);
-                                float width = liveImageView.getIntrinsicContentSizeWidth();
-
                                 if (currFocusPoint != null && offset >= 0.1) {//if offset is bigger than 10% of screenwidth, refocus
                                     unlockAutoFocus();
                                     Log.d(TAG, "unlocking focus");
@@ -631,7 +637,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
         }
         AnimationDrawable blink = (AnimationDrawable) iv_recording.getDrawable();
         blink.start();
-        HashMap<String, Object> options = new HashMap<String, Object>();
+        HashMap<String, Object> options = new HashMap<>();
         camera.startRecordingVideo(options, new OLYCamera.CompletedCallback() {
             @Override
             public void onCompleted() {
@@ -816,16 +822,20 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             return;
         }
         //ifNot
-        if (actionType == OLYCamera.ActionType.Single) {
-            takePicture();
-        } else if (actionType == OLYCamera.ActionType.Sequential) {
-            startTakingPicture();
-        } else if (actionType == OLYCamera.ActionType.Movie) {
-            if (camera.isRecordingVideo()) {
-                stopRecordingVideo();
-            } else {
-                startRecordingVideo();
-            }
+        switch (actionType) {
+            case Single:
+                takePicture();
+                break;
+            case Sequential:
+                startTakingPicture();
+                break;
+            case Movie:
+                if (camera.isRecordingVideo()) {
+                    stopRecordingVideo();
+                } else {
+                    startRecordingVideo();
+                }
+                break;
         }
     }
 
@@ -971,7 +981,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             Log.d(TAG, "returning as is busy");
             return;
         }
-        HashMap<String, Object> options = new HashMap<String, Object>();
+        HashMap<String, Object> options = new HashMap<>();
         Log.d(TAG, "taking pic");
 
         camera.takePicture(options, new OLYCamera.TakePictureCallback() {
@@ -1068,7 +1078,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             return;
         }
 
-        HashMap<String, Object> options = new HashMap<String, Object>();
+        HashMap<String, Object> options = new HashMap<>();
         camera.takePicture(options, new OLYCamera.TakePictureCallback() {
             @Override
             public void onProgress(OLYCamera camera, TakingProgress progress, OLYCameraAutoFocusResult autoFocusResult) {
@@ -1478,8 +1488,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             floatBr[i] = floatBr[i - 1] * (2 * evOffset);
         }
         List<String> shutterVals = FragmentSlidebarMasterShutter.getPossibleShutterValues();
-        /*Log.d(TAG, "shutterValsSize: " + shutterVals.size());
-        Log.d(TAG, "shutterVals: " + shutterVals.toString());*/
+
         int k = 0;
         int kk = 0;
         int counter = 0;
@@ -1487,13 +1496,12 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
             float val = floatBr[i];
             float delta = Float.MAX_VALUE;
             float deltaPrev = Float.MAX_VALUE;
-            //Log.d(TAG,"________________________________________________");
             for (k = 0; k < shutterVals.size(); k++) {//we dont reinitialize k since we go from the largest val to the
                 //Log.d(TAG,"ShutterVal: "+shutterVals.get(k) );
                 float shVal = convertShutterStringToMillSec(shutterVals.get(k));
                 float deltaNew = Math.abs(shVal - val);
                 if (deltaNew < delta) {//if we get closer to correct number
-                    deltaPrev = delta;
+                    //deltaPrev = delta;
                     delta = deltaNew;
                     // Log.d(TAG,"k: "+k+" delta: "+delta+" deltaNew: "+deltaNew+" shVal: "+shVal+" val: "+val);
                 } else //if we get bigger again go back
@@ -1536,6 +1544,11 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     private void takeAEBBracket() {
         Log.d(TAG, "camMediaBusy: " + camera.isMediaBusy() + " istakingPicture: " + camera.isTakingPicture() + " is media error: " + camera.isMediaError());
         while (camera.isMediaBusy()) {
+            try {
+                Thread.sleep(10);
+            }catch (InterruptedException ex){
+                ex.printStackTrace();
+            }
             // Log.d(TAG,"medibusy");
         }
         Log.d(TAG, "camMediaBusy: " + camera.isMediaBusy() + " istakingPicture: " + camera.isTakingPicture() + " is media error: " + camera.isMediaError());
@@ -1568,7 +1581,7 @@ public class FragmentLiveView extends Fragment implements OLYCameraLiveViewListe
     // ------------------
     // Updates
     // ------------------
-    public void triggerTakeModeUpdate(int currTakeMode) {
+    private void triggerTakeModeUpdate(int currTakeMode) {
         if (currTakeMode != CameraActivity.SHOOTING_MODE_MOVIE)
             updateFocusModeTextView(CameraActivity.CAMERA_PROPERTY_FOCUS_STILL);
         if (currTakeMode == CameraActivity.SHOOTING_MODE_P) {

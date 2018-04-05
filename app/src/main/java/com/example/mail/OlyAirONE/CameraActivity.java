@@ -41,16 +41,10 @@ public class CameraActivity extends FragmentActivity
     public static final String CAMERA_PROPERTY_FOCUS_MOVIE = "FOCUS_MOVIE";
     public static final String CAMERA_PROPERTY_BATTERY_LEVEL = "BATTERY_LEVEL";
 
-    public static final int SHOOTING_MODE_IAUTO = 0;
     public static final int SHOOTING_MODE_P = 1;
-    public static final int SHOOTING_MODE_A = 2;
-    public static final int SHOOTING_MODE_S = 3;
-    public static final int SHOOTING_MODE_M = 4;
-    public static final int SHOOTING_MODE_ART = 5;
     public static final int SHOOTING_MODE_MOVIE = 5;
 
 
-    public static final String CAMERA_SETTINGS = "OlyAirOneCamSettings";
 
     public static final String CAMERA_PROPERTY_TAKE_MODE = "TAKEMODE";
     public static final String CAMERA_PROPERTY_DRIVE_MODE = "TAKE_DRIVE";
@@ -68,7 +62,7 @@ public class CameraActivity extends FragmentActivity
 
     private static List<String> takeModeStrings;
 
-    private Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    private final Executor connectionExecutor = Executors.newFixedThreadPool(1);
     static int currTakeMode = 0;
 
     private FragmentManager fm;
@@ -85,13 +79,6 @@ public class CameraActivity extends FragmentActivity
     public static List<String> possibleExpCorrValues;
 
 
-    public static List<String> getTakeModeStrings() {
-        return takeModeStrings;
-    }
-
-    public static OLYCamera getCamera() {
-        return camera;
-    }
 
     //-----------------
     //   Setup
@@ -518,9 +505,6 @@ public class CameraActivity extends FragmentActivity
            Log.wtf(TAG, "val: " + value);
             String[] myStringArr = value.split("/");
             return myStringArr[1].substring(0, myStringArr[1].length() - 1);
-        } catch (IndexOutOfBoundsException ex) {
-            ex.printStackTrace();
-            return "";
         } catch (Exception ex) {
             ex.printStackTrace();
             return "";
@@ -756,7 +740,6 @@ public class CameraActivity extends FragmentActivity
             fLiveView.setEnabledTouchShutter(touchShutterEnabled);
             Boolean timeLapseEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("TIMELAPSE", "<TIMELAPSE/ON>")));
             fLiveView.setEnabledTimeLapse(timeLapseEnabled);
-            Boolean rawEnabled = "ON".equals(CameraActivity.extractValue(preferences.getString("RAW", "<RAW/ON>")));
             fLiveView.updateRecordTypeText();
         }
     }
@@ -768,7 +751,7 @@ public class CameraActivity extends FragmentActivity
 
         /*editor.putString(CamSettingsActivity.TL_INTERVALL, "<NBPIC/3>");
         editor.putString(CamSettingsActivity.TL_NBIMAGES, "<NBPIC/3>");*/
-        editor.putString("ASPECT_RATIO", "<ASPECT_RATIO/06_06>");
+        editor.putString("ASPECT_RATIO", "<ASPECT_RATIO/16_09>");
         editor.putString("COMPRESSIBILITY_RATIO", "<COMPRESSIBILITY_RATIO/CMP_4>");
         editor.putString("IMAGESIZE", "<IMAGESIZE/4608x3456>");
         editor.putString("DESTINATION_FILE", "<DESTINATION_FILE/DESTINATION_FILE_MEDIA>");

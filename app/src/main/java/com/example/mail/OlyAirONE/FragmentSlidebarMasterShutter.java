@@ -17,8 +17,7 @@ public class FragmentSlidebarMasterShutter extends FragmentSlidebarMaster {
         FragmentSlidebarMasterShutter myFragment = new FragmentSlidebarMasterShutter();
 
         Bundle args = new Bundle();
-        ArrayList<String> myArrList = new ArrayList();
-        myArrList.addAll(myString);
+        ArrayList<String> myArrList = new ArrayList(myString);
         args.putStringArrayList("myString", myArrList);
         args.putString("value", value);
         myFragment.setArguments(args);

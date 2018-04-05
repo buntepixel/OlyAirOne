@@ -10,10 +10,10 @@ import android.view.View;
 
 
 public class ExposureCorrection extends View {
-    private int mNbStrokes = 31;
-    private int mStrokeGap = 10;
+    private final int mNbStrokes = 31;
+    private final int mStrokeGap = 10;
     private int mhighlightIdx = 15;
-    Paint paint = new Paint();
+    private final Paint paint = new Paint();
 
     private static final String TAG = ExposureCorrection.class.getSimpleName();
 

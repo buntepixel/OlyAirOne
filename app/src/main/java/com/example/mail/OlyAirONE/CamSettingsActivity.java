@@ -30,19 +30,6 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     public static final String TL_NBIMAGES = "nbImages";
 
 
-    private final Map<String, String> aeb_NbPic = new LinkedHashMap<String, String>() {{
-        put("3 Pictures", "<NBPIC/3>");
-        put("5 Pictures", "<NBPIC/5>");
-        put("7 Pictures", "<NBPIC/7>");
-        put("9 Pictures", "<NBPIC/9>");
-        put("11 Pictures", "<NBPIC/11>");
-    }};
-    private final Map<String, String> aeb_spread = new HashMap<String, String>() {{
-        put("1 EV", "<SPREAD/1>");
-        put("2 EV", "<SPREAD/2>");
-        put("3 EV", "<SPREAD/3>");
-    }};
-
     private final Map<String, String> aspectRatio = new LinkedHashMap<String, String>() {{
         put("4:3 ", "<ASPECT_RATIO/04_03>");
         put("3:2", "<ASPECT_RATIO/03_02>");
@@ -149,7 +136,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
         createCollection();
         preferences = getSharedPreferences(getResources().getString(R.string.pref_SharedPrefs), MODE_PRIVATE);
 
-        expListView = (ExpandableListView) findViewById(R.id.elv_settings_list);
+        expListView = findViewById(R.id.elv_settings_list);
         final ExpandableListAdapter expListAdapter = new ExpandableListAdapter(
                 this, groupList, categoryColl,this);
         expListView.setAdapter(expListAdapter);
@@ -177,7 +164,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     public String getSetting(String property, String defvalue) {
         try {
             String value = preferences.getString(property, defvalue ) ;
-            Log.wtf(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
+            Log.d(TAG, "getSetting: prop: "+property+"  val: "+value+"  getting value: "+value);
             return  value;
         }catch (ClassCastException e){
             e.printStackTrace();
@@ -190,7 +177,7 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
     //    listView
     //------------------------
     private void createGroupList() {
-        groupList = new ArrayList<String>();
+        groupList = new ArrayList<>();
         groupList.add("Auto Exposure Bracketing");
         groupList.add("Time Lapse");
         groupList.add("Image Settings");
@@ -223,33 +210,44 @@ public class CamSettingsActivity extends AppCompatActivity implements Expandable
 
 
 
-        categoryColl = new LinkedHashMap<String, List<String>>();
+        categoryColl = new LinkedHashMap<>();
 
         for (String group : groupList) {
-            if (group.equals("Auto Exposure Bracketing"))
-                loadChild(AEB);
-            else if (group.equals("Time Lapse"))
-                loadChild(TL);
-            else if (group.equals("Image Settings"))
-                loadChild(image);
-            else if (group.equals("Movie Settings"))
-                loadChild(movie);
-            else if (group.equals("Focusing"))
-                loadChild(focusing);
-            else if (group.equals("Shooting"))
-                loadChild(shooting);
-            else if (group.equals("Network"))
-                loadChild(network);
-            else if (group.equals("Info"))
-                loadChild(info);
-            else if (group.equals("Impressum"))
-                loadChild(impressum);
+            switch (group) {
+                case "Auto Exposure Bracketing":
+                    loadChild(AEB);
+                    break;
+                case "Time Lapse":
+                    loadChild(TL);
+                    break;
+                case "Image Settings":
+                    loadChild(image);
+                    break;
+                case "Movie Settings":
+                    loadChild(movie);
+                    break;
+                case "Focusing":
+                    loadChild(focusing);
+                    break;
+                case "Shooting":
+                    loadChild(shooting);
+                    break;
+                case "Network":
+                    loadChild(network);
+                    break;
+                case "Info":
+                    loadChild(info);
+                    break;
+                case "Impressum":
+                    loadChild(impressum);
+                    break;
+            }
             categoryColl.put(group, childList);
         }
     }
 
     private void loadChild(String[] childArr) {
-        childList = new ArrayList<String>();
+        childList = new ArrayList<>();
         Collections.addAll(childList, childArr);
     }
 

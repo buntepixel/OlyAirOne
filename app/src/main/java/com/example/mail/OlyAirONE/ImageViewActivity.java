@@ -27,12 +27,12 @@ public class ImageViewActivity extends AppCompatActivity implements OLYCameraCon
     private FragmentImageGridView fImgGridView;
     private FragmentImagePagerView fPagerViewFragment;
 
-    public static final String FRAGMENT_TAG_IMGGRIDVIEW = "imgGridView";
+    private static final String FRAGMENT_TAG_IMGGRIDVIEW = "imgGridView";
     public static final String FRAGMENT_TAG_IMGPAGEVIEWE = "imgPageView";
 
-    Executor connectionExecutor = Executors.newFixedThreadPool(1);
-    android.app.FragmentManager fm;
-    String currFragStr;
+    private final Executor connectionExecutor = Executors.newFixedThreadPool(1);
+    private android.app.FragmentManager fm;
+    private String currFragStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

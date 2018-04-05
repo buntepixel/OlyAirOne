@@ -27,7 +27,7 @@
     <string name="cancel">Cancel</string>
     <string name="dialogue_ssid">SSID</string>
     <string name="dialogue_password">password</string>
-    <string name="dialogue_Headline">Enter your Cameras Wifi SSID and Password</string>
+    <string name="dialogue_Headline">Enter your Cameras Wifi SSID</string>
 
     <!-- Camsettings -->
     <string name="camsettings_number_of_images">Number of Images</string>

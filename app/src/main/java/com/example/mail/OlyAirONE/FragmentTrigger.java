@@ -27,7 +27,6 @@ public class FragmentTrigger extends Fragment
     private final String[] settingsArr = new String[]{"4", "5.6", "0.0", "250", "Auto"};
 
 
-    private OLYCamera camera;
     private ImageView iv_driveMode;
     private ImageView iv_meteringMode;
     private ImageView iv_shutter;
@@ -108,7 +107,6 @@ public class FragmentTrigger extends Fragment
         updateMeteringImageView();
     }
     public void setCamera(OLYCamera camera){
-        this.camera= camera;
         updateMeteringImageView();
         updateDrivemodeImageView();
     }
