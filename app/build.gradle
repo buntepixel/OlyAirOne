@@ -1,32 +1,18 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+    }
     compileSdkVersion 26
     buildToolsVersion '27.0.3'
     defaultConfig {
-        applicationId "com.example.mail.OlyAirONE"
+        applicationId 'eu.theGoodPlace.mail.OlyAirONE'
         minSdkVersion 22
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-    }
-    signingConfigs {
-        release {
-            storeFile file("myreleasekey.keystore")
-            storePassword System.console().readLine("\nKeystore password: ")
-            keyAlias "MyReleaseKey"
-            keyPassword System.console().readLine("\nKey password: ")
-        }
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
     }
     productFlavors {
     }
